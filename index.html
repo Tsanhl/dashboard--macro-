@@ -125,6 +125,7 @@
 .rb-pgroup ol { margin: 2px 0 0; padding-inline-start: 1.6em; display: grid; gap: 1px; }
 .rb-ptitle { font-weight: var(--cds-font-weight-medium); }
 .rb-picks .rb-weak { color: var(--color-fg-muted); }
+.rb-pgroup ol { margin: 2px 0 0; padding-inline-start: 1.6em; display: grid; gap: 1px; }
 .rb-pick { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
 .rb-pick:hover { border-color: var(--color-bad); }
 .rb-pick:focus-visible, .rb-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
@@ -1021,10 +1022,11 @@
       const picks = mk('div', 'rb-picks');
       for (const st of ORDER.filter((x) => byState[x])) {
         const [label, c] = S[st] || [st, ''];
-        const line = mk('div');
-        line.append(mk('span', 'rb-ptitle ' + c, label), L('：', ': '));
-        byState[st].sort((a, b) => a.weak - b.weak).forEach((x, i) => { if (i) line.append(L('；', '; ')); line.append(mk('span', x.weak ? 'rb-weak' : null, x.text)); });
-        picks.append(line);
+        const grp = mk('div', 'rb-pgroup');
+        const ol = mk('ol');
+        byState[st].sort((a, b) => a.weak - b.weak).forEach((x) => ol.append(mk('li', x.weak ? 'rb-weak' : null, x.text)));
+        grp.append(mk('span', 'rb-ptitle ' + c, label), ol);
+        picks.append(grp);
       }
       out.push([L('自選股', 'My stocks'), picks]);
 
