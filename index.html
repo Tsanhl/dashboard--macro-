@@ -341,7 +341,7 @@
       </div>
       <div class="rb-card" id="card-curve">
         <h2 class="rb-h2" data-en="10-year minus 2-year curve">10年減2年期收益率曲線</h2>
-        <p class="rb-sub" data-en="In percentage points. Read it with the decomposition: steepening because long yields rise is different from steepening because short yields fall.">以百分點計。須配合拆解一起看：長端上升帶來的變陡，與短端下跌帶來的變陡，意義不同。</p>
+        <p class="rb-sub" data-en="In percentage points. Bull and bear for the curve refer to bonds: bond bear = yields rising, bond bull = yields falling. Steepening because long yields rise is different from steepening because short yields fall.">以百分點計。曲線所說的牛市、熊市指債券：債市熊市即收益率上升，債市牛市即收益率下跌。長端上升帶來的變陡，與短端下跌帶來的變陡，意義不同。</p>
         <div class="rb-chips" id="chips-curve"></div>
         <div class="rb-chart dash-skeleton" id="ch-curve" data-source="rates" style="min-height: 13rem"></div>
       </div>
@@ -508,7 +508,21 @@
       <ul>
         <li data-en="Real yields are the true return on cash and bonds; the higher they are, the higher the cost of holding stocks. The combination to fear is real yields jumping while breakevens fall.">實際收益率是持有現金或債券的真實回報，越高，持股的機會成本越高。最需要警惕的組合是實際收益率急升，同時通脹預期下跌。</li>
         <li data-en="Credit spreads are what companies pay above Treasuries. Credit usually spots trouble before stocks. Stocks rising while high-yield spreads widen is a divergence; investment-grade spreads widening too means the stress is spreading to sound companies.">信貸息差是企業債比國債多付的利息。信貸市場通常比股市早一步察覺問題。股市上升而高收益債息差擴闊，屬背離警號；投資級債息差也擴闊，代表壓力已蔓延到優質企業。</li>
-        <li data-en="Curve (10y−2y). Bear steepening: long end rising faster, term premium or supply, bad for stocks. Bull steepening: front end falling faster, the market expects cuts, often around a slowdown. Bear flattening: front end rising faster, tightening expected. Bull flattening: long end falling faster, safety demand or slower growth. A curve turning positive after inversion has often come just before recessions; it is not an all-clear.">收益率曲線（10年減2年）：熊市變陡是長端升得較快，屬期限溢價或供應，對股市不利；牛市變陡是短端跌得較快，市場預期減息，常見於經濟放緩前後；熊市變平是短端升得較快，預期收緊；牛市變平是長端跌得較快，屬避險或增長放緩。曲線由倒掛轉回正數，歷史上常在衰退前出現，不代表安全。</li>
+        <li data-en="Curve (10y−2y). Bull and bear here describe the bond market, not stocks: bond prices move opposite to yields, so a bond bull market means yields falling and a bond bear market means yields rising. Steepening means the 10y−2y gap widens; flattening means it narrows. The 2-year mostly reflects expected Fed policy; the 10-year reflects long-run growth, inflation and term premium, so whichever end moves more shows what the market is worried about.">收益率曲線（10年減2年）：這裏的「牛市」「熊市」指的是債券市場，不是股市。債券價格與收益率反方向移動，所以債市牛市即收益率下跌，債市熊市即收益率上升。變陡是10年與2年的差距擴大，變平是差距收窄。2年期主要反映市場對美聯儲調息的預期；10年期反映長期增長、通脹及期限溢價。哪一端郁得多，就說明市場在擔心甚麼。</li>
+      </ul>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Name (bond market)">名稱（債市）</th><th scope="col" data-en="Yields">收益率</th><th scope="col" data-en="Which end leads">哪一端主導</th><th scope="col" data-en="What the market is saying">市場在說甚麼</th><th scope="col" data-en="For stocks">對股市</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Bond bear steepening">債市熊市變陡</td><td data-en="Rising">上升</td><td data-en="Long end rises more">長端升得多</td><td data-en="Long-term borrowing is dearer: heavy Treasury supply, deficits, more return demanded to hold long bonds">長期借錢更貴：國債供應多、財政赤字、要更高回報才肯持有長債</td><td data-en="Bad: valuations squeezed with no growth behind it">不利：估值受壓，又沒有增長支持</td></tr>
+            <tr><td data-en="Bond bull steepening">債市牛市變陡</td><td data-en="Falling">下跌</td><td data-en="Front end falls more">短端跌得多</td><td data-en="The Fed is about to cut, usually because the economy is weakening">美聯儲快要減息，多數因為經濟轉差</td><td data-en="Mixed: a rate-cut rally at first, but common around recessions">好壞參半：初期可能炒減息，但常見於衰退前後</td></tr>
+            <tr><td data-en="Bond bear flattening">債市熊市變平</td><td data-en="Rising">上升</td><td data-en="Front end rises more">短端升得多</td><td data-en="The Fed will hike or hold rates high">美聯儲要加息或維持高息</td><td data-en="Negative: money gets dearer">偏負面：資金成本上升</td></tr>
+            <tr><td data-en="Bond bull flattening">債市牛市變平</td><td data-en="Falling">下跌</td><td data-en="Long end falls more">長端跌得多</td><td data-en="Long-run growth and inflation cooling, or money hiding in long bonds">長期增長和通脹降溫，或資金湧入長債避險</td><td data-en="Defensives and long bonds gain; cyclicals suffer">防守股、長債受惠，周期股不利</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li data-en="If the curve barely moves but both ends rise or fall a lot together, it is a parallel shift: check the yield decomposition for the cause. A curve turning positive after inversion has often come just before recessions; it is not an all-clear.">曲線差距不變，但兩端同時大幅上升或下跌，屬整條曲線平移，要看收益率拆解找成因。曲線由倒掛轉回正數，歷史上常在衰退前出現，不代表安全。</li>
         <li data-en="Net liquidity = Fed balance sheet − Treasury cash account − reverse repo. Rising helps risk assets, especially expensive stocks and crypto; falling drains them. Treasury rebuilding its cash and tax dates often swing it.">淨流動性 = 美聯儲資產負債表 − 財政部現金帳戶 − 逆回購。上升利好風險資產，特別是高估值股和加密貨幣；下跌則抽走資金。財政部補充現金帳戶及稅季前後，常見大幅波動。</li>
       </ul>
 
@@ -886,11 +900,14 @@
     // curve: which end moved decides bull/bear steepening or flattening
     const c1m = rt.curve_1m, two1m = rt.nominal10_1m - rt.curve_1m;
     const shape = Math.abs(c1m) < 5 ? L('大致不變', 'little changed')
-      : c1m > 0 ? (rt.nominal10_1m > 0 ? L('熊市變陡：長端升得較快，多屬期限溢價或供應', 'bear steepening: long end rising faster, usually term premium or supply') : L('牛市變陡：短端跌得較快，市場預期減息', 'bull steepening: front end falling faster, the market expects cuts'))
-      : (two1m > 0 ? L('熊市變平：短端升得較快，市場預期收緊', 'bear flattening: front end rising faster, the market expects tightening') : L('牛市變平：長端跌得較快，多屬避險或增長放緩', 'bull flattening: long end falling faster, usually haven demand or slower growth'));
+      : c1m > 0 ? (rt.nominal10_1m > 0 ? L('債市熊市變陡（收益率上升，長端升得較快）：多屬期限溢價或國債供應憂慮，對股市不利', 'bond bear steepening (yields up, long end faster): usually term premium or supply worries, bad for stocks') : L('債市牛市變陡（收益率下跌，短端跌得較快）：市場預期減息，常見於經濟轉弱前後', 'bond bull steepening (yields down, front end faster): the market expects cuts, often around a slowdown'))
+      : (two1m > 0 ? L('債市熊市變平（收益率上升，短端升得較快）：市場預期加息或維持高息', 'bond bear flattening (yields up, front end faster): the market expects tightening') : L('債市牛市變平（收益率下跌，長端跌得較快）：多屬避險或增長預期下降', 'bond bull flattening (yields down, long end faster): usually haven demand or slower growth'));
+    const parallel = Math.abs(c1m) < 5 && Math.abs(rt.nominal10_1m) >= 20
+      ? L(`；但兩端同時${rt.nominal10_1m > 0 ? '上升' : '下跌'}約 ${Math.abs(Math.round(rt.nominal10_1m))} 基點，屬整條曲線${rt.nominal10_1m > 0 ? '上移' : '下移'}`, `; but both ends moved about ${Math.abs(Math.round(rt.nominal10_1m))}bp ${rt.nominal10_1m > 0 ? 'up' : 'down'}, a parallel ${rt.nominal10_1m > 0 ? 'rise' : 'fall'}`)
+      : '';
     item(L('曲線', 'Curve'), lines([
       [L('10年減2年', '10y–2y'), L(`${rt.curve.toFixed(2)}%，一週 ${bp(rt.curve_1w)}，一個月 ${bp(c1m)}（2年期 ${bp(two1m)}，10年期 ${bp(rt.nominal10_1m)}）`, `${rt.curve.toFixed(2)}%, ${bp(rt.curve_1w)} on the week, ${bp(c1m)} on the month (2-year ${bp(two1m)}, 10-year ${bp(rt.nominal10_1m)})`)],
-      [L('結論', 'Read'), shape],
+      [L('結論', 'Read'), shape + parallel],
     ]));
 
     // positioning: the biggest moves this week and over four weeks
