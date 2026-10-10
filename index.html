@@ -935,7 +935,7 @@
     ]));
 
     // curve: which end moved decides bull/bear steepening or flattening
-    const c1m = rt.curve_1m, two1m = rt.nominal10_1m - rt.curve_1m;
+    const c1m = rt.curve_1m, two1m = rt.nominal2_1m ?? rt.nominal10_1m - rt.curve_1m;  // 2-year read directly from FRED
     const shape = Math.abs(c1m) < 5 ? L('大致不變', 'little changed')
       : c1m > 0 ? (rt.nominal10_1m > 0 ? L('債市熊市變陡（收益率上升，長端升得較快）：多屬期限溢價或國債供應憂慮，對股市不利', 'bond bear steepening (yields up, long end faster): usually term premium or supply worries, bad for stocks') : L('債市牛市變陡（收益率下跌，短端跌得較快）：市場預期減息，常見於經濟轉弱前後', 'bond bull steepening (yields down, front end faster): the market expects cuts, often around a slowdown'))
       : (two1m > 0 ? L('債市熊市變平（收益率上升，短端升得較快）：市場預期加息或維持高息', 'bond bear flattening (yields up, front end faster): the market expects tightening') : L('債市牛市變平（收益率下跌，長端跌得較快）：多屬避險或增長預期下降', 'bond bull flattening (yields down, long end faster): usually haven demand or slower growth'));

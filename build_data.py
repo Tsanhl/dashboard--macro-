@@ -442,7 +442,7 @@ def build_positioning():
 
 # ---- FRED: yield decomposition, credit, curve, liquidity ----
 FRED = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={}&cosd=2022-01-01"
-RATE_SERIES = {"DGS10": "nominal10", "DFII10": "real10", "T10YIE": "be10", "THREEFYTP10": "tp10",
+RATE_SERIES = {"DGS10": "nominal10", "DGS2": "nominal2", "DFII10": "real10", "T10YIE": "be10", "THREEFYTP10": "tp10",
                "T10Y2Y": "curve", "BAMLH0A0HYM2": "hy_oas", "BAMLC0A0CM": "ig_oas"}
 LIQ_SERIES = {"WALCL": "fed_bs", "WTREGEN": "tga", "RRPONTSYD": "rrp", "WRESBAL": "reserves"}
 
