@@ -1,0 +1,1504 @@
+<style>
+#rb-wrap { position: relative; max-width: 80rem; margin-inline: auto; font-family: var(--font-anthropic-sans); }
+.rb-head { display: grid; gap: var(--cds-gap-sm); margin-block-end: var(--cds-gap-lg); }
+.rb-titlerow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cds-gap-md); }
+.rb-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
+.rb-take { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.55; max-width: 80ch; min-height: 8rem; display: grid; gap: var(--cds-gap-sm); }
+.rb-take .rb-regime { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: baseline; font-weight: var(--cds-font-weight-medium); }
+.rb-take .rb-rtag { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-weight: 400; }
+.rb-take .rb-rval { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-heading); }
+.rb-take .rb-rnote { color: var(--color-fg-muted); font-weight: 400; font-size: var(--cds-font-size-caption); flex-basis: 100%; }
+.rb-bullets { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rb-bullets > li { display: grid; grid-template-columns: 5.5em minmax(0, 1fr); column-gap: var(--cds-gap-md); align-items: baseline; }
+.rb-bullets > li > b { font-weight: var(--cds-font-weight-medium); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); white-space: nowrap; }
+.rb-bullets > li > :last-child { min-width: 0; }
+.rb-bullets .rb-in { color: var(--color-ok); } .rb-bullets .rb-out { color: var(--color-bad); }
+.rb-sublines { display: grid; gap: 2px; }
+.rb-sublines > span > i { font-style: normal; color: var(--color-fg-muted); margin-inline-end: 6px; }
+.rb-mini { border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; width: auto; max-width: 100%; }
+.rb-mini th, .rb-mini td { padding: 2px 12px 2px 0; text-align: right; white-space: nowrap; }
+.rb-mini th { color: var(--color-fg-muted); font-weight: 400; }
+.rb-mini th:first-child, .rb-mini td:first-child { text-align: left; }
+.rb-mini td:first-child { color: var(--color-fg); }
+.rb-mini .rb-sw { display: inline-block; width: 12px; height: 3px; border-radius: 2px; margin-inline-end: 6px; vertical-align: 3px; }
+.rb-mini .rb-sw.dash { background: none !important; border-top: 2px dashed currentColor; height: 0; }
+.rb-chips { display: flex; flex-wrap: wrap; gap: 4px var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.rb-chips b { color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.rb-asof { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.rb-seg { display: inline-flex; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); overflow: hidden; }
+.rb-seg button { font: inherit; font-size: var(--cds-font-size-caption); background: transparent; color: var(--color-fg-muted); border: 0; padding: var(--cds-pad-xs) var(--cds-pad-sm); cursor: pointer; }
+.rb-seg button + button { border-inline-start: 1px solid var(--color-border-line); }
+.rb-seg button[aria-pressed="true"] { background: var(--color-panel); color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.rb-seg button:focus-visible, .rb-tabs button:focus-visible, .rb-sort:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.rb-tabs { display: flex; flex-wrap: wrap; gap: var(--cds-gap-xs); border-block-end: 1px solid var(--color-border-line); }
+.rb-tabs button { font: inherit; background: transparent; border: 0; border-block-end: 2px solid transparent; color: var(--color-fg-muted); padding: var(--cds-pad-sm) var(--cds-pad-md); cursor: pointer; margin-block-end: -1px; }
+.rb-tabs button[aria-selected="true"] { color: var(--color-fg); border-block-end-color: var(--color-fg); font-weight: var(--cds-font-weight-medium); }
+.rb-page { display: grid; gap: var(--cds-gap-lg); }
+.rb-h2 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: 0; }
+.rb-sub { margin: 0; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); line-height: 1.5; }
+.rb-section { display: grid; gap: var(--cds-gap-md); }
+.rb-grid { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 22rem), 1fr)); }
+.rb-card { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-lg); display: grid; gap: var(--cds-gap-sm); align-content: start; min-width: 0; }
+.rb-cardhead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: var(--cds-gap-sm); }
+.rb-tiles { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 10.5rem), 1fr)); }
+.rb-tile { background: var(--color-panel); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-md) var(--cds-pad-lg); display: grid; gap: var(--cds-gap-xs); align-content: start; }
+.rb-tlabel { font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rb-tval { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.15; min-height: 1.15em; }
+.rb-tunit { font-size: var(--cds-font-size-body); color: var(--color-fg-muted); margin-inline-start: 2px; }
+.rb-tchg { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; color: var(--color-fg-muted); }
+.rb-up { color: var(--color-ok); } .rb-down { color: var(--color-bad); }
+.rb-chip { display: inline-flex; align-items: center; gap: 4px; font-size: var(--cds-font-size-caption); border-radius: 999px; padding: 1px 8px; border: 1px solid currentColor; white-space: nowrap; }
+.rb-chip.up { color: var(--color-ok); } .rb-chip.down { color: var(--color-bad); } .rb-chip.turn_up { color: var(--color-ok); border-style: dashed; } .rb-chip.turn_down { color: var(--color-warn); border-style: dashed; }
+.rb-q { font-size: var(--cds-font-size-caption); white-space: nowrap; }
+.rb-q::before { content: ""; display: inline-block; width: .5rem; height: .5rem; border-radius: 50%; margin-inline-end: 5px; background: currentColor; vertical-align: 1px; }
+.rb-q.leading { color: var(--color-ok); } .rb-q.weakening { color: var(--color-warn); } .rb-q.lagging { color: var(--color-bad); } .rb-q.improving { color: var(--cds-text-secondary); }
+.rb-ratios { display: grid; gap: var(--cds-gap-md); grid-template-columns: repeat(auto-fit, minmax(min(100%, 17rem), 1fr)); min-height: 12rem; }
+.rb-ratio { padding: var(--cds-pad-md); }
+.rb-ratio .rb-rname { font-weight: var(--cds-font-weight-medium); font-size: var(--cds-font-size-body); }
+.rb-ratio .rb-rmeta { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: baseline; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); font-variant-numeric: tabular-nums; }
+.rb-ratio .rb-rbig { font-family: var(--font-anthropic-serif); font-size: var(--cds-font-size-heading); color: var(--color-fg); }
+.rb-chart { position: relative; min-width: 0; }
+.rb-svg { display: block; overflow: visible; }
+.rb-svg text { fill: var(--color-fg-muted); font-size: 11px; font-family: var(--font-anthropic-sans); }
+.rb-svg .rb-gridline { stroke: var(--cds-chart-grid); stroke-width: 1; }
+.rb-svg .rb-axis { stroke: var(--cds-chart-axis); stroke-width: 1; }
+.rb-svg .rb-ref { stroke: var(--cds-chart-reference); stroke-width: 1; stroke-dasharray: 4 3; }
+.rb-legend { display: flex; flex-wrap: wrap; gap: var(--cds-gap-md); font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); }
+.rb-legend span::before { content: ""; display: inline-block; width: 12px; height: 3px; border-radius: 2px; background: var(--sw); margin-inline-end: 6px; vertical-align: 3px; }
+.rb-legend span.dash::before { background: repeating-linear-gradient(90deg, var(--sw) 0 4px, transparent 4px 7px); }
+.rb-controls { display: flex; flex-wrap: wrap; gap: var(--cds-gap-sm); align-items: center; }
+.rb-tablebox { overflow: auto; max-height: 34rem; border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); }
+.rb-table { border-collapse: collapse; width: 100%; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; }
+.rb-table th, .rb-table td { padding: 6px 10px; text-align: right; white-space: nowrap; border-block-end: 1px solid var(--color-border-line); }
+.rb-table th { position: sticky; top: 0; background: var(--color-panel); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); z-index: 1; }
+.rb-table th:nth-child(-n+3), .rb-table td:nth-child(-n+3) { text-align: left; }
+.rb-table td.rb-tk { font-weight: var(--cds-font-weight-medium); }
+.rb-sort { font: inherit; color: inherit; background: none; border: 0; padding: 0; cursor: pointer; }
+.rb-sort[aria-sort]::after { content: " ↓"; }
+.rb-sort[aria-sort="ascending"]::after { content: " ↑"; }
+.rb-heat { border-radius: 3px; }
+.rb-tip { position: absolute; pointer-events: none; z-index: 10; background: var(--cds-surface-popover); border: 1px solid var(--cds-border); border-radius: var(--cds-radius); box-shadow: var(--cds-shadow-popover); padding: var(--cds-pad-xs) var(--cds-pad-sm); font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; max-width: 16rem; }
+.rb-tip .rb-tiphead { color: var(--cds-text-secondary); margin-block-end: 2px; }
+.rb-tip .rb-tipline { display: flex; gap: 6px; align-items: center; white-space: nowrap; }
+.rb-tip .rb-sw { width: 8px; height: 8px; border-radius: 2px; flex: none; }
+.rb-fail { display: flex; align-items: center; justify-content: center; gap: 6px; min-height: inherit; height: 100%; color: var(--color-fg-muted); font-size: var(--cds-font-size-caption); }
+.rb-fail::before { content: ""; width: .375rem; height: .375rem; border-radius: 50%; background: var(--color-bad); }
+.rb-notes { display: grid; gap: var(--cds-gap-md); font-size: var(--cds-font-size-body); line-height: 1.65; max-width: 72ch; }
+.rb-notes h3 { font-size: var(--cds-font-size-heading); font-weight: var(--cds-font-weight-medium); margin: var(--cds-gap-sm) 0 0; }
+.rb-notes p, .rb-notes ul { margin: 0; }
+.rb-notes ul { padding-inline-start: 1.2em; display: grid; gap: 4px; }
+.rb-cases { border-collapse: collapse; font-size: var(--cds-font-size-caption); width: 100%; }
+.rb-cases th, .rb-cases td { text-align: left; padding: 6px 10px; border-block-end: 1px solid var(--color-border-line); vertical-align: top; }
+.rb-cases th { color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); }
+[data-dash-source-state=empty] { color: transparent; }
+[data-dash-source-state=refreshing] { opacity: .5; transition: opacity var(--cds-dur-slow); }
+@media (prefers-reduced-motion: no-preference) {
+  .rb-page.rb-in { animation: rb-fade var(--cds-dur-slow) var(--cds-ease-out); }
+  @keyframes rb-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+}
+</style>
+
+<style>
+.rb-pbar { position: relative; display: inline-block; width: 4.5rem; height: 6px; border-radius: 3px; background: var(--cds-chart-grid); vertical-align: middle; margin-inline-end: 6px; }
+.rb-pbar > i { position: absolute; inset-block: 0; inset-inline-start: 0; border-radius: 3px; background: var(--cds-chart-muted); }
+.rb-pbar.ext > i { background: var(--color-warn); }
+.rb-ext { color: var(--color-warn); font-weight: var(--cds-font-weight-medium); }
+.rb-select { font: inherit; font-size: var(--cds-font-size-caption); color: var(--color-fg); background: var(--color-bg); border: 1px solid var(--color-border-line); border-radius: var(--cds-radius); padding: var(--cds-pad-xs) var(--cds-pad-sm); max-width: 100%; }
+.rb-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
+.rb-table td.rb-left, .rb-table th.rb-left { text-align: left; }
+.rb-pos th:nth-child(-n+3), .rb-pos td:nth-child(-n+3) { text-align: left; }
+.rb-pos th:nth-child(3), .rb-pos td:nth-child(3) { text-align: right; }
+.rb-wide { grid-column: 1 / -1; }
+</style>
+
+<div id="rb-wrap">
+  <header class="rb-head">
+    <div class="rb-titlerow">
+      <h1 class="rb-title" data-en="Sector rotation &amp; market breadth">板塊輪動與市寬</h1>
+      <div class="rb-seg" role="group" aria-label="語言" data-en-aria="Language">
+        <button type="button" class="rb-lang" data-lang="zh" aria-pressed="true">繁體</button>
+        <button type="button" class="rb-lang" data-lang="en" aria-pressed="false">English</button>
+      </div>
+    </div>
+    <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows positioning_now rates_now breadth_now sectors"></div>
+    <p class="rb-asof"><span data-en="Prices as of US close on">數據截至</span> <span data-source="breadth_now" data-field="asof" data-row="0">—</span> <span data-en="· breadth from today's">美股收市 · 市寬按標普500現有成分股</span> <span data-source="breadth_now" data-field="members" data-row="0">—</span> <span data-en="S&amp;P 500 members · futures positioning as of">隻計算 · 期貨持倉截至</span> <span data-source="positioning_now" data-field="date" data-row="0">—</span></p>
+    <nav class="rb-tabs" role="tablist" aria-label="頁面" data-en-aria="Pages">
+      <button type="button" role="tab" id="tab-overview" data-page="overview" aria-selected="true" data-en="Overview">總覽</button>
+      <button type="button" role="tab" id="tab-rotation" data-page="rotation" aria-selected="false" data-en="Rotation">板塊輪動</button>
+      <button type="button" role="tab" id="tab-breadth" data-page="breadth" aria-selected="false" data-en="Breadth">市寬</button>
+      <button type="button" role="tab" id="tab-positioning" data-page="positioning" aria-selected="false" data-en="Positioning &amp; rates">持倉與利率</button>
+      <button type="button" role="tab" id="tab-macro" data-page="macro" aria-selected="false" data-en="Macro &amp; global">宏觀與環球</button>
+      <button type="button" role="tab" id="tab-guide" data-page="guide" aria-selected="false" data-en="How to read">讀法</button>
+    </nav>
+  </header>
+
+  <section class="rb-page" id="overview" role="tabpanel" aria-labelledby="tab-overview">
+    <div class="rb-tiles" id="kpis">
+      <div class="rb-tile" id="kpi-pct50">
+        <div class="rb-tlabel" data-en="Members above 50-day average">高於50天線的成分股</div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=pct50"></span><span class="rb-tunit">%</span></div>
+        <div class="rb-tchg"><span data-source="kpi" data-field="change" data-where="metric=pct50">—</span> <span data-en="pts vs a week ago">個百分點，對比一週前</span></div>
+      </div>
+      <div class="rb-tile" id="kpi-pct200">
+        <div class="rb-tlabel" data-en="Members above 200-day average">高於200天線的成分股</div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=pct200"></span><span class="rb-tunit">%</span></div>
+        <div class="rb-tchg"><span data-source="kpi" data-field="change" data-where="metric=pct200">—</span> <span data-en="pts vs a week ago">個百分點，對比一週前</span></div>
+      </div>
+      <div class="rb-tile" id="kpi-mcclellan">
+        <div class="rb-tlabel" data-en="McClellan oscillator">麥克連振盪指標</div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=mcclellan"></span></div>
+        <div class="rb-tchg"><span data-source="kpi" data-field="change" data-where="metric=mcclellan">—</span> <span data-en="vs a week ago">對比一週前</span></div>
+      </div>
+      <div class="rb-tile" id="kpi-nhnl">
+        <div class="rb-tlabel" data-en="52-week highs minus lows (5 days)">52週新高減新低（5日累計）</div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=nhnl_5d"></span></div>
+        <div class="rb-tchg"><span data-en="Highs">新高</span> <span data-source="breadth_now" data-field="new_highs_5d" data-row="0">—</span> · <span data-en="Lows">新低</span> <span data-source="breadth_now" data-field="new_lows_5d" data-row="0">—</span></div>
+      </div>
+      <div class="rb-tile" id="kpi-hy">
+        <div class="rb-tlabel" data-en="High-yield credit spread">高收益債信貸息差</div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=hy_oas"></span><span class="rb-tunit">%</span></div>
+        <div class="rb-tchg"><span data-source="kpi" data-field="change" data-where="metric=hy_oas">—</span> <span data-en="bp over a month">基點，一個月</span></div>
+      </div>
+      <div class="rb-tile" id="kpi-tnx">
+        <div class="rb-tlabel" data-en="US 10-year Treasury yield">美國10年期國債收益率</div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=tnx"></span><span class="rb-tunit">%</span></div>
+        <div class="rb-tchg"><span data-source="kpi" data-field="change" data-where="metric=tnx">—</span> <span data-en="bp over a month">基點，一個月</span></div>
+      </div>
+    </div>
+
+    <div class="rb-section" id="ratio-section">
+      <div>
+        <h2 class="rb-h2" data-en="Rotation ratio lines">輪動訊號比率線</h2>
+        <p class="rb-sub" data-en="Each line is the numerator divided by the denominator, set to 100 a year ago. Solid is the ratio, dashed its 50-day average. A rising line means money favours the numerator; what matters is a change in direction.">每條線為分子除以分母，一年前定為100。實線為比率，虛線為50日均線。比率線向上，代表資金偏向分子一方；重點在於方向是否轉變。</p>
+      </div>
+      <div class="rb-ratios" id="ratio-grid" data-source="ratios ratio_summary"></div>
+    </div>
+  </section>
+
+  <section class="rb-page" id="rotation" role="tabpanel" aria-labelledby="tab-rotation" hidden>
+    <div class="rb-controls">
+      <div class="rb-seg" role="group" aria-label="範圍" data-en-aria="Universe">
+        <button type="button" class="rb-grp" data-grp="sector" aria-pressed="true" data-en="11 sectors">11個板塊</button>
+        <button type="button" class="rb-grp" data-grp="theme" aria-pressed="false" data-en="Themes">主題</button>
+        <button type="button" class="rb-grp" data-grp="style" aria-pressed="false" data-en="Styles &amp; factors">風格與因子</button>
+      </div>
+      <span class="rb-sub" data-en="Tail">軌跡</span>
+      <div class="rb-seg" role="group" aria-label="軌跡長度" data-en-aria="Tail length">
+        <button type="button" class="rb-tail" data-tail="2" aria-pressed="false" data-en="1 week">1週</button>
+        <button type="button" class="rb-tail" data-tail="4" aria-pressed="false" data-en="4 weeks">4週</button>
+        <button type="button" class="rb-tail" data-tail="6" aria-pressed="true" data-en="6 weeks">6週</button>
+        <button type="button" class="rb-tail" data-tail="10" aria-pressed="false" data-en="10 weeks">10週</button>
+      </div>
+    </div>
+    <div class="rb-card" id="rrg-card">
+      <div>
+        <h2 class="rb-h2" data-en="Relative rotation graph (vs S&amp;P 500)">相對輪動圖（對標普500）</h2>
+        <p class="rb-sub" data-en="Across: relative strength (above 100 = outperforming). Up: momentum of that strength (above 100 = accelerating). Sectors usually turn clockwise: improving → leading → weakening → lagging. The dot is the latest week; the line is its path.">橫軸為相對強度（高於100代表跑贏），縱軸為相對強度的動量（高於100代表正在加速）。板塊通常順時針移動：改善 → 領先 → 轉弱 → 落後。圓點為最新一週，線為過去軌跡。</p>
+      </div>
+      <div class="rb-chart dash-skeleton" id="rrg" data-source="sectors rrg_tails" style="min-height: 24rem"></div>
+    </div>
+    <div class="rb-card" id="sector-card">
+      <div class="rb-cardhead">
+        <div>
+          <h2 class="rb-h2" data-en="Return rankings">回報排名</h2>
+          <p class="rb-sub" data-en="When short-term and long-term rankings flip, rotation is starting. Click a column to sort.">短期排名與長期排名倒轉，是輪動的早期跡象。點擊欄名排序。</p>
+        </div>
+        <div class="rb-seg" role="group" aria-label="回報口徑" data-en-aria="Return basis">
+          <button type="button" class="rb-mode" data-mode="rel" aria-pressed="true" data-en="vs S&amp;P 500">相對標普500</button>
+          <button type="button" class="rb-mode" data-mode="abs" aria-pressed="false" data-en="Absolute">絕對回報</button>
+        </div>
+      </div>
+      <div class="rb-tablebox">
+        <table class="rb-table" id="sector-table" data-source="sectors" data-row-key="ticker">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section class="rb-page" id="breadth" role="tabpanel" aria-labelledby="tab-breadth" hidden>
+    <div class="rb-controls">
+      <div class="rb-seg" role="group" aria-label="時間範圍" data-en-aria="Time range">
+        <button type="button" class="rb-range" data-tab="breadth" data-range="1m" aria-pressed="false" data-en="1 month">1個月</button>
+        <button type="button" class="rb-range" data-tab="breadth" data-range="3m" aria-pressed="true" data-en="3 months">3個月</button>
+        <button type="button" class="rb-range" data-tab="breadth" data-range="6m" aria-pressed="false" data-en="6 months">6個月</button>
+        <button type="button" class="rb-range" data-tab="breadth" data-range="1y" aria-pressed="false" data-en="1 year">1年</button>
+      </div>
+    </div>
+    <div class="rb-grid">
+      <div class="rb-card" id="card-pctabove">
+        <h2 class="rb-h2" data-en="Share of members above moving averages">高於均線的成分股比例</h2>
+        <p class="rb-sub" data-en="20-day is short term, 50-day medium, 200-day the long trend. Above 80% is hot, below 20% is washed out.">20天線反映短線，50天線反映中期，200天線反映長期趨勢。80%以上偏熱，20%以下偏冷。</p>
+        <div class="rb-legend" id="lg-pct"></div>
+        <div class="rb-chart dash-skeleton" id="ch-pct" data-source="breadth" style="min-height: 15rem"></div>
+      </div>
+      <div class="rb-card" id="card-ew">
+        <h2 class="rb-h2" data-en="Equal-weighted members vs S&amp;P 500">等權成分股與標普500</h2>
+        <p class="rb-sub" data-en="Both set to 100 at the start of the chosen range. When the index runs ahead of the equal-weighted average, gains are concentrated in a few large caps.">兩者於所選範圍起點同定為100。標普500跑在前面而等權落後，代表升幅集中在少數大型股。</p>
+        <div class="rb-legend" id="lg-ew"></div>
+        <div class="rb-chart dash-skeleton" id="ch-ew" data-source="breadth" style="min-height: 15rem"></div>
+      </div>
+      <div class="rb-card" id="card-ad">
+        <h2 class="rb-h2" data-en="Advance-decline line">升跌線</h2>
+        <p class="rb-sub" data-en="Cumulative daily advancers minus decliners. An index high without a matching high here is a divergence.">每日上升股數減下跌股數的累計。指數創新高而升跌線未跟上，屬於背離。</p>
+        <div class="rb-chips" id="chips-ad"></div>
+        <div class="rb-chart dash-skeleton" id="ch-ad" data-source="breadth" style="min-height: 13rem"></div>
+      </div>
+      <div class="rb-card" id="card-mcc">
+        <h2 class="rb-h2" data-en="McClellan oscillator">麥克連振盪指標</h2>
+        <p class="rb-sub" data-en="19-day minus 39-day exponential average of net advances. A move from negative to positive means participation is returning; extremes tend to sit near short-term turns.">淨上升比率的19日與39日指數移動平均之差。由負轉正代表參與度回升；極端值多數出現在短期轉折附近。</p>
+        <div class="rb-chips" id="chips-mcc"></div>
+        <div class="rb-chart dash-skeleton" id="ch-mcc" data-source="breadth" style="min-height: 13rem"></div>
+      </div>
+      <div class="rb-card" id="card-nhnl">
+        <h2 class="rb-h2" data-en="52-week highs and lows">52週新高與新低</h2>
+        <p class="rb-sub" data-en="Each bar is new highs minus new lows that day. Green: more highs than lows; red: more lows.">每條柱為當日新高股數減新低股數。綠色代表新高較多，紅色代表新低較多。</p>
+        <div class="rb-chips" id="chips-nhnl"></div>
+        <div class="rb-chart dash-skeleton" id="ch-nhnl" data-source="breadth" style="min-height: 13rem"></div>
+      </div>
+      <div class="rb-card" id="card-part">
+        <h2 class="rb-h2" data-en="Participation inside each sector">板塊內部參與度</h2>
+        <p class="rb-sub" data-en="Share of each sector's members above their 50-day average, and how it changed. Rising means money is moving in; falling means moving out.">各板塊成分股高於50天線的比例及其變化。上升代表資金流入，下降代表流出。</p>
+        <div class="rb-tablebox" style="max-height: none">
+          <table class="rb-table" id="part-table" data-source="sectors" data-row-key="ticker">
+            <thead><tr></tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rb-page" id="positioning" role="tabpanel" aria-labelledby="tab-positioning" hidden>
+    <div class="rb-controls">
+      <div class="rb-seg" role="group" aria-label="時間範圍" data-en-aria="Time range">
+        <button type="button" class="rb-range" data-tab="positioning" data-range="3m" aria-pressed="true" data-en="3 months">3個月</button>
+        <button type="button" class="rb-range" data-tab="positioning" data-range="6m" aria-pressed="false" data-en="6 months">6個月</button>
+        <button type="button" class="rb-range" data-tab="positioning" data-range="1y" aria-pressed="false" data-en="1 year">1年</button>
+        <button type="button" class="rb-range" data-tab="positioning" data-range="3y" aria-pressed="false" data-en="3 years">3年</button>
+      </div>
+    </div>
+    <div class="rb-card" id="card-poschange">
+      <div class="rb-cardhead">
+        <div>
+          <h2 class="rb-h2" data-en="Who added and who cut">持倉變化總覽</h2>
+          <p class="rb-sub" data-en="Change in net position, in percentage points of open interest. Right: added longs or cut shorts. Left: cut longs or added shorts.">淨持倉變化，以佔未平倉合約的百分點計。向右為加好倉或減淡倉，向左為減好倉或加淡倉。</p>
+        </div>
+        <div class="rb-seg" role="group" aria-label="變化期間" data-en-aria="Change period">
+          <button type="button" class="rb-poswin" data-win="1w" aria-pressed="true" data-en="1 week">一週</button>
+          <button type="button" class="rb-poswin" data-win="4w" aria-pressed="false" data-en="4 weeks">四週</button>
+        </div>
+      </div>
+      <div class="rb-legend" id="lg-poschange"></div>
+      <div class="rb-chart dash-skeleton" id="ch-poschange" data-source="positioning_now" style="min-height: 22rem"></div>
+    </div>
+    <div class="rb-card" id="card-crowding">
+      <div>
+        <h2 class="rb-h2" data-en="Futures positioning: who is crowded">期貨持倉擁擠度</h2>
+        <p class="rb-sub" data-en="Net position (long minus short) as a share of open interest, from the CFTC weekly report. Percentile ranks this week against the past three years; 90 or above and 10 or below are marked as extremes. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs. For commodities the fund column is managed money.">淨持倉（好倉減淡倉）佔未平倉合約的百分比，來自美國商品期貨交易委員會（CFTC）每週報告。百分位為本週在過去三年的排位，90或以上、10或以下標記為極端。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問。商品一欄的基金為管理資金。</p>
+      </div>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-table rb-pos" id="pos-table" data-source="positioning_now" data-row-key="market">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+    <div class="rb-card" id="card-postrend">
+      <div class="rb-cardhead">
+        <div>
+          <h2 class="rb-h2" data-en="Net positioning over time">持倉走勢</h2>
+          <p class="rb-sub" data-en="Net position as a share of open interest. Turns from an extreme matter more than the level.">淨持倉佔未平倉合約的百分比。由極端位置轉向，比水平本身更重要。</p>
+        </div>
+        <select class="rb-select" id="pos-market" aria-label="市場" data-en-aria="Market" data-source="positioning_now"></select>
+      </div>
+      <div class="rb-legend" id="lg-pos"></div>
+      <div class="rb-chart dash-skeleton" id="ch-pos" data-source="positioning" style="min-height: 15rem"></div>
+      <p class="rb-sub" id="poschg-note" data-en="Weekly change in net position (percentage points of open interest): who added and who cut.">每週淨持倉變化（佔未平倉合約的百分點）：誰在加倉、誰在減倉。</p>
+      <div class="rb-chart dash-skeleton" id="ch-poschg" data-source="positioning" style="min-height: 11rem"></div>
+    </div>
+    <div class="rb-grid">
+      <div class="rb-card" id="card-decomp">
+        <h2 class="rb-h2" data-en="Why the 10-year yield moved">10年期收益率變動拆解</h2>
+        <p class="rb-sub" data-en="Changes in basis points. Nominal is roughly real yield plus inflation expectations (breakeven). Term premium is the Kim-Wright model estimate of the extra yield for holding long bonds. Real and term premium leading means policy or supply; breakevens leading means inflation or growth.">以基點計的變化。名義收益率約等於實際收益率加通脹預期（盈虧平衡通脹率）。期限溢價為 Kim-Wright 模型估算持有長債所需的額外回報。實際收益率及期限溢價主導，屬政策或供應推動；通脹預期主導，屬通脹或增長推動。</p>
+        <div class="rb-chips" id="chips-decomp"></div>
+        <div class="rb-legend" id="lg-decomp"></div>
+        <div class="rb-chart dash-skeleton" id="ch-decomp" data-source="rates_now" style="min-height: 13rem"></div>
+      </div>
+      <div class="rb-card" id="card-real">
+        <h2 class="rb-h2" data-en="Nominal, real and breakeven 10-year">10年期名義、實際收益率與通脹預期</h2>
+        <p class="rb-sub" data-en="Rising real yields press hardest on long-duration growth stocks.">實際收益率上升，對高估值的長存續期增長股壓力最大。</p>
+        <div class="rb-tablebox" style="max-height: none; border: 0"><table class="rb-mini" id="mini-real"></table></div>
+        <div class="rb-chart dash-skeleton" id="ch-real" data-source="rates" style="min-height: 15rem"></div>
+      </div>
+      <div class="rb-card" id="card-credit">
+        <h2 class="rb-h2" data-en="Credit spreads">信貸息差</h2>
+        <p class="rb-sub" data-en="Option-adjusted spread over Treasuries, in percent. Stocks rising while high-yield spreads widen is a warning.">相對國債的期權調整息差（%）。股市上升而高收益債息差擴闊，屬於警號。</p>
+        <div class="rb-tablebox" style="max-height: none; border: 0"><table class="rb-mini" id="mini-credit"></table></div>
+        <div class="rb-chart dash-skeleton" id="ch-credit" data-source="rates" style="min-height: 15rem"></div>
+      </div>
+      <div class="rb-card" id="card-curve">
+        <h2 class="rb-h2" data-en="10-year minus 2-year curve">10年減2年期收益率曲線</h2>
+        <p class="rb-sub" data-en="In percentage points. Read it with the decomposition: steepening because long yields rise is different from steepening because short yields fall.">以百分點計。須配合拆解一起看：長端上升帶來的變陡，與短端下跌帶來的變陡，意義不同。</p>
+        <div class="rb-chips" id="chips-curve"></div>
+        <div class="rb-chart dash-skeleton" id="ch-curve" data-source="rates" style="min-height: 13rem"></div>
+      </div>
+      <div class="rb-card" id="card-liq">
+        <h2 class="rb-h2" data-en="Net liquidity">淨流動性</h2>
+        <p class="rb-sub" data-en="Fed balance sheet minus the Treasury's cash account minus reverse repo, in US$ billions, weekly. A falling line drains money from risk assets.">美聯儲資產負債表減財政部現金帳戶，再減逆回購，以十億美元計，每週數據。下跌代表資金從風險資產抽走。</p>
+        <div class="rb-chips" id="chips-liq"></div>
+        <div class="rb-chart dash-skeleton" id="ch-liq" data-source="liquidity" style="min-height: 13rem"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rb-page" id="macro" role="tabpanel" aria-labelledby="tab-macro" hidden>
+    <div class="rb-grid">
+      <div class="rb-card" id="card-macro">
+        <h2 class="rb-h2" data-en="Macro drivers">宏觀驅動</h2>
+        <p class="rb-sub" data-en="Yields change in basis points, everything else in percent. Most rotations are set off by these.">收益率以基點計變化，其餘以百分比計。輪動多數由這些因素觸發。</p>
+        <div class="rb-tablebox">
+          <table class="rb-table" id="macro-table" data-source="macro" data-row-key="ticker">
+            <thead><tr>
+              <th scope="col" data-field="ticker" data-en="Ticker">代號</th>
+              <th scope="col" data-field="name" data-en="Name">名稱</th>
+              <th scope="col" data-field="last" data-en="Last">最新</th>
+              <th scope="col" data-field="chg1w" data-en="1 wk">1週</th>
+              <th scope="col" data-field="chg1m" data-en="1 mo">1個月</th>
+              <th scope="col" data-field="chg3m" data-en="3 mo">3個月</th>
+            </tr></thead>
+            <tbody></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="rb-card" id="card-global">
+        <h2 class="rb-h2" data-en="Global sweep: one month vs S&amp;P 500">環球掃描：一個月相對標普500</h2>
+        <p class="rb-sub" data-en="US-listed ETFs in dollars. When markets outside the US move together, the theme is global rather than US-only.">以美元計價的交易所買賣基金。美國以外市場同步走強，代表主題屬環球性，而非美國獨有。</p>
+        <div class="rb-chart dash-skeleton" id="ch-global" data-source="global" style="min-height: 18rem"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="rb-page" id="guide" role="tabpanel" aria-labelledby="tab-guide" hidden>
+    <div class="rb-notes">
+      <p data-en="One rule first: each indicator answers one question and none is reliable alone. A signal is when several point the same way.">先講總原則：每個指標只回答一個問題，單獨看都不可靠；幾個指標指向同一方向，才是訊號。</p>
+
+      <h3 data-en="Reading order (about five minutes a day)">閱讀次序（每天約五分鐘）</h3>
+      <ul>
+        <li data-en="1. Headline: this week's and this month's regime.">1. 頁首判讀：本週和本月是甚麼格局。</li>
+        <li data-en="2. Money in and out: where money moved from and to.">2. 資金流入／流出：錢由哪裏流到哪裏。</li>
+        <li data-en="3. Breadth: how many stocks are taking part.">3. 市寬：升市有多少股票參與。</li>
+        <li data-en="4. Credit and yields: does the bond market agree with stocks?">4. 信貸和收益率：債市是否認同股市的走勢。</li>
+        <li data-en="5. Positioning: who has already bet, and which side is crowded.">5. 持倉：誰已經押注，哪一邊太擠。</li>
+        <li data-en="6. Global: US only, or worldwide.">6. 環球：是美國獨有，還是全球同步。</li>
+      </ul>
+
+      <h3 data-en="1. The headline regimes">一、頁首的七種格局</h3>
+      <p data-en="This week uses one-week moves, this month uses one-month moves. When the two agree the trend is intact; when they differ, the short term is pulling away from the medium term and a turn may be starting.">本週用一週變化判讀，本月用一個月變化判讀。兩者一致代表趨勢延續；不一致代表短期正偏離中期，要留意是否轉勢。</p>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Regime">格局</th><th scope="col" data-en="What it looks like">特徵</th><th scope="col" data-en="What it implies">含義</th><th scope="col" data-en="Rule used">判讀規則</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Broadening">擴散</td><td data-en="Laggards rise while leaders hold">落後股上升，龍頭企穩</td><td data-en="The healthiest advance; fine to stay in">最健康的升市，可以留在市場</td><td data-en="Equal weight and small caps beat the S&amp;P 500 over a week, and the share above the 50-day average rose">等權及小型股一週跑贏標普500，且高於50天線的比例上升</td></tr>
+            <tr><td data-en="Rotation">輪動</td><td data-en="Laggards rise because leaders are sold">落後股上升，原因是龍頭遭拋售</td><td data-en="The index need not rise; follow the money between sectors">指數未必升，要跟着資金換板塊</td><td data-en="Equal weight and small caps beat over a week while Nasdaq-100 and semis average a fall of more than 1%">等權及小型股一週跑贏，而納指100及半導體一週平均跌逾1%</td></tr>
+            <tr><td data-en="Defensive rotation">防守輪動</td><td data-en="Money moves from leaders into utilities, staples and health care">資金由龍頭轉往公用、必需消費、醫療</td><td data-en="Caution is building, but not panic">市場開始謹慎，但未至恐慌</td><td data-en="Defensives beat cyclicals by more than 1 point on the week while Nasdaq-100 and semis fall">防守板塊一週跑贏周期板塊1個百分點以上，而納指100及半導體下跌</td></tr>
+            <tr><td data-en="Risk-off">避險</td><td data-en="Defensives lead and long yields fall">防守板塊跑贏，長債收益率下跌</td><td data-en="Genuine risk aversion">真正的風險規避</td><td data-en="Defensives beat cyclicals by more than 1 point, and the 10-year yield fell (weekly reading also needs credit spreads widening)">防守板塊跑贏周期板塊1個百分點以上，且10年期收益率下跌（本週判讀另需信貸息差擴闊）</td></tr>
+            <tr><td data-en="Narrow leadership">窄幅領漲</td><td data-en="Index up, equal weight keeps lagging">指數上升，但等權持續落後</td><td data-en="Fragile: if the few leaders slip, nothing holds the index up">升勢脆弱，少數龍頭一旦回吐，指數便無支撐</td><td data-en="Equal weight / cap weight down more than 1% over 20 days while the S&amp;P 500 rose over a month">等權／市值加權20日跌逾1%，而標普500一個月上升</td></tr>
+            <tr><td data-en="Leaders in charge">龍頭領漲</td><td data-en="Nasdaq-100 and semis surge, the rest lag">納指及半導體大升，其他落後</td><td data-en="Strong short term, narrow participation">短期強勢，但參與度窄</td><td data-en="Nasdaq-100 and semis up more than 1% on the week while equal weight and small caps lag">納指100及半導體一週升逾1%，而等權及小型股落後</td></tr>
+            <tr><td data-en="Mixed signals">訊號混雜</td><td data-en="None of the above">不符合以上任何一種</td><td data-en="Wait for confirmation; avoid big bets">等待確認，不宜重注</td><td data-en="Everything else">其餘情況</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li data-en="Money in: one-week return vs the S&amp;P 500 above +1% with relative momentum rising. Money out: below −1% with momentum falling. A sector can rise in price and still be &quot;out&quot; if it lags the index.">資金流入：一週相對標普500高於+1%，且相對動量上升；資金流出：低於−1%，且動量下降。板塊價格上升，但跑輸指數，仍屬流出。</li>
+        <li data-en="Quadrant moves compare with four weeks ago. Lagging → improving is the earliest sign of strength; leading → weakening is the earliest sign of fatigue.">象限轉變對比4週前。「落後→改善」是最早的轉強訊號；「領先→轉弱」是最早的轉弱訊號。</li>
+        <li data-en="Retreat to cash (big money-market inflows, nothing gets bought) is not covered here; check money-fund data separately.">資金撤往現金（貨幣市場基金大額流入，各類資產都缺乏買盤）本頁未有涵蓋，需另行查看貨幣基金數據。</li>
+      </ul>
+
+      <h3 data-en="2. Overview: the six headline figures">二、總覽：六個重點指標</h3>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Figure">指標</th><th scope="col" data-en="How to read it">讀法</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Members above 50-day">高於50天線的成分股</td><td data-en="Above 70% is hot, below 30% washed out. A sharp rise from a low often starts a rebound.">高於70%偏熱，低於30%偏冷。由低位急升，通常是反彈的開始。</td></tr>
+            <tr><td data-en="Members above 200-day">高於200天線的成分股</td><td data-en="The long trend. Below 50% means half the market is in a long-term downtrend.">反映長期趨勢。跌穿50%代表一半股票已處長期下跌。</td></tr>
+            <tr><td data-en="McClellan oscillator">麥克連振盪指標</td><td data-en="Negative to positive means participation is returning. Beyond +100 or −100 is a short-term extreme.">由負轉正代表參與度回升。超過+100或低於−100屬短期極端。</td></tr>
+            <tr><td data-en="52-week highs minus lows">52週新高減新低</td><td data-en="Positive means more strong stocks than weak. An index high with a negative number is a divergence.">正數代表強股多於弱股。指數創新高但此數為負，屬背離。</td></tr>
+            <tr><td data-en="High-yield credit spread">高收益債信貸息差</td><td data-en="Lower means more appetite for credit risk. Widening is a warning.">越低代表市場越願意承擔信貸風險。擴闊是警號。</td></tr>
+            <tr><td data-en="US 10-year yield">10年期國債收益率</td><td data-en="Gravity on valuations: the higher it goes, the harder it presses on expensive stocks.">估值的「地心吸力」，越高，高估值股壓力越大。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 data-en="3. Overview: the eight ratio lines">三、總覽：八條比率線</h3>
+      <p data-en="A rising line means the numerator is winning. What matters is a change in direction, not the level. Rising: above a rising 50-day average. Turning up: just crossed above while the average still falls (an early signal). Turning down: just crossed below. Falling: below a falling average.">線向上代表分子跑贏，重點是方向轉變，水平本身意義不大。上升：比率在50日均線上，且均線向上；轉升：剛升穿均線，但均線仍向下，屬早期訊號；轉跌：剛跌穿均線；下降：比率在均線下，且均線向下。</p>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Ratio">比率</th><th scope="col" data-en="Rising means">上升代表</th><th scope="col" data-en="Falling means">下降代表</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Discretionary / staples">非必需消費／必需消費</td><td data-en="Consumers and markets willing to take risk">消費者和市場願意冒險</td><td data-en="Turning defensive">轉向防守</td></tr>
+            <tr><td data-en="Equal weight / cap weight">等權／市值加權</td><td data-en="Wider participation, healthy">參與度擴闊，健康</td><td data-en="Gains concentrated in large caps">升幅集中在大股</td></tr>
+            <tr><td data-en="Small caps / Nasdaq-100">小型股／納指100</td><td data-en="Money spreading out from the leaders">資金由龍頭擴散到中小型股</td><td data-en="Only big tech attracts money">只有大型科技股獲資金</td></tr>
+            <tr><td data-en="Tech / utilities">科技／公用事業</td><td data-en="Preference for growth">偏好增長股</td><td data-en="Preference for steady dividends">偏好穩定派息股</td></tr>
+            <tr><td data-en="Regional banks / financials">地區銀行／金融</td><td data-en="Credit and banks healthy">信貸和銀行體系健康</td><td data-en="Bank stress, as in March 2023">銀行壓力，例如2023年3月</td></tr>
+            <tr><td data-en="Semis / S&amp;P 500">半導體／標普500</td><td data-en="AI chain heating up">AI鏈升溫</td><td data-en="AI chain cooling">AI鏈降溫</td></tr>
+            <tr><td data-en="High yield / Treasuries">高收益債／中期國債</td><td data-en="Bond investors taking credit risk">債市願意承擔信貸風險</td><td data-en="Bond market seeking safety">債市避險</td></tr>
+            <tr><td data-en="Copper / gold">銅／金</td><td data-en="Growth expectations rising">經濟增長預期上升</td><td data-en="Safety demand or slower growth">避險或增長放緩</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 data-en="4. Rotation tab">四、板塊輪動分頁</h3>
+      <ul>
+        <li data-en="Relative rotation graph. Across: relative strength (above 100 = beating the S&amp;P 500). Up: momentum of that strength (above 100 = accelerating).">相對輪動圖：橫軸為強度比率，高於100代表跑贏標普500；縱軸為動量，高於100代表跑贏的速度正在加快。</li>
+        <li data-en="Four quadrants. Leading (top right): outperforming and accelerating. Weakening (bottom right): still outperforming but slowing, often where profit-taking starts. Lagging (bottom left): underperforming and still slowing. Improving (top left): still underperforming but speeding up; the next leaders come from here.">四個象限：領先（右上）跑贏且加速；轉弱（右下）仍跑贏但減速，通常是獲利回吐的開始；落後（左下）跑輸且仍在減速；改善（左上）仍跑輸但開始加速，下一輪領先板塊多數由此而來。</li>
+        <li data-en="Sectors usually turn clockwise: improving → leading → weakening → lagging. The most useful moves are a sector just entering improving from lagging, and one just entering weakening from leading.">板塊通常順時針轉動：改善 → 領先 → 轉弱 → 落後。最有用的訊號是剛由落後進入改善，以及剛由領先進入轉弱。</li>
+        <li data-en="Tail length: 1 week shows the latest direction, 6–10 weeks the trend. A long, straight tail is a steady trend. A one-week jump can be noise; look for two or three weeks in the same direction.">軌跡長度：1週看最新方向，6至10週看趨勢。軌跡越長越直，趨勢越穩定。一週的跳動可能是雜音，要連續兩三週同方向才可信。</li>
+        <li data-en="Return rankings: red over six months but green over one month means a long-time laggard is turning up, an early rotation. Green over six months but red over one week means the leader is tiring.">回報排名：6個月紅、1個月綠，代表長期落後的板塊開始轉強，屬輪動早期；6個月綠、1週紅，代表龍頭開始累。</li>
+        <li data-en="Off 52-week high: a big gap can mean a catch-up candidate or a collapse; read it with the quadrant. Members above 50-day: an ETF rising on a handful of stocks is not a reliable advance.">距52週高：距離越遠，可能是補漲候選，也可能正在崩潰，要配合象限判斷。成分股高於50天線：板塊ETF上升但只靠少數股票撐住，升勢不可靠。</li>
+      </ul>
+
+      <h3 data-en="5. Breadth tab">五、市寬分頁</h3>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Chart">圖表</th><th scope="col" data-en="How to read it">讀法</th><th scope="col" data-en="Key signal">主要訊號</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Share above moving averages">高於均線的成分股比例</td><td data-en="20-day short term, 50-day medium, 200-day long trend">20天線看短期，50天線看中期，200天線看長期</td><td data-en="All three rising together is a strong market. The 20-day jumping while the 200-day stays flat is only a short bounce.">三條線同時向上，是強勁的升市；20天線急升而200天線不動，只是短期反彈。</td></tr>
+            <tr><td data-en="Equal weight vs S&amp;P 500">等權與標普500</td><td data-en="Both start at 100 at the beginning of the range">兩條線於範圍起點同為100</td><td data-en="The index far ahead of equal weight means a few large caps are carrying it.">標普500遠遠拋離等權，代表升市靠少數大股撐住。</td></tr>
+            <tr><td data-en="Advance-decline line">升跌線</td><td data-en="Running total of daily advancers minus decliners">每日上升家數減下跌家數的累計</td><td data-en="An index high without a matching high in this line is a negative divergence, a common warning before tops.">指數創新高而升跌線未創新高，屬負背離，是見頂的常見前兆。</td></tr>
+            <tr><td data-en="McClellan oscillator">麥克連振盪指標</td><td data-en="Momentum of short-term participation">短期參與度的動量</td><td data-en="A rebound from a deep negative into positive often marks a short-term low; extreme positives often mark short-term highs.">由極端負值反彈並轉正，常見於短期底部；極端正值常見於短期頂部。</td></tr>
+            <tr><td data-en="New highs minus new lows">新高減新低</td><td data-en="One bar per day">每日一條柱</td><td data-en="Runs of red bars mean weak stocks are multiplying; red bars growing while the index rises is a divergence.">連續紅柱代表弱股不斷增加；指數向上而紅柱增多，屬背離。</td></tr>
+            <tr><td data-en="Participation inside each sector">板塊內部參與度</td><td data-en="How many of a sector's members are above their 50-day">每個板塊有幾多成分股高於50天線</td><td data-en="A big rise over a week or a month means money is really moving in, not just one or two large names.">一週或一個月大幅上升，代表資金真正流入，並非只靠一兩隻大股。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 data-en="6. Positioning">六、期貨持倉</h3>
+      <ul>
+        <li data-en="Asset managers are pension funds, insurers and mutual funds: slow, long-term money. Leveraged funds are hedge funds and CTAs: fast money that chases trends and can be forced to unwind. For commodities the fund line is managed money.">資產管理機構即退休基金、保險公司、互惠基金，屬慢錢、長線；槓桿基金即對沖基金及商品交易顧問，屬快錢，會追勢，也會被迫平倉。商品的基金一欄為管理資金。</li>
+        <li data-en="Who added and who cut: right means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal.">持倉變化總覽：向右為加好倉或減淡倉。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強。</li>
+        <li data-en="Crowding table: the percentile ranks this week against three years; 90+ or 10− is extreme. An extreme is not a trade signal by itself; it tells you how violent the unwind would be if the story changes. A turn from an extreme matters more than the level.">擁擠度表：百分位為本週在三年內的排位，90以上或10以下為極端。極端本身不是買賣訊號，代表一旦故事改變，平倉會很猛烈；由極端位置開始轉向，比水平本身重要。</li>
+      </ul>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Pattern">情況</th><th scope="col" data-en="What it means">意思</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Leveraged funds very short equity futures while asset managers are long">股指期貨槓桿基金淨空倉極端，資產管理機構好倉高</td><td data-en="Mostly hedges or relative-value trades, not outright bearishness. A sharp rally can force short covering that lifts the index further.">多數是對沖或相對價值交易，未必看淡。若市場急升，淡倉被迫回補，會進一步推高指數。</td></tr>
+            <tr><td data-en="Very short VIX futures">VIX期貨淨空倉極端</td><td data-en="Many are selling volatility: complacency. A shock can make volatility jump.">很多人沽空波動率，市場自滿。一有衝擊，波動率會急升。</td></tr>
+            <tr><td data-en="Leveraged funds very short Treasury futures">美債期貨槓桿基金淨空倉極端</td><td data-en="The basis trade. When funding tightens it can be forced to unwind fast, as in March 2020.">屬基差交易。資金收緊時可能被迫急速平倉，例如2020年3月。</td></tr>
+            <tr><td data-en="Crowded yen shorts">日圓淡倉擁擠</td><td data-en="Crowded carry trade. A yen spike can trigger global deleveraging, as in August 2024.">套息交易擁擠。日圓急升會引發全球去槓桿，例如2024年8月。</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h3 data-en="7. Yields, credit, curve and liquidity">七、收益率、信貸、曲線與流動性</h3>
+      <p data-en="Nominal yield ≈ real yield + inflation expectations (breakeven). Term premium is the extra return investors demand to hold long bonds.">名義收益率 ≈ 實際收益率 + 通脹預期（盈虧平衡通脹率）。期限溢價是投資者持有長債所要求的額外回報。</p>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Main driver of a yield rise">收益率上升的主要推動</th><th scope="col" data-en="Meaning">意思</th><th scope="col" data-en="For stocks">對股市</th></tr></thead>
+          <tbody>
+            <tr><td data-en="Breakevens rising">通脹預期上升</td><td data-en="Markets expect growth or inflation to pick up">市場預期增長或通脹回升</td><td data-en="Cyclicals, materials and energy benefit">周期股、原材料、能源受惠</td></tr>
+            <tr><td data-en="Real yields rising">實際收益率上升</td><td data-en="Tighter policy or dearer money">政策收緊或資金成本上升</td><td data-en="Expensive tech and long-duration assets hit hardest">高估值科技股、長存續期資產受壓最大</td></tr>
+            <tr><td data-en="Term premium rising">期限溢價上升</td><td data-en="Investors want more to hold long bonds, often heavy supply or fiscal worry">投資者要求更多回報才肯持有長債，多數因國債供應多或財政憂慮</td><td data-en="Bad for all valuations, with no growth behind it">對所有股票估值都不利，而且沒有增長支持</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <ul>
+        <li data-en="Real yields are the true return on cash and bonds; the higher they are, the higher the cost of holding stocks. The combination to fear is real yields jumping while breakevens fall.">實際收益率是持有現金或債券的真實回報，越高，持股的機會成本越高。最需要警惕的組合是實際收益率急升，同時通脹預期下跌。</li>
+        <li data-en="Credit spreads are what companies pay above Treasuries. Credit usually spots trouble before stocks. Stocks rising while high-yield spreads widen is a divergence; investment-grade spreads widening too means the stress is spreading to sound companies.">信貸息差是企業債比國債多付的利息。信貸市場通常比股市早一步察覺問題。股市上升而高收益債息差擴闊，屬背離警號；投資級債息差也擴闊，代表壓力已蔓延到優質企業。</li>
+        <li data-en="Curve (10y−2y). Bear steepening: long end rising faster, term premium or supply, bad for stocks. Bull steepening: front end falling faster, the market expects cuts, often around a slowdown. Bear flattening: front end rising faster, tightening expected. Bull flattening: long end falling faster, safety demand or slower growth. A curve turning positive after inversion has often come just before recessions; it is not an all-clear.">收益率曲線（10年減2年）：熊市變陡是長端升得較快，屬期限溢價或供應，對股市不利；牛市變陡是短端跌得較快，市場預期減息，常見於經濟放緩前後；熊市變平是短端升得較快，預期收緊；牛市變平是長端跌得較快，屬避險或增長放緩。曲線由倒掛轉回正數，歷史上常在衰退前出現，不代表安全。</li>
+        <li data-en="Net liquidity = Fed balance sheet − Treasury cash account − reverse repo. Rising helps risk assets, especially expensive stocks and crypto; falling drains them. Treasury rebuilding its cash and tax dates often swing it.">淨流動性 = 美聯儲資產負債表 − 財政部現金帳戶 − 逆回購。上升利好風險資產，特別是高估值股和加密貨幣；下跌則抽走資金。財政部補充現金帳戶及稅季前後，常見大幅波動。</li>
+      </ul>
+
+      <h3 data-en="8. Macro and global">八、宏觀與環球</h3>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Indicator">指標</th><th scope="col" data-en="Rising usually means">上升通常代表</th><th scope="col" data-en="Main effect">主要影響</th></tr></thead>
+          <tbody>
+            <tr><td data-en="US dollar index">美元指數</td><td data-en="Tighter money outside the US">美國以外資金收緊</td><td data-en="Pressure on emerging markets, commodities and multinationals' earnings">新興市場、商品、跨國企業盈利受壓</td></tr>
+            <tr><td data-en="WTI crude">WTI原油</td><td data-en="Tight supply or strong demand">供應緊張或需求強</td><td data-en="Energy gains; airlines and transport suffer; inflation expectations rise">能源股受惠，航空、運輸受壓，通脹預期上升</td></tr>
+            <tr><td data-en="Copper">銅</td><td data-en="Global growth expectations">全球增長預期</td><td data-en="Materials and industrials">原材料、工業股</td></tr>
+            <tr><td data-en="Gold">黃金</td><td data-en="Safety demand, lower expected real rates, or central-bank buying">避險，或實際利率預期下降，或央行買金</td><td data-en="Rising together with real yields points to a non-rate driver">與實際收益率同升，代表有非利率因素</td></tr>
+            <tr><td data-en="VIX">VIX</td><td data-en="Equity fear">股市恐慌</td><td data-en="Below 15 complacent, above 30 panic">低於15屬自滿，高於30屬恐慌</td></tr>
+            <tr><td data-en="MOVE">MOVE</td><td data-en="Bond volatility">債市波動</td><td data-en="Unsettled bonds usually spill into stocks">債市不穩，通常會傳導到股市</td></tr>
+            <tr><td data-en="USD/JPY">美元兌日圓</td><td data-en="Carry trade active">套息交易活躍</td><td data-en="A sharp fall means carry unwinding, hitting risk assets worldwide">急跌代表套息平倉，會波及全球風險資產</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p data-en="Global sweep: markets outside the US rising together means a global theme (for example AI spending lifting Taiwan and Korea). Only the US rising points to a US-specific cause.">環球掃描：美國以外市場同步走強，代表主題屬環球性，例如全球AI資本開支令台灣和南韓同升；只有美國升，則可能是美國獨有因素。</p>
+
+      <h3 data-en="9. Putting it together">九、串連起來</h3>
+      <ul>
+        <li data-en="Start from the regime, then ask whether money flows, breadth, credit and yields all tell the same story.">由格局出發，再問資金流向、市寬、信貸和收益率是否講同一個故事。</li>
+        <li data-en="A bullish case needs at least one of: credit spreads narrowing, real yields falling, or equal weight starting to beat the index.">看好的理由，最少需要以下其中一項出現：信貸息差回落、實際收益率下跌、等權指數開始跑贏。</li>
+        <li data-en="Positioning tells you the size of the move if the story changes, not the direction.">持倉告訴你故事改變時的波動幅度，而不是方向。</li>
+      </ul>
+
+      <h3 data-en="Common misreadings">常見誤讀</h3>
+      <ul>
+        <li data-en="Treating an extreme position as a trade signal: extremes can last months; wait for the turn.">把極端持倉當作買賣訊號：極端可以維持數月，要等轉向才有用。</li>
+        <li data-en="Trusting one week: month-end rebalancing or options expiry can fake it; look for two to three weeks.">只看一週：一週變化可能只是再平衡或期權到期，要看是否連續兩至三週。</li>
+        <li data-en="Confusing underperforming with falling: the relative measures compare with the S&amp;P 500.">把跑輸當作下跌：相對指標是和標普500比較，板塊可以上升但仍屬流出。</li>
+        <li data-en="Ignoring why: a yield rise from growth and one from supply mean opposite things for stocks.">忽略成因：收益率因增長上升與因供應上升，對股市的意思完全相反。</li>
+        <li data-en="Short covering can lift laggards sharply, and rotation without earnings upgrades behind it rarely lasts.">空頭回補可令落後股急升；沒有盈利預測上調支持的輪動，通常較為短暫。</li>
+      </ul>
+
+      <h3 data-en="Method and sources">計算方法與來源</h3>
+      <ul>
+        <li data-en="Relative strength = ETF weekly close ÷ S&amp;P 500 (SPY). RS-ratio = 100 × relative strength ÷ its 10-week average; momentum = 100 × RS-ratio ÷ RS-ratio four weeks earlier. A public approximation, not the commercial indicator.">相對強度 = 交易所買賣基金週收市價 ÷ 標普500（SPY）。強度比率 = 100 × 相對強度 ÷ 其10週平均；動量 = 100 × 強度比率 ÷ 4週前的強度比率。這是公開近似算法，並非原版商業指標。</li>
+        <li data-en="Breadth uses today's S&amp;P 500 members; stocks removed during the window are missing, a small survivorship bias. McClellan uses the net advance ratio times 1000.">市寬以標普500現有成分股計算，回看期內曾被剔除的股票不計，存在輕微倖存者偏差。麥克連振盪指標使用淨上升比率乘以1000。</li>
+        <li data-en="Futures positioning is futures only, reported each Friday for the Tuesday before. Asset-manager longs partly replicate index exposure.">期貨持倉只計期貨，每週五公佈該週二的數據；資產管理機構的好倉部分屬指數複製。</li>
+        <li data-en="Sources: prices from Yahoo Finance (dividend-adjusted); members from github.com/datasets/s-and-p-500-companies; positioning from the CFTC; yields, credit spreads, term premium (Kim-Wright) and the Fed balance sheet from FRED. Refreshed Tuesday to Saturday at 07:00 UK time.">來源：價格來自 Yahoo Finance（經調整股息）；成分股名單來自 github.com/datasets/s-and-p-500-companies；期貨持倉來自 CFTC；收益率、信貸息差、期限溢價（Kim-Wright）及美聯儲資產負債表來自 FRED。逢星期二至星期六英國時間早上7時更新。</li>
+      </ul>
+    </div>
+  </section>
+
+  <div class="rb-tip" id="rb-tip" hidden></div>
+</div>
+
+<script>
+(() => {
+  // ---------- calculations ----------
+  dash.calc('kpi', {
+    title: '重點指標',
+    description: '六個重點數字及其一週或一個月變化，取自市寬、利率及信貸數據。',
+    inputs: ['breadth_now', 'rates_now'],
+    fn: (breadth_now, rates_now) => {
+      const b = breadth_now[0];
+      const rt = rates_now[0];
+      const d = (a, c) => Math.round((a - c) * 10) / 10;
+      return [
+        { metric: 'pct50', value: b.pct50, change: d(b.pct50, b.pct50_1w) },
+        { metric: 'pct200', value: b.pct200, change: d(b.pct200, b.pct200_1w) },
+        { metric: 'mcclellan', value: b.mcclellan, change: d(b.mcclellan, b.mcclellan_1w) },
+        { metric: 'nhnl_5d', value: b.new_highs_5d - b.new_lows_5d, change: null },
+        { metric: 'hy_oas', value: rt.hy_oas, change: rt.hy_oas_1m },
+        { metric: 'tnx', value: rt.nominal10, change: rt.nominal10_1m },
+      ];
+    },
+  });
+
+  dash.calc('regime', {
+    title: '市況判讀',
+    description: '按固定規則，把市寬、比率線及板塊回報歸類為避險、輪動、擴散、窄幅領漲或混雜，並加上信貸確認及收益率變動成因。',
+    inputs: ['ratio_summary', 'breadth_now', 'sectors', 'rates_now'],
+    fn: (ratio_summary, breadth_now, sectors, rates_now) => {
+      const R = Object.fromEntries(ratio_summary.map((r) => [r.pair, r]));
+      const S = Object.fromEntries(sectors.map((s) => [s.ticker, s]));
+      const b = breadth_now[0];
+      const rt = rates_now[0];
+      const mean = (keys, f) => keys.reduce((a, k) => a + S[k][f], 0) / keys.length;
+      const defensive_1m = mean(['XLU', 'XLP', 'XLV'], 'r1m');
+      const cyclical_1m = mean(['XLY', 'XLI', 'XLF', 'XLB'], 'r1m');
+      const leaders_1w = mean(['QQQ', 'SMH'], 'r1w');
+      const laggards_rel_1w = mean(['RSP', 'IWM'], 'rel1w');
+      const breadth_chg_1w = b.pct50 - b.pct50_1w;
+      let regime = 'mixed';
+      if (defensive_1m - cyclical_1m > 1 && rt.nominal10_1m < 0) regime = 'risk_off';
+      else if (laggards_rel_1w > 0 && leaders_1w < -1) regime = 'rotation';
+      else if (laggards_rel_1w > 0 && breadth_chg_1w > 0) regime = 'broadening';
+      else if (R.RSP_SPY.chg20d < -1 && b.spy_1m > 0) regime = 'narrow';
+      // this week: one-week relative moves
+      const defensive_rel_1w = mean(['XLU', 'XLP', 'XLV'], 'rel1w');
+      const cyclical_rel_1w = mean(['XLY', 'XLI', 'XLF', 'XLB'], 'rel1w');
+      let regime_1w = 'mixed';
+      if (defensive_rel_1w - cyclical_rel_1w > 1 && rt.nominal10_1w < 0 && rt.hy_oas_1w > 0) regime_1w = 'risk_off';
+      else if (defensive_rel_1w - cyclical_rel_1w > 1 && leaders_1w < 0) regime_1w = 'defensive_rotation';
+      else if (laggards_rel_1w > 0 && leaders_1w < -1) regime_1w = 'rotation';
+      else if (laggards_rel_1w > 0 && breadth_chg_1w > 0) regime_1w = 'broadening';
+      else if (leaders_1w > 1 && laggards_rel_1w < 0) regime_1w = 'leaders';
+      const credit = rt.hy_oas_1m >= 25 ? 'widening' : rt.hy_oas_1m <= -25 ? 'tightening' : 'steady';
+      const n = rt.nominal10_1m;
+      let yields = 'quiet';
+      if (Math.abs(n) >= 10) yields = Math.sign(rt.be10_1m) === Math.sign(n) && Math.abs(rt.be10_1m) >= Math.abs(n) / 2 ? 'inflation_growth' : 'real_supply';
+      const r2 = (x) => Math.round(x * 100) / 100;
+      return [{
+        regime, regime_1w, credit, yields, defensive_1m: r2(defensive_1m), cyclical_1m: r2(cyclical_1m),
+        defensive_rel_1w: r2(defensive_rel_1w), cyclical_rel_1w: r2(cyclical_rel_1w), leaders_1w: r2(leaders_1w),
+        laggards_rel_1w: r2(laggards_rel_1w), breadth_chg_1w: r2(breadth_chg_1w), rsp_spy_20d: R.RSP_SPY.chg20d,
+        hy_oas_1w: rt.hy_oas_1w, hy_oas_1m: rt.hy_oas_1m, nominal10_1w: rt.nominal10_1w, nominal10_1m: n,
+        real10_1m: rt.real10_1m, be10_1m: rt.be10_1m, tp10_1m: rt.tp10_1m,
+      }];
+    },
+  });
+
+  dash.calc('flows', {
+    title: '本週資金流向',
+    description: '一週相對標普500高於+1%且相對動量上升為流入，低於−1%且動量下降為流出；各取幅度最大的5個。',
+    inputs: ['sectors', 'rrg_tails'],
+    fn: (sectors, rrg_tails) => {
+      const mom = {};
+      for (const t of rrg_tails) (mom[t.ticker] ||= []).push(t.rs_mom);
+      const rows = sectors.map((s) => {
+        const m = mom[s.ticker] || [];
+        const mom_chg = m.length > 1 && m.at(-1) != null && m.at(-2) != null ? Math.round((m.at(-1) - m.at(-2)) * 100) / 100 : null;
+        const dir = s.rel1w > 1 && mom_chg > 0 ? 'in' : s.rel1w < -1 && mom_chg < 0 ? 'out' : null;
+        return { ticker: s.ticker, name: s.name, name_en: s.name_en, rel1w: s.rel1w, mom_chg, dir };
+      }).filter((r) => r.dir);
+      const top = (dir, sign) => rows.filter((r) => r.dir === dir).sort((a, b) => sign * (b.rel1w - a.rel1w)).slice(0, 5);
+      return [...top('in', 1), ...top('out', -1)];
+    },
+  });
+
+  // ---------- helpers ----------
+  const root = document.getElementById('rb-wrap');
+  const tip = document.getElementById('rb-tip');
+  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', range: { breadth: '3m', positioning: '3m' } };
+  const DAYS = { '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
+  // rows (with .d Date) inside the tab's chosen range, counted back from the last row
+  const windowed = (rows, tab) => { if (!rows.length) return rows; const cut = +rows.at(-1).d - DAYS[state.range[tab]] * 864e5; return rows.filter((r) => +r.d >= cut); };
+  const en = () => dash.params().lang === 'en';
+  const L = (zh, english) => (en() ? english : zh);
+  const nm = (row, key = 'name') => (en() && row[key + '_en']) || row[key];
+  const fmt1 = d3.format('.1f');
+  const signed = (v, digits = 1) => (v == null ? '—' : (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v).toFixed(digits));
+  const cls = (v) => (v == null || v === 0 ? '' : v > 0 ? 'rb-up' : 'rb-down');
+  const day = (s) => new Date(s + 'T00:00:00Z');
+  const colors = () => dash.colors;
+  const monthFmt = (t) => (en()
+    ? (t.getUTCMonth() === 0 ? d3.utcFormat('%Y')(t) : d3.utcFormat('%b')(t))
+    : (t.getUTCMonth() === 0 ? d3.utcFormat('%Y年')(t) : d3.utcFormat('%-m月')(t)));
+  const QNAME = () => ({ leading: L('領先', 'Leading'), weakening: L('轉弱', 'Weakening'), lagging: L('落後', 'Lagging'), improving: L('改善', 'Improving') });
+  const TREND = () => ({ up: [L('上升', 'Rising'), 'up'], down: [L('下降', 'Falling'), 'down'], turning_up: [L('轉升', 'Turning up'), 'turn_up'], turning_down: [L('轉跌', 'Turning down'), 'turn_down'] });
+
+  const status = (ids) => {
+    const st = ids.map((id) => dash.data(id).status);
+    if (st.some((s) => ['error', 'connect', 'declined', 'missing'].includes(s))) return 'error';
+    return st.every((s) => s === 'ok') ? 'ok' : 'loading';
+  };
+  const fail = (el) => { el.classList.remove('dash-skeleton'); el.replaceChildren(Object.assign(document.createElement('div'), { className: 'rb-fail', textContent: L('未能載入', 'Failed to load') })); };
+  const ready = (el, ids) => {
+    const s = status(ids);
+    if (s === 'error') { fail(el); return false; }
+    if (s !== 'ok') { el.classList.add('dash-skeleton'); el.replaceChildren(); return false; }
+    el.classList.remove('dash-skeleton');
+    return true;
+  };
+
+  const showTip = (event, head, lines) => {
+    tip.replaceChildren();
+    const h = document.createElement('div'); h.className = 'rb-tiphead'; h.textContent = head; tip.append(h);
+    for (const l of lines) {
+      const row = document.createElement('div'); row.className = 'rb-tipline';
+      if (l.color) { const sw = document.createElement('span'); sw.className = 'rb-sw'; sw.style.background = l.color; row.append(sw); }
+      const t = document.createElement('span'); t.textContent = l.text; row.append(t);
+      tip.append(row);
+    }
+    tip.hidden = false;
+    const box = root.getBoundingClientRect();
+    const tw = tip.offsetWidth, th = tip.offsetHeight;
+    let x = event.clientX - box.left + 12, y = event.clientY - box.top + 12;
+    if (x + tw > box.width) x = event.clientX - box.left - tw - 12;
+    if (x < 0) x = 0;
+    if (y + th > box.height) y = event.clientY - box.top - th - 12;
+    tip.style.left = x + 'px'; tip.style.top = y + 'px';
+  };
+  const hideTip = () => { tip.hidden = true; };
+
+  const measure = (svg, labels) => {
+    const t = svg.append('text');
+    let w = 0;
+    for (const s of labels) { t.text(s); w = Math.max(w, t.node().getComputedTextLength()); }
+    t.remove();
+    return w;
+  };
+
+  // Line chart over dates. series: [{name, color, dash, values: [{d: Date, v}]}]
+  function lineChart(el, { series, height = 220, yFmt = fmt1, ref = null, tipFmt = yFmt, yDomain = null }) {
+    el.replaceChildren();
+    const W = Math.max(el.clientWidth, 280), H = height, mt = 8, mb = 22;
+    const all = series.flatMap((s) => s.values).filter((p) => p.v != null);
+    const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const yd = yDomain || d3.extent(ref == null ? all.map((p) => p.v) : all.map((p) => p.v).concat([ref]));
+    const y = d3.scaleLinear(yd, [H - mb, mt]).nice(4);
+    const ticks = y.ticks(4);
+    const ml = measure(svg, ticks.map(yFmt)) + 8;
+    const x = d3.scaleUtc(d3.extent(all, (p) => p.d), [ml, W - 6]);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('class', 'rb-gridline')
+      .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em')
+      .attr('text-anchor', 'end').text(yFmt);
+    const xt = x.ticks(W < 520 ? 4 : 7);
+    svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(monthFmt);
+    if (ref != null) svg.append('line').attr('class', 'rb-ref').attr('x1', ml).attr('x2', W - 6).attr('y1', y(ref)).attr('y2', y(ref));
+    const line = d3.line().defined((p) => p.v != null).x((p) => x(p.d)).y((p) => y(p.v));
+    for (const s of series) {
+      svg.append('path').attr('d', line(s.values)).attr('fill', 'none').attr('stroke', s.color)
+        .attr('stroke-width', s.dash ? 1.5 : 2).attr('stroke-dasharray', s.dash ? '4 3' : null)
+        .attr('stroke-linecap', s.dash ? 'butt' : 'round').attr('stroke-linejoin', 'round');
+      const last = s.values.filter((p) => p.v != null).at(-1);
+      if (last && !s.dash) svg.append('circle').attr('cx', x(last.d)).attr('cy', y(last.v)).attr('r', 3).attr('fill', s.color);
+    }
+    const rule = svg.append('line').attr('class', 'rb-axis').attr('y1', mt).attr('y2', H - mb).attr('opacity', 0);
+    const dots = svg.append('g').selectAll('circle').data(series.filter((s) => !s.dash)).join('circle').attr('r', 3.5)
+      .attr('fill', (s) => s.color).attr('opacity', 0);
+    const dates = series[0].values.map((p) => p.d);
+    const bis = d3.bisector((d) => d).center;
+    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - 6 - ml).attr('height', H - mb - mt).attr('fill', 'transparent')
+      .on('pointermove', (event) => {
+        const [mx] = d3.pointer(event);
+        const i = bis(dates, x.invert(mx));
+        const d = dates[i];
+        rule.attr('x1', x(d)).attr('x2', x(d)).attr('opacity', 1);
+        dots.attr('cx', x(d)).attr('cy', (s) => (s.values[i]?.v == null ? -99 : y(s.values[i].v))).attr('opacity', (s) => (s.values[i]?.v == null ? 0 : 1));
+        showTip(event, d3.utcFormat('%Y-%m-%d')(d), series.map((s) => ({ color: s.color, text: `${s.name}  ${s.values[i]?.v == null ? '—' : tipFmt(s.values[i].v)}` })));
+      })
+      .on('pointerleave', () => { rule.attr('opacity', 0); dots.attr('opacity', 0); hideTip(); });
+  }
+
+  // Bars over dates around zero. series: [{name, color, values:[{d, v}]}]
+  function barChart(el, { series, height = 200, yFmt = d3.format('d'), grouped = false, tipFmt = null }) {
+    el.replaceChildren();
+    const W = Math.max(el.clientWidth, 280), H = height, mt = 8, mb = 22;
+    const dates = series[0].values.map((p) => p.d);
+    const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const vals = series.flatMap((s) => s.values.map((p) => p.v));
+    const y = d3.scaleLinear([Math.min(0, d3.min(vals)), Math.max(0, d3.max(vals))], [H - mb, mt]).nice(4);
+    const ticks = y.ticks(4);
+    const ml = measure(svg, ticks.map(yFmt)) + 8;
+    const x = d3.scaleBand(dates, [ml, W - 6]).padding(0.25);
+    svg.append('g').selectAll('line').data(ticks).join('line').attr('class', (t) => (t === 0 ? 'rb-axis' : 'rb-gridline'))
+      .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
+    svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em')
+      .attr('text-anchor', 'end').text(yFmt);
+    const months = dates.filter((d, i) => i > 0 && d.getUTCMonth() !== dates[i - 1].getUTCMonth());
+    svg.append('g').selectAll('text').data(months).join('text').attr('x', (d) => x(d)).attr('y', H - 4).attr('text-anchor', 'start').text(monthFmt);
+    const sub = d3.scaleBand(series.map((_, i) => i), [0, x.bandwidth()]).padding(grouped && series.length > 1 ? 0.1 : 0);
+    for (const [si, s] of series.entries()) {
+      const bx = (p) => x(p.d) + (grouped ? sub(si) : 0), bw = grouped ? sub.bandwidth() : x.bandwidth();
+      svg.append('g').selectAll('rect').data(s.values).join('rect').attr('x', bx).attr('width', bw)
+        .attr('y', (p) => Math.min(y(0), y(p.v))).attr('height', (p) => Math.abs(y(p.v) - y(0)))
+        .attr('fill', (p) => (typeof s.color === 'function' ? s.color(p.v) : s.color)).attr('rx', Math.min(2, bw / 2));
+    }
+    const hl = svg.append('rect').attr('fill', 'var(--color-fg)').attr('opacity', 0).attr('y', mt).attr('height', H - mb - mt).attr('width', x.step());
+    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - 6 - ml).attr('height', H - mb - mt).attr('fill', 'transparent')
+      .on('pointermove', (event) => {
+        const [mx] = d3.pointer(event);
+        const i = Math.max(0, Math.min(dates.length - 1, Math.floor((mx - ml) / x.step())));
+        hl.attr('x', x(dates[i]) - (x.step() - x.bandwidth()) / 2).attr('opacity', 0.06);
+        showTip(event, d3.utcFormat('%Y-%m-%d')(dates[i]), series.map((s) => ({ color: typeof s.color === 'function' ? s.color(s.values[i].v) : s.color, text: `${s.name}  ${tipFmt ? tipFmt(s.values[i].v) : yFmt(Math.abs(s.values[i].v))}` })));
+      })
+      .on('pointerleave', () => { hl.attr('opacity', 0); hideTip(); });
+  }
+
+  // Horizontal signed bars by category. rows: [{key, label, v}], fmt for values
+  function hbars(el, rows, { fmt, color, tipLines, rowH = 28 }) {
+    el.replaceChildren();
+    const W = Math.max(el.clientWidth, 280), mt = 4, mb = 20, H = rows.length * rowH + mt + mb;
+    const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const ml = measure(svg, rows.map((r) => r.label)) + 10;
+    const pad = measure(svg, rows.map((r) => fmt(r.v))) + 8;
+    const ext = d3.max(rows, (r) => Math.abs(r.v)) || 1;
+    const x = d3.scaleLinear([-ext, ext], [ml + pad, W - pad]).nice();
+    const y = d3.scaleBand(rows.map((r) => r.key), [mt, H - mb]).padding(0.3);
+    svg.append('line').attr('class', 'rb-axis').attr('x1', x(0)).attr('x2', x(0)).attr('y1', mt).attr('y2', H - mb);
+    svg.append('g').selectAll('text').data(x.ticks(4)).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(fmt);
+    svg.append('g').selectAll('text').data(rows).join('text').attr('x', ml - 8).attr('y', (r) => y(r.key) + y.bandwidth() / 2).attr('dy', '0.32em')
+      .attr('text-anchor', 'end').style('fill', 'var(--color-fg)').text((r) => r.label);
+    svg.append('g').selectAll('rect').data(rows).join('rect').attr('y', (r) => y(r.key)).attr('height', y.bandwidth())
+      .attr('x', (r) => Math.min(x(0), x(r.v))).attr('width', (r) => Math.abs(x(r.v) - x(0))).attr('rx', 4)
+      .attr('fill', (r) => color(r)).attr('fill-opacity', 0.8);
+    svg.append('g').selectAll('text').data(rows).join('text').attr('y', (r) => y(r.key) + y.bandwidth() / 2).attr('dy', '0.32em')
+      .attr('x', (r) => (r.v >= 0 ? x(r.v) + 5 : x(r.v) - 5)).attr('text-anchor', (r) => (r.v >= 0 ? 'start' : 'end')).text((r) => fmt(r.v));
+    if (tipLines) {
+      svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', 0).attr('width', W).attr('y', (r) => y(r.key) - 4).attr('height', y.step())
+        .attr('fill', 'transparent').on('pointermove', (event, r) => showTip(event, r.label, tipLines(r))).on('pointerleave', hideTip);
+    }
+  }
+
+  const legend = (el, items) => {
+    el.replaceChildren(...items.map((it) => {
+      const s = document.createElement('span');
+      s.textContent = it.name; s.style.setProperty('--sw', it.color); if (it.dash) s.className = 'dash';
+      return s;
+    }));
+  };
+
+  // ---------- header ----------
+  const REGIME = () => ({
+    risk_off: [L('避險', 'Risk-off'), L('防守板塊跑贏周期板塊，長債收益率下跌，市場偏向防守。', 'Defensives beat cyclicals while long yields fall; the market is playing defence.')],
+    defensive_rotation: [L('防守輪動', 'Defensive rotation'), L('防守板塊跑贏周期板塊，龍頭回吐，資金轉向防守。', 'Defensives beat cyclicals while leaders give back; money is moving to defence.')],
+    rotation: [L('輪動', 'Rotation'), L('落後股及等權指數走強，但原因是龍頭遭拋售，指數未必受惠。', 'Laggards and equal weight are firmer because leaders are being sold; the index need not gain.')],
+    broadening: [L('擴散', 'Broadening'), L('落後股走強而龍頭企穩，參與度改善，屬健康的升勢。', 'Laggards rise while leaders hold; participation is improving, a healthy advance.')],
+    leaders: [L('龍頭領漲', 'Leaders in charge'), L('納指100及半導體走強，等權及小型股落後。', 'Nasdaq-100 and semis lead while equal weight and small caps lag.')],
+    narrow: [L('窄幅領漲', 'Narrow leadership'), L('指數上升，但等權指數持續落後，升幅集中在少數龍頭。', 'The index is up but equal weight keeps lagging; gains sit in a few leaders.')],
+    mixed: [L('訊號混雜', 'Mixed signals'), L('未符合任何一種典型格局，宜等待比率線確認方向。', 'No textbook regime fits; wait for the ratio lines to confirm.')],
+  });
+  const mk = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
+  const sep = () => L('、', ', ');
+  function drawHeader() {
+    const box = document.getElementById('takeaway');
+    if (!ready(box, ['regime', 'flows', 'breadth_now', 'positioning_now', 'sectors', 'rates_now'])) return;
+    const g = dash.data('regime').data[0];
+    const b = dash.data('breadth_now').data[0];
+    const RG = REGIME();
+    const [wk, wkText] = RG[g.regime_1w] || RG.mixed;
+    const [mo] = RG[g.regime] || RG.mixed;
+
+    const head = mk('div', 'rb-regime');
+    head.append(mk('span', 'rb-rtag', L('本週', 'This week')), mk('span', 'rb-rval', wk), mk('span', 'rb-rtag', '·'),
+      mk('span', 'rb-rtag', L('本月', 'This month')), mk('span', 'rb-rval', mo), mk('span', 'rb-rnote', wkText));
+
+    const list = mk('ul', 'rb-bullets');
+    const item = (label, content) => {
+      const li = mk('li'); li.append(mk('b', null, label));
+      const body = typeof content === 'string' ? mk('span', null, content) : content;
+      li.append(body); list.append(li);
+    };
+    const flows = dash.data('flows').data;
+    const fl = (dir) => flows.filter((f) => f.dir === dir).map((f) => `${nm(f)} ${signed(f.rel1w)}%`).join(sep()) || L('沒有板塊符合條件', 'none meet the rule');
+    item(L('資金流入', 'Money in'), mk('span', 'rb-in', fl('in')));
+    item(L('資金流出', 'Money out'), mk('span', 'rb-out', fl('out')));
+
+    const Q = QNAME();
+    const moves = d3.groups(dash.data('sectors').data.filter((s) => s.group === 'sector' && s.quadrant_4w && s.quadrant !== s.quadrant_4w),
+      (s) => `${s.quadrant_4w}>${s.quadrant}`);
+    const order = { 'lagging>improving': 0, 'improving>leading': 1, 'leading>weakening': 2, 'weakening>lagging': 3 };
+    moves.sort((a, c) => (order[a[0]] ?? 9) - (order[c[0]] ?? 9));
+    item(L('象限轉變', 'Quadrant moves'), moves.length
+      ? moves.map(([k, rows]) => { const [f, t] = k.split('>'); return `${rows.map((r) => nm(r)).join(sep())}：${Q[f]} → ${Q[t]}`; }).join(L('；', '; '))
+      : L('11個板塊與4週前同屬一個象限', 'all 11 sectors sit in the same quadrant as four weeks ago'));
+
+    item(L('市寬', 'Breadth'), L(
+      `高於50天線 ${fmt1(b.pct50)}%（一週 ${signed(g.breadth_chg_1w)} 個百分點）· 等權／市值加權20日 ${signed(g.rsp_spy_20d, 2)}% · 麥克連 ${signed(b.mcclellan, 0)}`,
+      `${fmt1(b.pct50)}% above the 50-day (${signed(g.breadth_chg_1w)} pts on the week) · equal/cap weight ${signed(g.rsp_spy_20d, 2)}% over 20 days · McClellan ${signed(b.mcclellan, 0)}`));
+
+    const rt = dash.data('rates_now').data[0];
+    const bp = (v) => `${signed(v, 0)}${L(' 基點', 'bp')}`;
+    const lines = (rows) => { const w = mk('span', 'rb-sublines'); for (const [tag, text] of rows) { const l = mk('span'); l.append(mk('i', null, tag), text); w.append(l); } return w; };
+    const cv = { widening: L('信貸未確認股市走勢', 'credit is not confirming'), tightening: L('信貸確認股市走勢', 'credit confirms'), steady: L('信貸平穩', 'credit is steady') }[g.credit];
+    item(L('信貸', 'Credit'), lines([
+      [L('高收益債', 'High yield'), L(`${rt.hy_oas.toFixed(2)}%，一週 ${bp(rt.hy_oas_1w)}，一個月 ${bp(rt.hy_oas_1m)}`, `${rt.hy_oas.toFixed(2)}%, ${bp(rt.hy_oas_1w)} on the week, ${bp(rt.hy_oas_1m)} on the month`)],
+      [L('投資級債', 'Inv. grade'), L(`${rt.ig_oas.toFixed(2)}%，一週 ${bp(rt.ig_oas_1w)}，一個月 ${bp(rt.ig_oas_1m)}`, `${rt.ig_oas.toFixed(2)}%, ${bp(rt.ig_oas_1w)} on the week, ${bp(rt.ig_oas_1m)} on the month`)],
+      [L('結論', 'Read'), cv],
+    ]));
+
+    const parts = L(`實際 ${signed(g.real10_1m, 0)}、通脹預期 ${signed(g.be10_1m, 0)}、期限溢價 ${signed(g.tp10_1m, 0)}`, `real ${signed(g.real10_1m, 0)}, breakeven ${signed(g.be10_1m, 0)}, term premium ${signed(g.tp10_1m, 0)}`);
+    const why = { quiet: L('變動不大', 'a quiet move'), real_supply: L('政策或供應推動，而非增長', 'policy or supply, not growth'), inflation_growth: L('通脹或增長推動', 'inflation or growth') }[g.yields];
+    item(L('收益率', 'Yields'), lines([
+      [L('10年期', '10-year'), L(`${rt.nominal10.toFixed(2)}%，一週 ${bp(g.nominal10_1w)}，一個月 ${bp(g.nominal10_1m)}`, `${rt.nominal10.toFixed(2)}%, ${bp(g.nominal10_1w)} on the week, ${bp(g.nominal10_1m)} on the month`)],
+      [L('一個月成因', 'Month driver'), `${parts} · ${why}`],
+    ]));
+
+    // curve: which end moved decides bull/bear steepening or flattening
+    const c1m = rt.curve_1m, two1m = rt.nominal10_1m - rt.curve_1m;
+    const shape = Math.abs(c1m) < 5 ? L('大致不變', 'little changed')
+      : c1m > 0 ? (rt.nominal10_1m > 0 ? L('熊市變陡：長端升得較快，多屬期限溢價或供應', 'bear steepening: long end rising faster, usually term premium or supply') : L('牛市變陡：短端跌得較快，市場預期減息', 'bull steepening: front end falling faster, the market expects cuts'))
+      : (two1m > 0 ? L('熊市變平：短端升得較快，市場預期收緊', 'bear flattening: front end rising faster, the market expects tightening') : L('牛市變平：長端跌得較快，多屬避險或增長放緩', 'bull flattening: long end falling faster, usually haven demand or slower growth'));
+    item(L('曲線', 'Curve'), lines([
+      [L('10年減2年', '10y–2y'), L(`${rt.curve.toFixed(2)}%，一週 ${bp(rt.curve_1w)}，一個月 ${bp(c1m)}（2年期 ${bp(two1m)}，10年期 ${bp(rt.nominal10_1m)}）`, `${rt.curve.toFixed(2)}%, ${bp(rt.curve_1w)} on the week, ${bp(c1m)} on the month (2-year ${bp(two1m)}, 10-year ${bp(rt.nominal10_1m)})`)],
+      [L('結論', 'Read'), shape],
+    ]));
+
+    // positioning: the biggest moves this week and over four weeks
+    const legs = dash.data('positioning_now').data.flatMap((p) => [
+      { p, who: p.has_am ? L('槓桿基金', 'lev. funds') : L('管理資金', 'managed money'), c1: p.lev_chg_1w, c4: p.lev_chg_4w },
+      ...(p.has_am ? [{ p, who: L('資管機構', 'asset mgrs'), c1: p.am_chg_1w, c4: p.am_chg_4w }] : []),
+    ]);
+    const movers = (k) => legs.filter((x) => x[k] != null).sort((x, y) => Math.abs(y[k]) - Math.abs(x[k])).slice(0, 3)
+      .map((x) => L(`${x.p.name}${x.who} ${signed(x[k])}`, `${x.p.name_en} ${x.who} ${signed(x[k])}`)).join(sep());
+    item(L('持倉變化', 'Positioning'), lines([
+      [L('本週', 'Week'), movers('c1')],
+      [L('四週', '4 weeks'), movers('c4')],
+      [L('單位', 'Unit'), L('佔未平倉合約的百分點；正數為加好倉或減淡倉', 'points of open interest; positive = more long or less short')],
+    ]));
+
+    box.replaceChildren(head, list);
+  }
+
+  // ---------- overview ----------
+  function drawOverview() {
+    const kpiOk = status(['kpi']);
+    for (const tile of document.querySelectorAll('#kpis [data-source="kpi"]')) {
+      if (kpiOk !== 'ok') { if (kpiOk === 'error') tile.textContent = '—'; continue; }
+      const where = tile.dataset.where.split('=')[1];
+      const row = dash.data('kpi').data.find((r) => r.metric === where);
+      const v = row[tile.dataset.field];
+      tile.classList.remove('dash-skeleton');
+      if (tile.dataset.field === 'value') {
+        tile.textContent = where === 'tnx' || where === 'hy_oas' ? v.toFixed(2) : where === 'nhnl_5d' ? signed(v, 0) : fmt1(v);
+        tile.className = 'rb-tval' + (where === 'nhnl_5d' ? ' ' + cls(v) : '');
+      } else {
+        const bp = where === 'tnx' || where === 'hy_oas';
+        tile.textContent = signed(v, bp ? 0 : 1);
+        tile.className = where === 'hy_oas' ? cls(-v) : bp ? '' : cls(v);
+      }
+    }
+    for (const id of ['new_highs_5d', 'new_lows_5d']) {
+      const el = document.querySelector(`#kpis [data-field="${id}"]`);
+      if (status(['breadth_now']) === 'ok') el.textContent = d3.format(',')(dash.data('breadth_now').data[0][id]);
+    }
+
+    const grid = document.getElementById('ratio-grid');
+    if (!ready(grid, ['ratios', 'ratio_summary'])) return;
+    const byPair = d3.group(dash.data('ratios').data, (r) => r.pair);
+    grid.replaceChildren();
+    for (const s of dash.data('ratio_summary').data) {
+      const card = document.createElement('article');
+      card.className = 'rb-card rb-ratio'; card.id = 'ratio-' + s.pair;
+      const head = document.createElement('div'); head.className = 'rb-cardhead';
+      const name = document.createElement('div'); name.className = 'rb-rname'; name.textContent = nm(s, 'label');
+      const tk = document.createElement('div'); tk.className = 'rb-sub';
+      tk.textContent = `${s.num.replace('=F', '')} ÷ ${s.den.replace('=F', '')} · ${L('上升代表', 'rising = ')}${nm(s, 'meaning')}`;
+      const left = document.createElement('div'); left.append(name, tk);
+      const [tname, tcls] = TREND()[s.trend];
+      const chip = document.createElement('span'); chip.className = 'rb-chip ' + tcls; chip.textContent = tname;
+      head.append(left, chip);
+      const meta = document.createElement('div'); meta.className = 'rb-rmeta';
+      const big = document.createElement('span'); big.className = 'rb-rbig ' + cls(s.chg20d); big.textContent = signed(s.chg20d, 2) + '%';
+      const m1 = document.createElement('span'); m1.textContent = L('20日', '20 days');
+      const m2 = document.createElement('span');
+      m2.textContent = L(`5日 ${signed(s.chg5d, 2)}% · 60日 ${signed(s.chg60d, 2)}% · 距50日線 ${signed(s.vs_50d, 2)}%`, `5d ${signed(s.chg5d, 2)}% · 60d ${signed(s.chg60d, 2)}% · vs 50-day ${signed(s.vs_50d, 2)}%`);
+      meta.append(big, m1, m2);
+      const ch = document.createElement('div'); ch.className = 'rb-chart'; ch.style.minHeight = '120px';
+      card.append(head, meta, ch);
+      grid.append(card);
+      const pts = byPair.get(s.pair) || [];
+      lineChart(ch, {
+        height: 120,
+        series: [
+          { name: L('比率', 'Ratio'), color: colors()[0], values: pts.map((p) => ({ d: day(p.date), v: p.value })) },
+          { name: L('50日均線', '50-day average'), color: 'var(--cds-chart-muted)', dash: true, values: pts.map((p) => ({ d: day(p.date), v: p.sma50 })) },
+        ],
+        yFmt: d3.format('d'), tipFmt: fmt1,
+      });
+    }
+  }
+
+  // ---------- rotation ----------
+  function drawRRG() {
+    const el = document.getElementById('rrg');
+    if (!ready(el, ['sectors', 'rrg_tails'])) return;
+    const Q = QNAME();
+    const secs = dash.data('sectors').data.filter((s) => s.group === state.grp);
+    const tails = d3.group(dash.data('rrg_tails').data, (r) => r.ticker);
+    const pts = secs.map((s) => ({ s, tail: (tails.get(s.ticker) || []).filter((p) => p.rs_ratio != null && p.rs_mom != null).slice(-state.tail) }));
+    el.replaceChildren();
+    const W = Math.max(el.clientWidth, 280), H = Math.round(Math.min(Math.max(W * 0.62, 320), 520));
+    const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const xs = pts.flatMap((p) => p.tail.map((t) => t.rs_ratio)), ys = pts.flatMap((p) => p.tail.map((t) => t.rs_mom));
+    const span = (arr) => Math.max(2, d3.max(arr, (v) => Math.abs(v - 100)) * 1.12);
+    const sx = span(xs), sy = span(ys);
+    const ml = 36, mb = 22, mt = 8, mr = 8;
+    const x = d3.scaleLinear([100 - sx, 100 + sx], [ml, W - mr]);
+    const y = d3.scaleLinear([100 - sy, 100 + sy], [H - mb, mt]);
+    const quad = [
+      { k: 'leading', x0: 100, x1: 100 + sx, y0: 100, y1: 100 + sy, c: 'var(--color-ok)', ax: 'end', lx: W - mr - 6, ly: mt + 14 },
+      { k: 'weakening', x0: 100, x1: 100 + sx, y0: 100 - sy, y1: 100, c: 'var(--color-warn)', ax: 'end', lx: W - mr - 6, ly: H - mb - 8 },
+      { k: 'lagging', x0: 100 - sx, x1: 100, y0: 100 - sy, y1: 100, c: 'var(--color-bad)', ax: 'start', lx: ml + 6, ly: H - mb - 8 },
+      { k: 'improving', x0: 100 - sx, x1: 100, y0: 100, y1: 100 + sy, c: 'var(--cds-text-secondary)', ax: 'start', lx: ml + 6, ly: mt + 14 },
+    ];
+    svg.append('g').selectAll('rect').data(quad).join('rect').attr('x', (q) => x(q.x0)).attr('width', (q) => x(q.x1) - x(q.x0))
+      .attr('y', (q) => y(q.y1)).attr('height', (q) => y(q.y0) - y(q.y1)).attr('fill', (q) => q.c).attr('fill-opacity', 0.06);
+    svg.append('g').selectAll('text').data(quad).join('text').attr('x', (q) => q.lx).attr('y', (q) => q.ly).attr('text-anchor', (q) => q.ax)
+      .style('fill', (q) => q.c).style('font-size', '12px').style('font-weight', 500).text((q) => Q[q.k]);
+    svg.append('line').attr('class', 'rb-axis').attr('x1', x(100)).attr('x2', x(100)).attr('y1', mt).attr('y2', H - mb);
+    svg.append('line').attr('class', 'rb-axis').attr('x1', ml).attr('x2', W - mr).attr('y1', y(100)).attr('y2', y(100));
+    svg.append('g').selectAll('text').data(x.ticks(W < 520 ? 4 : 6)).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(d3.format('d'));
+    svg.append('g').selectAll('text').data(y.ticks(5)).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('d'));
+    const qc = { leading: 'var(--color-ok)', weakening: 'var(--color-warn)', lagging: 'var(--color-bad)', improving: 'var(--cds-text-secondary)' };
+    for (const p of pts) {
+      if (!p.tail.length) continue;
+      const c = qc[p.s.quadrant];
+      const g = svg.append('g');
+      for (let i = 1; i < p.tail.length; i++) {
+        g.append('line').attr('x1', x(p.tail[i - 1].rs_ratio)).attr('y1', y(p.tail[i - 1].rs_mom))
+          .attr('x2', x(p.tail[i].rs_ratio)).attr('y2', y(p.tail[i].rs_mom))
+          .attr('stroke', c).attr('stroke-width', 1.5).attr('stroke-linecap', 'round').attr('opacity', 0.2 + 0.7 * (i / p.tail.length));
+      }
+      g.selectAll('circle.t').data(p.tail.slice(0, -1)).join('circle').attr('cx', (t) => x(t.rs_ratio)).attr('cy', (t) => y(t.rs_mom)).attr('r', 1.8).attr('fill', c).attr('opacity', 0.5);
+      const last = p.tail.at(-1);
+      g.append('circle').attr('cx', x(last.rs_ratio)).attr('cy', y(last.rs_mom)).attr('r', 5).attr('fill', c).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5);
+      g.append('text').attr('x', x(last.rs_ratio) + 8).attr('y', y(last.rs_mom)).attr('dy', '0.32em')
+        .style('fill', 'var(--color-fg)').style('font-size', '11px').style('font-weight', 500).text(p.s.ticker);
+      g.append('circle').attr('cx', x(last.rs_ratio)).attr('cy', y(last.rs_mom)).attr('r', 12).attr('fill', 'transparent')
+        .on('pointermove', (event) => showTip(event, `${p.s.ticker} ${nm(p.s)}`, [
+          { color: c, text: `${Q[p.s.quadrant]}（${L('4週前', '4 weeks ago')}：${Q[p.s.quadrant_4w] || '—'}）` },
+          { text: L(`強度比率 ${fmt1(last.rs_ratio)} · 動量 ${fmt1(last.rs_mom)}`, `RS-ratio ${fmt1(last.rs_ratio)} · momentum ${fmt1(last.rs_mom)}`) },
+          { text: L(`1個月相對標普 ${signed(p.s.rel1m)}%`, `1 month vs S&P ${signed(p.s.rel1m)}%`) },
+        ]))
+        .on('pointerleave', hideTip);
+    }
+  }
+
+  const COLS = () => [
+    { f: 'ticker', label: L('代號', 'Ticker') },
+    { f: en() ? 'name_en' : 'name', label: L('名稱', 'Name') },
+    { f: 'quadrant', label: L('象限', 'Quadrant') },
+    { f: 'quadrant_4w', label: L('4週前', '4 wks ago') },
+    { f: state.mode === 'rel' ? 'rel1w' : 'r1w', label: L('1週', '1 wk'), heat: 4 },
+    { f: state.mode === 'rel' ? 'rel1m' : 'r1m', label: L('1個月', '1 mo'), heat: 8 },
+    { f: state.mode === 'rel' ? 'rel3m' : 'r3m', label: L('3個月', '3 mo'), heat: 12 },
+    { f: state.mode === 'rel' ? 'rel6m' : 'r6m', label: L('6個月', '6 mo'), heat: 18 },
+    { f: 'rytd', label: L('年初至今', 'YTD'), heat: 25 },
+    { f: 'vs_50d', label: L('距50天線', 'vs 50-day'), heat: 8 },
+    { f: 'off_high', label: L('距52週高', 'Off 52-wk high'), heat: 25 },
+    { f: 'm_pct50', label: L('成分股高於50天線', 'Members > 50-day') },
+  ];
+  const heatCell = (td, v, scale) => {
+    const s = document.createElement('span');
+    s.className = 'rb-heat'; s.textContent = signed(v, 1); s.style.padding = '1px 5px';
+    const a = Math.min(Math.abs(v) / scale, 1) * 28;
+    s.style.background = `color-mix(in srgb, ${v >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'} ${a.toFixed(0)}%, transparent)`;
+    td.append(s);
+  };
+  function drawTable() {
+    const table = document.getElementById('sector-table');
+    const st = status(['sectors']);
+    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
+    const Q = QNAME();
+    const cols = COLS();
+    if (!cols.some((c) => c.f === state.sort.key)) state.sort.key = state.mode === 'rel' ? 'rel1m' : 'r1m';
+    table.tHead.rows[0].replaceChildren(...cols.map((c) => {
+      const th = document.createElement('th'); th.scope = 'col'; th.dataset.field = c.f;
+      const b = document.createElement('button'); b.type = 'button'; b.className = 'rb-sort'; b.textContent = c.label;
+      if (state.sort.key === c.f) b.setAttribute('aria-sort', state.sort.dir < 0 ? 'descending' : 'ascending');
+      b.addEventListener('click', () => { state.sort = { key: c.f, dir: state.sort.key === c.f ? -state.sort.dir : -1 }; drawTable(); });
+      th.append(b);
+      return th;
+    }));
+    const rows = dash.data('sectors').data.filter((s) => s.group === state.grp).slice();
+    const qOrder = { leading: 3, improving: 2, weakening: 1, lagging: 0 };
+    const key = (r) => (state.sort.key.startsWith('quadrant') ? qOrder[r[state.sort.key]] ?? -1 : r[state.sort.key]);
+    rows.sort((a, b) => {
+      const va = key(a), vb = key(b);
+      if (va == null) return 1; if (vb == null) return -1;
+      return (va < vb ? -1 : va > vb ? 1 : 0) * state.sort.dir;
+    });
+    table.tBodies[0].replaceChildren(...rows.map((r) => {
+      const row = document.createElement('tr');
+      for (const c of cols) {
+        const td = document.createElement('td');
+        const v = r[c.f];
+        if (c.f === 'ticker') { td.className = 'rb-tk'; td.textContent = v; }
+        else if (c.f.startsWith('name')) td.textContent = v;
+        else if (c.f.startsWith('quadrant')) { const s = document.createElement('span'); s.className = 'rb-q ' + (v || ''); s.textContent = v ? Q[v] : '—'; td.append(s); }
+        else if (c.f === 'm_pct50') td.textContent = v == null ? '—' : fmt1(v) + '%';
+        else if (v != null && c.heat) heatCell(td, v, c.heat);
+        else td.textContent = signed(v, 1);
+        row.append(td);
+      }
+      return row;
+    }));
+  }
+
+  // ---------- breadth ----------
+  function drawBreadth() {
+    const els = ['ch-pct', 'ch-ew', 'ch-ad', 'ch-mcc', 'ch-nhnl'].map((id) => document.getElementById(id));
+    const ok = els.map((el) => ready(el, ['breadth'])).every(Boolean);
+    if (ok) {
+      const b = windowed(dash.data('breadth').data.map((r) => ({ ...r, d: day(r.date) })), 'breadth');
+      const c = colors();
+      const ew0 = b[0].ew_index, spy0 = b[0].spy_index;
+      const pctSeries = [
+        { name: L('20天線', '20-day'), color: c[2], values: b.map((r) => ({ d: r.d, v: r.pct20 })) },
+        { name: L('50天線', '50-day'), color: c[0], values: b.map((r) => ({ d: r.d, v: r.pct50 })) },
+        { name: L('200天線', '200-day'), color: c[1], values: b.map((r) => ({ d: r.d, v: r.pct200 })) },
+      ];
+      legend(document.getElementById('lg-pct'), pctSeries);
+      lineChart(els[0], { series: pctSeries, height: 240, yDomain: [0, 100], ref: 50, yFmt: (v) => v + '%', tipFmt: (v) => fmt1(v) + '%' });
+      const ew = [
+        { name: L('標普500（SPY）', 'S&P 500 (SPY)'), color: 'var(--cds-chart-muted)', values: b.map((r) => ({ d: r.d, v: (r.spy_index / spy0) * 100 })) },
+        { name: L('成分股等權平均', 'Equal-weighted members'), color: c[0], values: b.map((r) => ({ d: r.d, v: (r.ew_index / ew0) * 100 })) },
+      ];
+      legend(document.getElementById('lg-ew'), ew);
+      lineChart(els[1], { series: ew, height: 240, ref: 100, yFmt: d3.format('d'), tipFmt: fmt1 });
+      lineChart(els[2], { series: [{ name: L('升跌線', 'A-D line'), color: c[0], values: b.map((r) => ({ d: r.d, v: r.ad_line })) }], height: 200, yFmt: d3.format(','), tipFmt: d3.format(',') });
+      const recent = b;
+      barChart(els[3], { height: 200, series: [{ name: L('麥克連', 'McClellan'), color: (v) => (v >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'), values: recent.map((r) => ({ d: r.d, v: r.mcclellan })) }] });
+      const net = (v) => (v >= 0 ? 'var(--color-ok)' : 'var(--color-bad)');
+      barChart(els[4], { height: 200, yFmt: (v) => signed(v, 0), series: [
+        { name: L('新高減新低', 'Highs minus lows'), color: net, values: recent.map((r) => ({ d: r.d, v: r.new_highs - r.new_lows })) },
+      ], tipFmt: (v) => signed(v, 0) });
+    }
+    drawBreadthChips();
+    drawParticipation();
+  }
+
+  // One line of marked numbers from breadth_now: [[label, field, format], …] joined with ·
+  const bmark = (field, text, klass) => { const s = mk('span', klass, text); s.dataset.source = 'breadth_now'; s.dataset.field = field; s.dataset.row = '0'; return s; };
+  function drawBreadthChips() {
+    const ids = ['chips-ad', 'chips-mcc', 'chips-nhnl'];
+    if (status(['breadth_now']) !== 'ok') { ids.forEach((id) => document.getElementById(id).replaceChildren()); return; }
+    const b = dash.data('breadth_now').data[0];
+    const n = d3.format(',');
+    const part = (label, ...nodes) => { const s = mk('span'); s.append(label + ' ', ...nodes); return s; };
+    const sg = (f) => bmark(f, signed(b[f], 0), cls(b[f]));
+    document.getElementById('chips-ad').replaceChildren(
+      part(L('今日', 'Today'), bmark('adv', n(b.adv)), L(' 升 / ', ' up / '), bmark('dec', n(b.dec)), L(' 跌', ' down')),
+      part(L('一週淨上升', 'Net advances, week'), sg('ad_1w')),
+      part(L('一個月淨上升', 'Net advances, month'), sg('ad_1m')));
+    document.getElementById('chips-mcc').replaceChildren(
+      part(L('最新', 'Latest'), sg('mcclellan')),
+      part(L('一週前', 'A week ago'), sg('mcclellan_1w')),
+      part(L('一個月前', 'A month ago'), sg('mcclellan_1m')));
+    document.getElementById('chips-nhnl').replaceChildren(
+      part(L('今日', 'Today'), bmark('new_highs', n(b.new_highs)), L(' 高 / ', ' highs / '), bmark('new_lows', n(b.new_lows)), L(' 低', ' lows')),
+      part(L('一週', 'Week'), bmark('new_highs_5d', n(b.new_highs_5d)), ' / ', bmark('new_lows_5d', n(b.new_lows_5d))),
+      part(L('一個月', 'Month'), bmark('new_highs_1m', n(b.new_highs_1m)), ' / ', bmark('new_lows_1m', n(b.new_lows_1m))));
+  }
+
+  function drawParticipation() {
+    const table = document.getElementById('part-table');
+    const st = status(['sectors']);
+    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
+    const cols = [
+      { f: 'ticker', label: L('代號', 'Ticker') },
+      { f: en() ? 'name_en' : 'name', label: L('板塊', 'Sector') },
+      { f: 'm_pct50', label: L('高於50天線', 'Above 50-day') },
+      { f: 'm_pct50_1w', label: L('一週前', 'Week ago') },
+      { f: 'm_pct50_1m', label: L('一個月前', 'Month ago') },
+      { f: 'm_pct200', label: L('高於200天線', 'Above 200-day') },
+    ];
+    table.tHead.rows[0].replaceChildren(...cols.map((c) => { const th = mk('th', null, c.label); th.scope = 'col'; th.dataset.field = c.f; return th; }));
+    const rows = dash.data('sectors').data.filter((s) => s.m_pct50 != null).sort((a, b) => b.m_pct50 - a.m_pct50);
+    table.tBodies[0].replaceChildren(...rows.map((r) => {
+      const tr = mk('tr');
+      for (const c of cols) {
+        const td = mk('td');
+        const v = r[c.f];
+        if (c.f === 'ticker') { td.className = 'rb-tk'; td.textContent = v; }
+        else if (c.f.startsWith('name')) td.textContent = v;
+        else if (c.f === 'm_pct50') {
+          const bar = mk('span', 'rb-pbar'); const fill = mk('i'); fill.style.width = v + '%'; fill.style.background = dash.colors[0]; bar.append(fill);
+          td.append(bar, fmt1(v) + '%');
+        } else if (c.f === 'm_pct50_1w' || c.f === 'm_pct50_1m') {
+          const d = r.m_pct50 - v;
+          td.append(fmt1(v) + '% ', mk('span', cls(d), `(${signed(d)})`));
+        } else td.textContent = fmt1(v) + '%';
+        tr.append(td);
+      }
+      return tr;
+    }));
+  }
+
+  // ---------- positioning & rates ----------
+  function drawPositioning() {
+    drawPosChange();
+    const table = document.getElementById('pos-table');
+    const st = status(['positioning_now']);
+    if (st === 'error') fail(table.parentElement);
+    const sel = document.getElementById('pos-market');
+    if (st === 'ok') {
+      const now = dash.data('positioning_now').data;
+      const cols = [
+        { f: en() ? 'name_en' : 'name', label: L('市場', 'Market') },
+        { f: en() ? 'group_name_en' : 'group_name', label: L('類別', 'Group') },
+        { f: 'am_pct', label: L('資產管理機構 %', 'Asset managers %') },
+        { f: 'am_chg_1w', label: L('一週變化', '1-wk change') },
+        { f: 'am_chg_4w', label: L('四週變化', '4-wk change') },
+        { f: 'am_pctile', label: L('三年百分位', '3-yr percentile') },
+        { f: 'lev_pct', label: L('槓桿基金 %', 'Leveraged funds %') },
+        { f: 'lev_chg_1w', label: L('一週變化', '1-wk change') },
+        { f: 'lev_chg_4w', label: L('四週變化', '4-wk change') },
+        { f: 'lev_pctile', label: L('三年百分位', '3-yr percentile') },
+      ];
+      table.tHead.rows[0].replaceChildren(...cols.map((c) => Object.assign(document.createElement('th'), { scope: 'col', textContent: c.label })));
+      [...table.tHead.rows[0].cells].forEach((th, i) => { th.dataset.field = cols[i].f; });
+      table.tBodies[0].replaceChildren(...now.map((p) => {
+        const tr = document.createElement('tr');
+        for (const c of cols) {
+          const td = document.createElement('td');
+          const v = p[c.f];
+          if (c.f.endsWith('pctile')) {
+            if (v == null) td.textContent = '—';
+            else {
+              const ex = p[c.f === 'am_pctile' ? 'am_extreme' : 'lev_extreme'];
+              const bar = document.createElement('span'); bar.className = 'rb-pbar' + (ex ? ' ext' : '');
+              const fill = document.createElement('i'); fill.style.width = v + '%'; bar.append(fill);
+              const num = document.createElement('span'); num.textContent = d3.format('d')(v); if (ex) num.className = 'rb-ext';
+              td.append(bar, num);
+            }
+          } else if (c.f.includes('_chg_')) { td.textContent = v == null ? '—' : signed(v, 1); td.className = cls(v); }
+          else if (c.f === 'am_pct' || c.f === 'lev_pct') td.textContent = v == null ? '—' : signed(v, 1);
+          else td.textContent = v;
+          tr.append(td);
+        }
+        return tr;
+      }));
+      if (sel.options.length !== now.length || sel.dataset.lang !== String(en())) {
+        sel.replaceChildren(...now.map((p) => new Option(nm(p), p.market)));
+        sel.dataset.lang = String(en());
+      }
+      sel.value = state.market;
+    }
+    const ch = document.getElementById('ch-pos');
+    if (ready(ch, ['positioning', 'positioning_now'])) {
+      const rows = windowed(dash.data('positioning').data.filter((r) => r.market === state.market).map((r) => ({ ...r, d: day(r.date) })), 'positioning');
+      const meta = dash.data('positioning_now').data.find((p) => p.market === state.market);
+      const c = colors();
+      const series = [
+        { name: meta.has_am ? L('槓桿基金', 'Leveraged funds') : L('管理資金', 'Managed money'), color: c[0], values: rows.map((r) => ({ d: r.d, v: r.lev_pct })) },
+      ];
+      if (meta.has_am) series.push({ name: L('資產管理機構', 'Asset managers'), color: c[1], values: rows.map((r) => ({ d: r.d, v: r.am_pct })) });
+      legend(document.getElementById('lg-pos'), series);
+      lineChart(ch, { series, height: 240, ref: 0, yFmt: (v) => v + '%', tipFmt: (v) => signed(v, 1) + '%' });
+      const chg = document.getElementById('ch-poschg');
+      const shortRange = ['3m', '6m'].includes(state.range.positioning);
+      chg.hidden = !shortRange; document.getElementById('poschg-note').hidden = !shortRange;
+      chg.classList.remove('dash-skeleton');
+      const bars = [{ name: series[0].name, color: c[0], values: rows.map((r) => ({ d: r.d, v: r.lev_chg ?? 0 })) }];
+      if (meta.has_am) bars.push({ name: series[1].name, color: c[1], values: rows.map((r) => ({ d: r.d, v: r.am_chg ?? 0 })) });
+      barChart(chg, { height: 170, grouped: true, series: bars, yFmt: (v) => signed(v, 1), tipFmt: (v) => signed(v, 1) + L(' 個百分點', ' pts') });
+    } else if (status(['positioning']) === 'error') fail(document.getElementById('ch-poschg'));
+
+    const dc = document.getElementById('ch-decomp');
+    if (ready(dc, ['rates_now'])) {
+      const rt = dash.data('rates_now').data[0];
+      const items = [
+        { k: 'nominal10', label: L('名義收益率', 'Nominal') },
+        { k: 'real10', label: L('實際收益率', 'Real') },
+        { k: 'be10', label: L('通脹預期', 'Breakeven') },
+        { k: 'tp10', label: L('期限溢價', 'Term premium') },
+      ];
+      const c = colors();
+      const P = [{ w: '1w', name: L('1週', '1 week'), color: c[0] }, { w: '1m', name: L('1個月', '1 month'), color: c[1] }, { w: '3m', name: L('3個月', '3 months'), color: 'var(--cds-chart-muted)' }];
+      const pc = Object.fromEntries(P.map((p) => [p.w, p]));
+      legend(document.getElementById('lg-decomp'), P);
+      dc.replaceChildren();
+      const W = Math.max(dc.clientWidth, 280), H = 210, mt = 8, mb = 22;
+      const svg = d3.select(dc).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+      const vals = items.flatMap((it) => P.map((p) => rt[it.k + '_' + p.w]));
+      const y = d3.scaleLinear([Math.min(0, d3.min(vals)), Math.max(0, d3.max(vals))], [H - mb, mt + 14]).nice(4);
+      const yf = (v) => signed(v, 0);
+      const ml = measure(svg, y.ticks(4).map(yf)) + 8;
+      const x0 = d3.scaleBand(items.map((i) => i.k), [ml, W - 6]).padding(0.25);
+      const x1 = d3.scaleBand(P.map((p) => p.w), [0, x0.bandwidth()]).padding(0.12);
+      svg.append('g').selectAll('line').data(y.ticks(4)).join('line').attr('class', (t) => (t === 0 ? 'rb-axis' : 'rb-gridline'))
+        .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
+      svg.append('g').selectAll('text').data(y.ticks(4)).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text(yf);
+      svg.append('g').selectAll('text').data(items).join('text').attr('x', (i) => x0(i.k) + x0.bandwidth() / 2).attr('y', H - 4).attr('text-anchor', 'middle').text((i) => i.label);
+      const bars = items.flatMap((i) => P.map((p) => ({ i, w: p.w, v: rt[i.k + '_' + p.w] }))).filter((b) => b.v != null);
+      svg.append('g').selectAll('rect').data(bars).join('rect').attr('x', (b) => x0(b.i.k) + x1(b.w)).attr('width', x1.bandwidth())
+        .attr('y', (b) => Math.min(y(0), y(b.v))).attr('height', (b) => Math.max(1, Math.abs(y(b.v) - y(0)))).attr('rx', 4)
+        .attr('fill', (b) => pc[b.w].color);
+      svg.append('g').selectAll('text').data(bars).join('text').attr('x', (b) => x0(b.i.k) + x1(b.w) + x1.bandwidth() / 2)
+        .attr('y', (b) => (b.v >= 0 ? y(b.v) - 4 : y(b.v) + 12)).attr('text-anchor', 'middle').style('font-size', '10px').text((b) => signed(b.v, 0));
+      svg.append('g').selectAll('rect').data(bars).join('rect').attr('x', (b) => x0(b.i.k) + x1(b.w)).attr('width', x1.bandwidth()).attr('y', mt).attr('height', H - mb - mt)
+        .attr('fill', 'transparent')
+        .on('pointermove', (event, b) => showTip(event, `${b.i.label} · ${pc[b.w].name}`, [
+          { text: L(`變化 ${signed(b.v, 0)} 基點，現水平 ${rt[b.i.k].toFixed(2)}%`, `${signed(b.v, 0)}bp, now ${rt[b.i.k].toFixed(2)}%`) },
+          ...(b.i.k === 'tp10' ? [{ text: L(`期限溢價數據截至 ${rt.tp_date}`, `Term premium as of ${rt.tp_date}`) }] : []),
+        ]))
+        .on('pointerleave', hideTip);
+    }
+
+    const rateEls = ['ch-real', 'ch-credit', 'ch-curve'].map((id) => document.getElementById(id));
+    if (rateEls.map((el) => ready(el, ['rates'])).every(Boolean)) {
+      const rs = windowed(dash.data('rates').data.map((r) => ({ ...r, d: day(r.date) })), 'positioning');
+      const c = colors();
+      const pctFmt = (v) => fmt1(v) + '%';
+      const real = [
+        { name: L('名義', 'Nominal'), color: 'var(--cds-chart-muted)', values: rs.map((r) => ({ d: r.d, v: r.nominal10 })) },
+        { name: L('實際', 'Real'), color: c[0], values: rs.map((r) => ({ d: r.d, v: r.real10 })) },
+        { name: L('通脹預期', 'Breakeven'), color: c[1], values: rs.map((r) => ({ d: r.d, v: r.be10 })) },
+        { name: L('期限溢價', 'Term premium'), color: c[2], values: rs.map((r) => ({ d: r.d, v: r.tp10 })) },
+      ];
+      miniTable('mini-real', [
+        { name: L('名義', 'Nominal'), k: 'nominal10', color: real[0].color },
+        { name: L('實際', 'Real'), k: 'real10', color: real[1].color },
+        { name: L('通脹預期', 'Breakeven'), k: 'be10', color: real[2].color },
+        { name: L('期限溢價', 'Term premium'), k: 'tp10', color: real[3].color },
+      ]);
+      lineChart(rateEls[0], { series: real, height: 240, yFmt: pctFmt, tipFmt: (v) => v.toFixed(2) + '%' });
+      const credit = [
+        { name: L('高收益債', 'High yield'), color: c[0], values: rs.map((r) => ({ d: r.d, v: r.hy_oas })) },
+        { name: L('投資級債', 'Investment grade'), color: c[1], values: rs.map((r) => ({ d: r.d, v: r.ig_oas })) },
+      ];
+      miniTable('mini-credit', [
+        { name: L('高收益債', 'High yield'), k: 'hy_oas', color: credit[0].color },
+        { name: L('投資級債', 'Investment grade'), k: 'ig_oas', color: credit[1].color },
+      ]);
+      lineChart(rateEls[1], { series: credit, height: 240, yFmt: pctFmt, tipFmt: (v) => v.toFixed(2) + '%' });
+      lineChart(rateEls[2], { series: [{ name: L('10年減2年', '10y minus 2y'), color: c[0], values: rs.map((r) => ({ d: r.d, v: r.curve })) }], height: 200, ref: 0, yFmt: (v) => v.toFixed(1), tipFmt: (v) => signed(v, 2) });
+    }
+
+    const lq = document.getElementById('ch-liq');
+    if (ready(lq, ['liquidity'])) {
+      const rows = windowed(dash.data('liquidity').data.map((r) => ({ ...r, d: day(r.date) })), 'positioning');
+      lineChart(lq, { series: [{ name: L('淨流動性（十億美元）', 'Net liquidity ($bn)'), color: colors()[0], values: rows.map((r) => ({ d: r.d, v: r.net_liq })) }], height: 200, yFmt: d3.format(','), tipFmt: d3.format(',') });
+    }
+    drawChips();
+  }
+
+  // Latest value plus one-week and one-month change under a chart title; each number is marked to rates_now.
+  const mark = (field, text, klass) => { const s = mk('span', klass, text); s.dataset.source = 'rates_now'; s.dataset.field = field; s.dataset.row = '0'; return s; };
+  function chipLine(label, k, { unit = '%', digits = 2, bp = true, w2 = '1m', w2label = L('一個月', '1 mo') } = {}) {
+    const rt = dash.data('rates_now').data[0];
+    const line = mk('span');
+    const b = mk('b'); b.append(label + ' ', mark(k, rt[k] == null ? '—' : unit === '%' ? rt[k].toFixed(digits) : d3.format(',')(rt[k])), unit === '%' ? '%' : ' ' + unit);
+    const u = bp ? L(' 基點', 'bp') : '';
+    const c1 = rt[k + '_1w'], c2 = rt[k + '_' + w2];
+    line.append(b, ` ${L('一週', '1 wk')} `, mark(k + '_1w', signed(c1, 0), cls(c1)), u, ` · ${w2label} `, mark(k + '_' + w2, signed(c2, 0), cls(c2)), u);
+    return line;
+  }
+  // Legend and latest numbers in one aligned table: swatch + name | latest | 1 week | 1 month
+  function miniTable(id, items) {
+    const t = document.getElementById(id);
+    if (status(['rates_now']) !== 'ok') { t.replaceChildren(); return; }
+    const rt = dash.data('rates_now').data[0];
+    const head = mk('tr');
+    for (const h of ['', L('最新', 'Latest'), L('一週', '1 wk'), L('一個月', '1 mo'), L('（變化以基點計）', '(changes in bp)')]) { const th = mk('th', null, h); th.scope = 'col'; head.append(th); }
+    t.replaceChildren(mk('thead'), mk('tbody'));
+    t.tHead.append(head);
+    for (const it of items) {
+      const tr = mk('tr');
+      const name = mk('td'); const sw = mk('span', 'rb-sw'); sw.style.background = it.color; name.append(sw, it.name);
+      const last = mk('td'); last.append(mark(it.k, rt[it.k].toFixed(2)), '%');
+      const w = mk('td'); w.append(mark(it.k + '_1w', signed(rt[it.k + '_1w'], 0), cls(rt[it.k + '_1w'])));
+      const m = mk('td'); m.append(mark(it.k + '_1m', signed(rt[it.k + '_1m'], 0), cls(rt[it.k + '_1m'])));
+      tr.append(name, last, w, m, mk('td'));
+      t.tBodies[0].append(tr);
+    }
+  }
+
+  // One bar per holder per market: change in net position over the chosen window
+  function drawPosChange() {
+    const el = document.getElementById('ch-poschange');
+    if (!ready(el, ['positioning_now'])) return;
+    const k = state.posWin === '4w' ? '4w' : '1w';
+    const c = colors();
+    const now = dash.data('positioning_now').data;
+    legend(document.getElementById('lg-poschange'), [
+      { name: L('槓桿基金（商品為管理資金）', 'Leveraged funds (managed money for commodities)'), color: c[0] },
+      { name: L('資產管理機構', 'Asset managers'), color: c[1] },
+    ]);
+    const rows = now.map((p) => ({ p, key: p.market, label: nm(p), lev: p['lev_chg_' + k], am: p.has_am ? p['am_chg_' + k] : null }));
+    el.replaceChildren();
+    const W = Math.max(el.clientWidth, 280), rowH = 30, mt = 4, mb = 20, H = rows.length * rowH + mt + mb;
+    const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
+    const ml = measure(svg, rows.map((r) => r.label)) + 10;
+    const vals = rows.flatMap((r) => [r.lev, r.am]).filter((v) => v != null);
+    const pad = measure(svg, vals.map((v) => signed(v))) + 8;
+    const ext = d3.max(vals, (v) => Math.abs(v)) || 1;
+    const x = d3.scaleLinear([-ext, ext], [ml + pad, W - pad]).nice();
+    const y = d3.scaleBand(rows.map((r) => r.key), [mt, H - mb]).padding(0.2);
+    const sub = d3.scaleBand(['lev', 'am'], [0, y.bandwidth()]).padding(0.1);
+    svg.append('g').selectAll('line').data(x.ticks(4)).join('line').attr('class', (t) => (t === 0 ? 'rb-axis' : 'rb-gridline'))
+      .attr('x1', (t) => x(t)).attr('x2', (t) => x(t)).attr('y1', mt).attr('y2', H - mb);
+    svg.append('g').selectAll('text').data(x.ticks(4)).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text((t) => signed(t, 0));
+    svg.append('g').selectAll('text').data(rows).join('text').attr('x', ml - 8).attr('y', (r) => y(r.key) + y.bandwidth() / 2).attr('dy', '0.32em')
+      .attr('text-anchor', 'end').style('fill', 'var(--color-fg)').text((r) => r.label);
+    const bars = rows.flatMap((r) => [{ r, who: 'lev', v: r.lev }, { r, who: 'am', v: r.am }]).filter((b) => b.v != null);
+    svg.append('g').selectAll('rect').data(bars).join('rect').attr('y', (b) => y(b.r.key) + sub(b.who)).attr('height', sub.bandwidth())
+      .attr('x', (b) => Math.min(x(0), x(b.v))).attr('width', (b) => Math.max(1, Math.abs(x(b.v) - x(0)))).attr('rx', 3)
+      .attr('fill', (b) => (b.who === 'lev' ? c[0] : c[1]));
+    svg.append('g').selectAll('text').data(bars).join('text').attr('y', (b) => y(b.r.key) + sub(b.who) + sub.bandwidth() / 2).attr('dy', '0.32em')
+      .attr('x', (b) => (b.v >= 0 ? x(b.v) + 4 : x(b.v) - 4)).attr('text-anchor', (b) => (b.v >= 0 ? 'start' : 'end'))
+      .style('font-size', '10px').text((b) => signed(b.v));
+    svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', 0).attr('width', W).attr('y', (r) => y(r.key)).attr('height', y.step())
+      .attr('fill', 'transparent')
+      .on('pointermove', (event, r) => showTip(event, r.label, [
+        { color: c[0], text: L(`${r.p.has_am ? '槓桿基金' : '管理資金'}：現 ${signed(r.p.lev_pct)}%，一週 ${signed(r.p.lev_chg_1w)}，四週 ${signed(r.p.lev_chg_4w)}`, `${r.p.has_am ? 'Leveraged funds' : 'Managed money'}: now ${signed(r.p.lev_pct)}%, 1 wk ${signed(r.p.lev_chg_1w)}, 4 wk ${signed(r.p.lev_chg_4w)}`) },
+        ...(r.p.has_am ? [{ color: c[1], text: L(`資產管理機構：現 ${signed(r.p.am_pct)}%，一週 ${signed(r.p.am_chg_1w)}，四週 ${signed(r.p.am_chg_4w)}`, `Asset managers: now ${signed(r.p.am_pct)}%, 1 wk ${signed(r.p.am_chg_1w)}, 4 wk ${signed(r.p.am_chg_4w)}`) }] : []),
+      ]))
+      .on('pointerleave', hideTip);
+  }
+
+  function drawChips() {
+    const ids = ['chips-decomp', 'chips-curve', 'chips-liq'];
+    if (status(['rates_now']) !== 'ok') { ids.forEach((id) => document.getElementById(id).replaceChildren()); return; }
+    const rt = dash.data('rates_now').data[0];
+    const dates = mk('span');
+    dates.append(L('數據截至 ', 'As of '), mark('date', rt.date), L('；期限溢價截至 ', '; term premium as of '), mark('tp_date', rt.tp_date));
+    document.getElementById('chips-decomp').replaceChildren(dates);
+    document.getElementById('chips-curve').replaceChildren(chipLine(L('10年減2年', '10y–2y'), 'curve'));
+    const liq = chipLine(L('淨流動性', 'Net liquidity'), 'net_liq', { unit: L('十億美元', '$bn'), bp: false, w2: '4w', w2label: L('四週', '4 wk') });
+    liq.append(` · ${L('截至', 'as of')} `, mark('liq_date', rt.liq_date));
+    document.getElementById('chips-liq').replaceChildren(liq);
+  }
+
+  // ---------- macro & global ----------
+  function drawMacro() {
+    const table = document.getElementById('macro-table');
+    const st = status(['macro']);
+    if (st === 'ok') {
+      table.querySelector('th[data-field^="name"]').dataset.field = en() ? 'name_en' : 'name';
+      table.tBodies[0].replaceChildren(...dash.data('macro').data.map((m) => {
+        const tr = document.createElement('tr');
+        const cells = [m.ticker, nm(m), m.unit === 'bp' ? m.last.toFixed(3) + '%' : d3.format(',.2f')(m.last)];
+        cells.forEach((v, i) => { const td = document.createElement('td'); td.textContent = v; if (i === 0) td.className = 'rb-tk'; tr.append(td); });
+        for (const f of ['chg1w', 'chg1m', 'chg3m']) {
+          const td = document.createElement('td'); const v = m[f];
+          td.textContent = m.unit === 'bp' ? signed(v, 0) + 'bp' : signed(v, 1) + '%';
+          tr.append(td);
+        }
+        return tr;
+      }));
+    } else if (st === 'error') fail(table.parentElement);
+
+    const el = document.getElementById('ch-global');
+    if (!ready(el, ['global'])) return;
+    const rows = dash.data('global').data.filter((g) => g.ticker !== 'SPY').sort((a, b) => b.rel1m - a.rel1m)
+      .map((r) => ({ ...r, key: r.ticker, label: `${r.ticker} ${nm(r)}`, v: r.rel1m }));
+    hbars(el, rows, {
+      fmt: (v) => signed(v) + '%',
+      color: (r) => (r.v >= 0 ? 'var(--color-ok)' : 'var(--color-bad)'),
+      tipLines: (r) => [
+        { text: L(`回報：1週 ${signed(r.r1w)}% · 1個月 ${signed(r.r1m)}% · 3個月 ${signed(r.r3m)}%`, `Return: 1 wk ${signed(r.r1w)}% · 1 mo ${signed(r.r1m)}% · 3 mo ${signed(r.r3m)}%`) },
+        { text: L(`相對標普500：1個月 ${signed(r.rel1m)}% · 3個月 ${signed(r.rel3m)}%`, `vs S&P 500: 1 mo ${signed(r.rel1m)}% · 3 mo ${signed(r.rel3m)}%`) },
+        { text: L(`距50天線 ${signed(r.vs_50d)}%`, `vs 50-day ${signed(r.vs_50d)}%`) },
+      ],
+    });
+  }
+
+  // ---------- language: static text carries its English in data-en ----------
+  function applyLang() {
+    for (const el of root.querySelectorAll('[data-en]')) {
+      if (el.dataset.zh == null) el.dataset.zh = el.textContent;
+      const want = en() ? el.dataset.en : el.dataset.zh;
+      if (el.textContent !== want) el.textContent = want;
+    }
+    for (const el of root.querySelectorAll('[data-en-aria]')) {
+      if (el.dataset.zhAria == null) el.dataset.zhAria = el.getAttribute('aria-label');
+      el.setAttribute('aria-label', en() ? el.dataset.enAria : el.dataset.zhAria);
+    }
+    root.lang = en() ? 'en' : 'zh-Hant-HK';
+  }
+
+  // ---------- controls ----------
+  const press = (sel, attr, val) => document.querySelectorAll(sel).forEach((b) => b.setAttribute('aria-pressed', String(b.dataset[attr] === String(val))));
+  document.querySelectorAll('.rb-lang').forEach((b) => b.addEventListener('click', () => dash.setParams({ lang: b.dataset.lang })));
+  document.querySelectorAll('.rb-grp').forEach((b) => b.addEventListener('click', () => { state.grp = b.dataset.grp; drawAll(); }));
+  document.querySelectorAll('.rb-tail').forEach((b) => b.addEventListener('click', () => { state.tail = +b.dataset.tail; drawAll(); }));
+  document.querySelectorAll('.rb-mode').forEach((b) => b.addEventListener('click', () => { state.mode = b.dataset.mode; drawAll(); }));
+  document.querySelectorAll('.rb-poswin').forEach((b) => b.addEventListener('click', () => { state.posWin = b.dataset.win; drawAll(); }));
+  document.querySelectorAll('.rb-range').forEach((b) => b.addEventListener('click', () => { state.range[b.dataset.tab] = b.dataset.range; drawAll(); }));
+  document.getElementById('pos-market').addEventListener('change', (e) => { state.market = e.target.value; drawAll(); });
+  const PAGES = ['overview', 'rotation', 'breadth', 'positioning', 'macro', 'guide'];
+  const showPage = (page, link = true) => {
+    state.page = page;
+    document.querySelectorAll('.rb-tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.page === page)));
+    document.querySelectorAll('.rb-page').forEach((p) => {
+      const on = p.id === page;
+      p.hidden = !on;
+      if (on && !state.shown.has(page)) { state.shown.add(page); p.classList.add('rb-in'); }
+    });
+    if (link) dash.setLink(page);
+    drawAll();
+  };
+  document.querySelectorAll('.rb-tabs button').forEach((b) => b.addEventListener('click', () => showPage(b.dataset.page)));
+
+  function drawAll() {
+    hideTip();
+    applyLang();
+    press('.rb-lang', 'lang', en() ? 'en' : 'zh');
+    press('.rb-grp', 'grp', state.grp);
+    press('.rb-tail', 'tail', state.tail);
+    press('.rb-mode', 'mode', state.mode);
+    press('.rb-poswin', 'win', state.posWin);
+    document.querySelectorAll('.rb-range').forEach((b) => b.setAttribute('aria-pressed', String(state.range[b.dataset.tab] === b.dataset.range)));
+    drawHeader();
+    if (state.page === 'overview') drawOverview();
+    if (state.page === 'rotation') { drawRRG(); drawTable(); }
+    if (state.page === 'breadth') drawBreadth();
+    if (state.page === 'positioning') drawPositioning();
+    if (state.page === 'macro') drawMacro();
+  }
+
+  const start = location.hash.slice(1);
+  if (PAGES.includes(start)) showPage(start, false);
+  dash.onData(drawAll);
+})();
+</script>
