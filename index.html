@@ -125,7 +125,7 @@
         <button type="button" class="rb-lang" data-lang="en" aria-pressed="false">English</button>
       </div>
     </div>
-    <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows positioning_now rates_now breadth_now sectors"></div>
+    <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows ai_flows positioning_now rates_now breadth_now sectors global"></div>
     <p class="rb-asof"><span data-en="Prices as of US close on">數據截至</span> <span data-source="breadth_now" data-field="asof" data-row="0">—</span> <span data-en="· breadth from today's">美股收市 · 市寬按標普500現有成分股</span> <span data-source="breadth_now" data-field="members" data-row="0">—</span> <span data-en="S&amp;P 500 members · futures positioning as of">隻計算 · 期貨持倉截至</span> <span data-source="positioning_now" data-field="date" data-row="0">—</span></p>
     <nav class="rb-tabs" role="tablist" aria-label="頁面" data-en-aria="Pages">
       <button type="button" role="tab" id="tab-overview" data-page="overview" aria-selected="true" data-en="Overview">總覽</button>
@@ -487,6 +487,7 @@
         <li data-en="Tail length: 1 week shows the latest direction, 6–10 weeks the trend. A long, straight tail is a steady trend. A one-week jump can be noise; look for two or three weeks in the same direction.">軌跡長度：1週看最新方向，6至10週看趨勢。軌跡越長越直，趨勢越穩定。一週的跳動可能是雜音，要連續兩三週同方向才可信。</li>
         <li data-en="Five groups. 11 sectors: the S&amp;P 500 split by industry; together they are the whole market. Themes: narrower industries inside sectors (semis, software, regional banks, biotech, homebuilders, defence), often leading signals. Styles &amp; factors: grouped by stock traits, not industry (equal weight, small caps, Nasdaq-100, momentum, low volatility). AI chain: nine equal-weight baskets along the AI capex chain. My stocks: up to ten single names you pick.">五組分類。11個板塊：標普500按行業劃分，合起來就是整個大市；主題：板塊內較窄的行業（半導體、軟件、地區銀行、生物科技、住宅建築、航天國防），往往是領先指標；風格與因子：按股票特性而非行業劃分（等權、小型股、納指100、動量、低波動）；AI產業鏈：沿AI資本開支鏈條的九個等權籃子；自選股：自選最多十隻個股。</li>
         <li data-en="AI chain baskets: hyperscalers (MSFT AMZN GOOGL META ORCL), compute chips (NVDA AVGO AMD TSM), memory (MU WDC STX SNDK), networking &amp; interconnect (ANET MRVL CRDO ALAB), optical (COHR LITE CIEN GLW FN AAOI), power &amp; cooling (VRT ETN GEV PWR), IPPs &amp; on-site power (VST CEG TLN NRG BE), neoclouds (CRWV NBIS IREN APLD), crypto-linked (COIN MSTR HOOD). Each is an equal-weight average of its members, rebalanced daily. Money inside the chain has tended to move mega caps → crypto-linked → optical → cloud → memory; the graph shows which link it is in now.">AI產業鏈籃子：超大型雲端（MSFT AMZN GOOGL META ORCL）、運算晶片（NVDA AVGO AMD TSM）、記憶體（MU WDC STX SNDK）、網絡與互連（ANET MRVL CRDO ALAB）、光通訊（COHR LITE CIEN GLW FN AAOI）、電力與散熱（VRT ETN GEV PWR）、獨立發電與現場供電（VST CEG TLN NRG BE）、新雲（CRWV NBIS IREN APLD）、加密相關（COIN MSTR HOOD）。每個籃子為成分股等權平均，每日再平衡。產業鏈內的資金過往大致按超大型股 → 加密相關 → 光通訊 → 雲端 → 記憶體的次序輪動，輪動圖顯示資金現在走到哪一環。</li>
+        <li data-en="AI chain line in the headline: each basket's return minus the average of the nine baskets. Over a week, +1.5 points or more is money in and −1.5 or less is money out; over a month the bar is ±3. It shows where money moves inside the chain even when the whole chain rises or falls with the market.">頁首的「AI產業鏈」一行：每個籃子的回報減去九個籃子的平均。一週計，高於+1.5個百分點為流入，低於−1.5為流出；一個月計以±3為界。即使整條產業鏈隨大市升跌，也能看到資金在鏈內由哪一環流向哪一環。</li>
         <li data-en="Benchmark. Against the S&amp;P 500 asks whether something beats the market. Against semis (SMH) asks where money is moving inside the AI chain: when the whole chain beats the market, everything looks leading against the S&amp;P, and only the semis benchmark separates the links.">基準。對標普500：問的是有沒有跑贏大市。對半導體（SMH）：問的是AI產業鏈內部資金流向。整條產業鏈都跑贏大市時，對標普500全部都顯示領先，只有對半導體才分辨得到哪一環在接力。</li>
         <li data-en="My stocks: search any S&amp;P 500 member, AI basket member or watch-list name, up to ten at a time. The default list is the names most discussed in the trading chat. Picks reset when the page reloads; ask Claude to change the default list or add a stock that is not searchable.">自選股：可搜尋任何標普500成分股、AI籃子成分股及觀察名單，同時最多顯示十隻。預設名單為交易群組討論最多的股票。重新整理頁面後會回到預設名單；如要更改預設名單，或加入搜尋不到的股票，請告訴 Claude。</li>
         <li data-en="Return rankings: red over six months but green over one month means a long-time laggard is turning up, an early rotation. Green over six months but red over one week means the leader is tiring.">回報排名：6個月紅、1個月綠，代表長期落後的板塊開始轉強，屬輪動早期；6個月綠、1週紅，代表龍頭開始累。</li>
@@ -672,6 +673,27 @@
     },
   });
 
+  dash.calc('ai_flows', {
+    title: 'AI產業鏈內部輪動',
+    description: '九個AI產業鏈籃子相對產業鏈平均的回報：一週高於+1.5個百分點為流入、低於−1.5為流出；一個月以±3為界。另列產業鏈平均與標普500。',
+    inputs: ['sectors', 'global'],
+    fn: (sectors, global) => {
+      const ai = sectors.filter((s) => s.group === 'ai' && s.r1w != null && s.r1m != null);
+      const avg = (k) => ai.reduce((a, s) => a + s[k], 0) / ai.length;
+      const c1w = avg('r1w'), c1m = avg('r1m');
+      const spy = global.find((g) => g.ticker === 'SPY');
+      const r2 = (x) => Math.round(x * 100) / 100;
+      return ai.map((s) => {
+        const w = s.r1w - c1w, m = s.r1m - c1m;
+        return {
+          ticker: s.ticker, name: s.name, name_en: s.name_en, vs_chain_1w: r2(w), vs_chain_1m: r2(m),
+          dir_1w: w >= 1.5 ? 'in' : w <= -1.5 ? 'out' : null, dir_1m: m >= 3 ? 'in' : m <= -3 ? 'out' : null,
+          chain_1w: r2(c1w), chain_1m: r2(c1m), spy_1w: spy.r1w, spy_1m: spy.r1m,
+        };
+      });
+    },
+  });
+
   dash.calc('flows', {
     title: '本週資金流向',
     description: '一週相對標普500高於+1%且相對動量上升為流入，低於−1%且動量下降為流出；各取幅度最大的5個。',
@@ -679,7 +701,7 @@
     fn: (sectors, rrg_tails) => {
       const mom = {};
       for (const t of rrg_tails) (mom[t.ticker] ||= []).push(t.rs_mom);
-      const rows = sectors.map((s) => {
+      const rows = sectors.filter((s) => s.group !== 'ai').map((s) => {  // AI baskets have their own line
         const m = mom[s.ticker] || [];
         const mom_chg = m.length > 1 && m.at(-1) != null && m.at(-2) != null ? Math.round((m.at(-1) - m.at(-2)) * 100) / 100 : null;
         const dir = s.rel1w > 1 && mom_chg > 0 ? 'in' : s.rel1w < -1 && mom_chg < 0 ? 'out' : null;
@@ -898,10 +920,29 @@
       const body = typeof content === 'string' ? mk('span', null, content) : content;
       li.append(body); list.append(li);
     };
+    const lines = (rows) => { const w = mk('span', 'rb-sublines'); for (const [tag, body] of rows) { const l = mk('span'); l.append(mk('i', null, tag), body); w.append(l); } return w; };
     const flows = dash.data('flows').data;
     const fl = (dir) => flows.filter((f) => f.dir === dir).map((f) => `${nm(f)} ${signed(f.rel1w)}%`).join(sep()) || L('沒有板塊符合條件', 'none meet the rule');
     item(L('資金流入', 'Money in'), mk('span', 'rb-in', fl('in')));
     item(L('資金流出', 'Money out'), mk('span', 'rb-out', fl('out')));
+
+    if (status(['ai_flows']) === 'ok' && dash.data('ai_flows').data.length) {
+      const A = dash.data('ai_flows').data;
+      const pick = (k, dir) => A.filter((a) => a['dir_' + k] === dir).sort((a, b) => (dir === 'in' ? b['vs_chain_' + k] - a['vs_chain_' + k] : a['vs_chain_' + k] - b['vs_chain_' + k]))
+        .map((a) => `${nm(a)} ${signed(a['vs_chain_' + k])}`).join(sep());
+      const io = (k) => {
+        const w = mk('span');
+        w.append(mk('span', 'rb-in', L('流入 ', 'In ') + (pick(k, 'in') || L('無', 'none'))), L('；', '; '), mk('span', 'rb-out', L('流出 ', 'Out ') + (pick(k, 'out') || L('無', 'none'))));
+        return w;
+      };
+      const a0 = A[0];
+      item(L('AI產業鏈', 'AI chain'), lines([
+        [L('本週', 'Week'), io('1w')],
+        [L('本月', 'Month'), io('1m')],
+        [L('整條', 'Whole'), L(`產業鏈平均一週 ${signed(a0.chain_1w)}%、一個月 ${signed(a0.chain_1m)}%；標普500 ${signed(a0.spy_1w)}%、${signed(a0.spy_1m)}%`, `chain average ${signed(a0.chain_1w)}% on the week, ${signed(a0.chain_1m)}% on the month; S&P 500 ${signed(a0.spy_1w)}%, ${signed(a0.spy_1m)}%`)],
+        [L('單位', 'Unit'), L('相對產業鏈平均的百分點', 'points vs the chain average')],
+      ]));
+    }
 
     const Q = QNAME();
     const moves = d3.groups(dash.data('sectors').data.filter((s) => s.group === 'sector' && s.quadrant_4w && s.quadrant !== s.quadrant_4w),
@@ -918,7 +959,6 @@
 
     const rt = dash.data('rates_now').data[0];
     const bp = (v) => `${signed(v, 0)}${L(' 基點', 'bp')}`;
-    const lines = (rows) => { const w = mk('span', 'rb-sublines'); for (const [tag, text] of rows) { const l = mk('span'); l.append(mk('i', null, tag), text); w.append(l); } return w; };
     const cv = { widening: L('信貸未確認股市走勢', 'credit is not confirming'), tightening: L('信貸確認股市走勢', 'credit confirms'), steady: L('信貸平穩', 'credit is steady') }[g.credit];
     const lvl = (k) => (rt[k] != null ? `${rt[k].toFixed(2)}%` : L(`三年第${rt[k + '_pctile']}百分位`, `${rt[k + '_pctile']}th 3-yr percentile`));
     item(L('信貸', 'Credit'), lines([

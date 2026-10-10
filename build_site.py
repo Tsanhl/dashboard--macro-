@@ -118,6 +118,10 @@ PAGE = """<!doctype html>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>板塊輪動與市寬</title>
 <meta name="description" content="US sector rotation, market breadth, futures positioning, rates and credit. 美股板塊輪動、市寬、期貨持倉、利率與信貸。">
+<meta property="og:title" content="板塊輪動與市寬 · Sector rotation &amp; breadth">
+<meta property="og:description" content="美股板塊與AI產業鏈輪動、市寬、期貨持倉、利率與信貸，逢交易日更新。US sector and AI-chain rotation, breadth, positioning, rates and credit, updated each trading day.">
+<meta property="og:type" content="website">
+<meta name="theme-color" content="#f4f6f8">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;600&family=Source+Serif+4:wght@400&family=Noto+Sans+TC:wght@400;600&family=Noto+Serif+TC:wght@400&display=swap">
