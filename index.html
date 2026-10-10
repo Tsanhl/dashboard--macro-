@@ -221,7 +221,7 @@
         <p class="rb-sub" data-en="Across: relative strength (above 100 = outperforming). Up: momentum of that strength (above 100 = accelerating). Sectors usually turn clockwise: improving → leading → weakening → lagging. The dot is the latest week; the line is its path.">橫軸為相對強度（高於100代表跑贏），縱軸為相對強度的動量（高於100代表正在加速）。板塊通常順時針移動：改善 → 領先 → 轉弱 → 落後。圓點為最新一週，線為過去軌跡。</p>
       </div>
       <div class="rb-chart dash-skeleton" id="rrg" data-source="sectors rrg_tails stocks stock_tails" style="min-height: 24rem"></div>
-      <p class="rb-sub" data-en="Each line is the item's path over the chosen weeks: small dots are past weeks, the hollow dot is where the path starts, the large dot is this week, and the arrow shows this week's direction. Hover a dot to bring its path forward and label each point with how many weeks ago it was; click to keep it highlighted, click again to clear. Paths that run past the frame are cut at the edge.">每條線是該項在所選週數內的路線：小點是過去每週的位置，空心點是起點，大圓點是本週，箭頭是本週的移動方向。滑鼠移到圓點上，會突出該項的軌跡，並標出每一點是幾週前；點擊可固定突出，再點一次取消。超出圖框的路線會在邊緣截斷。</p>
+      <p class="rb-sub" data-en="Each line is the item's path over the chosen weeks: small dots are past weeks, the hollow dot is where the path starts, the large dot is this week, and the arrow shows this week's direction. Hover a dot to bring its path forward and label each point with how many weeks ago it was; click to keep it highlighted, click again to clear. The scale fits every point shown; only a lone far-out point is cut at the frame.">每條線是該項在所選週數內的路線：小點是過去每週的位置，空心點是起點，大圓點是本週，箭頭是本週的移動方向。滑鼠移到圓點上，會突出該項的軌跡，並標出每一點是幾週前；點擊可固定突出，再點一次取消。圖的範圍會自動包含所有點，只有個別極端點才會在邊緣截斷。</p>
     </div>
     <div class="rb-card" id="ai-inside-card" hidden>
       <div>
@@ -260,6 +260,7 @@
   <section class="rb-page" id="breadth" role="tabpanel" aria-labelledby="tab-breadth" hidden>
     <div class="rb-controls">
       <div class="rb-seg" role="group" aria-label="時間範圍" data-en-aria="Time range">
+        <button type="button" class="rb-range" data-tab="breadth" data-range="1w" aria-pressed="false" data-en="1 week">1週</button>
         <button type="button" class="rb-range" data-tab="breadth" data-range="1m" aria-pressed="false" data-en="1 month">1個月</button>
         <button type="button" class="rb-range" data-tab="breadth" data-range="3m" aria-pressed="true" data-en="3 months">3個月</button>
         <button type="button" class="rb-range" data-tab="breadth" data-range="6m" aria-pressed="false" data-en="6 months">6個月</button>
@@ -762,7 +763,7 @@
   const root = document.getElementById('rb-wrap');
   const tip = document.getElementById('rb-tip');
   const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', withSectors: false, rrgPin: null, bench: 'spy', picks: ['MU', 'NBIS', 'GOOGL', 'SNDK', 'BE', 'CRWV', 'AVGO', 'LITE', 'INTC', 'CCJ', 'CIEN', 'PWR', 'GEV', 'TLN', 'VST'], range: { breadth: '3m', positioning: '3m' } };
-  const DAYS = { '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
+  const DAYS = { '1w': 8, '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
   // rows (with .d Date) inside the tab's chosen range, counted back from the last row
   const windowed = (rows, tab) => { if (!rows.length) return rows; const cut = +rows.at(-1).d - DAYS[state.range[tab]] * 864e5; return rows.filter((r) => +r.d >= cut); };
   const en = () => dash.params().lang === 'en';
@@ -848,7 +849,7 @@
       .attr('text-anchor', 'end').text(yFmt);
     const [d0, d1] = x.domain(), days = (d1 - d0) / 864e5;
     const every = days > 500 ? (W < 520 ? 6 : 3) : days > 200 ? (W < 520 ? 3 : 2) : 1;
-    const xt = days > 60 ? x.ticks(d3.utcMonth.every(every)) : x.ticks(d3.utcWeek.every(W < 520 ? 2 : 1));
+    const xt = days > 60 ? x.ticks(d3.utcMonth.every(every)) : days > 14 ? x.ticks(d3.utcWeek.every(W < 520 ? 2 : 1)) : x.ticks(d3.utcDay.every(1)).filter((t) => t.getUTCDay() % 6 !== 0);
     const dayFmt = (t) => (en() ? d3.utcFormat('%b %-d')(t) : d3.utcFormat('%-m/%-d')(t));
     svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(days > 60 ? monthFmt : dayFmt);
     if (ref != null) svg.append('line').attr('class', 'rb-ref').attr('x1', ml).attr('x2', W - 6).attr('y1', y(ref)).attr('y2', y(ref));
@@ -892,8 +893,13 @@
       .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
     svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em')
       .attr('text-anchor', 'end').text(yFmt);
-    const months = dates.filter((d, i) => i > 0 && d.getUTCMonth() !== dates[i - 1].getUTCMonth());
-    svg.append('g').selectAll('text').data(months).join('text').attr('x', (d) => x(d)).attr('y', H - 4).attr('text-anchor', 'start').text(monthFmt);
+    if (dates.length <= 12) {
+      svg.append('g').selectAll('text').data(dates).join('text').attr('x', (d) => x(d) + x.bandwidth() / 2).attr('y', H - 4).attr('text-anchor', 'middle')
+        .text((d) => (en() ? d3.utcFormat('%b %-d')(d) : d3.utcFormat('%-m/%-d')(d)));
+    } else {
+      const months = dates.filter((d, i) => i > 0 && d.getUTCMonth() !== dates[i - 1].getUTCMonth());
+      svg.append('g').selectAll('text').data(months).join('text').attr('x', (d) => x(d)).attr('y', H - 4).attr('text-anchor', 'start').text(monthFmt);
+    }
     const sub = d3.scaleBand(series.map((_, i) => i), [0, x.bandwidth()]).padding(grouped && series.length > 1 ? 0.1 : 0);
     for (const [si, s] of series.entries()) {
       const bx = (p) => x(p.d) + (grouped ? sub(si) : 0), bw = grouped ? sub.bandwidth() : x.bandwidth();
@@ -1293,23 +1299,29 @@
     const crowded = pts.length > 8;
     const W = Math.max(el.clientWidth, 280), H = Math.round(crowded ? Math.min(Math.max(W * 0.78, 380), 640) : Math.min(Math.max(W * 0.62, 320), 520));
     const svg = d3.select(el).append('svg').attr('class', 'rb-svg rb-rrg' + (state.rrgPin ? ' focus' : '')).attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
-    // scale: every latest dot fits; tails only up to their 85th percentile, so one wild point can't squash the rest
-    const dev = (arr) => arr.map((v) => Math.abs(v - 100));
-    const span = (last, tail) => Math.max(2, d3.max(dev(last)) * 1.2, (d3.quantile(dev(tail).sort(d3.ascending), 0.85) || 0) * 1.05);
+    // scale: fit every point shown, each side of 100 on its own (so an empty side doesn't waste space);
+    // only a lone point far beyond the typical spread is left outside; 100 always stays inside
+    const reach = (must, tail, side) => {
+      const d = tail.map((v) => side * (v - 100)).filter((v) => v > 0).sort(d3.ascending);
+      const typical = d3.quantile(d, 0.9) || 0;
+      const allFit = d.filter((v) => v <= typical * 2.5).at(-1) || 0;
+      const m = d3.max(must.map((v) => side * (v - 100)).filter((v) => v > 0)) || 0;
+      return Math.max(1.5, m * 1.12, allFit * 1.06);
+    };
     // a highlighted (clicked) item's whole path always fits
     const pinned = pts.find((p) => p.s.ticker === state.rrgPin);
     const must = (k) => pts.map((p) => p.tail.at(-1)[k]).concat(pinned ? pinned.tail.map((t) => t[k]) : []);
-    const sx = span(must('rs_ratio'), pts.flatMap((p) => p.tail.map((t) => t.rs_ratio)));
-    const sy = span(must('rs_mom'), pts.flatMap((p) => p.tail.map((t) => t.rs_mom)));
-    const cx = (v) => Math.max(100 - sx, Math.min(100 + sx, v)), cy = (v) => Math.max(100 - sy, Math.min(100 + sy, v));
+    const all = (k) => pts.flatMap((p) => p.tail.map((t) => t[k]));
+    const xLo = 100 - reach(must('rs_ratio'), all('rs_ratio'), -1), xHi = 100 + reach(must('rs_ratio'), all('rs_ratio'), 1);
+    const yLo = 100 - reach(must('rs_mom'), all('rs_mom'), -1), yHi = 100 + reach(must('rs_mom'), all('rs_mom'), 1);
     const ml = 36, mb = 22, mt = 8, mr = 8;
-    const x = d3.scaleLinear([100 - sx, 100 + sx], [ml, W - mr]);
-    const y = d3.scaleLinear([100 - sy, 100 + sy], [H - mb, mt]);
+    const x = d3.scaleLinear([xLo, xHi], [ml, W - mr]);
+    const y = d3.scaleLinear([yLo, yHi], [H - mb, mt]);
     const quad = [
-      { k: 'leading', x0: 100, x1: 100 + sx, y0: 100, y1: 100 + sy, c: 'var(--color-ok)', ax: 'end', lx: W - mr - 6, ly: mt + 14 },
-      { k: 'weakening', x0: 100, x1: 100 + sx, y0: 100 - sy, y1: 100, c: 'var(--color-warn)', ax: 'end', lx: W - mr - 6, ly: H - mb - 8 },
-      { k: 'lagging', x0: 100 - sx, x1: 100, y0: 100 - sy, y1: 100, c: 'var(--color-bad)', ax: 'start', lx: ml + 6, ly: H - mb - 8 },
-      { k: 'improving', x0: 100 - sx, x1: 100, y0: 100, y1: 100 + sy, c: 'var(--cds-text-secondary)', ax: 'start', lx: ml + 6, ly: mt + 14 },
+      { k: 'leading', x0: 100, x1: xHi, y0: 100, y1: yHi, c: 'var(--color-ok)', ax: 'end', lx: W - mr - 6, ly: mt + 14 },
+      { k: 'weakening', x0: 100, x1: xHi, y0: yLo, y1: 100, c: 'var(--color-warn)', ax: 'end', lx: W - mr - 6, ly: H - mb - 8 },
+      { k: 'lagging', x0: xLo, x1: 100, y0: yLo, y1: 100, c: 'var(--color-bad)', ax: 'start', lx: ml + 6, ly: H - mb - 8 },
+      { k: 'improving', x0: xLo, x1: 100, y0: 100, y1: yHi, c: 'var(--cds-text-secondary)', ax: 'start', lx: ml + 6, ly: mt + 14 },
     ];
     svg.append('g').selectAll('rect').data(quad).join('rect').attr('x', (q) => x(q.x0)).attr('width', (q) => x(q.x1) - x(q.x0))
       .attr('y', (q) => y(q.y1)).attr('height', (q) => y(q.y0) - y(q.y1)).attr('fill', (q) => q.c).attr('fill-opacity', 0.06);
