@@ -111,6 +111,10 @@
 .rb-pos th:nth-child(-n+3), .rb-pos td:nth-child(-n+3) { text-align: left; }
 .rb-pos th:nth-child(3), .rb-pos td:nth-child(3) { text-align: right; }
 .rb-wide { grid-column: 1 / -1; }
+.rb-check { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); cursor: pointer; }
+.rb-check input { accent-color: var(--color-fg); }
+.rb-table tr.rb-sep td { background: var(--color-bg); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); text-align: left; }
+.rb-table tr.rb-muted td { color: var(--color-fg-muted); }
 .rb-pick { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
 .rb-pick:hover { border-color: var(--color-bad); }
 .rb-pick:focus-visible, .rb-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
@@ -238,6 +242,7 @@
           <h2 class="rb-h2" data-en="Return rankings">回報排名</h2>
           <p class="rb-sub"><span id="rank-sub"></span> <span data-en="When short-term and long-term rankings flip, rotation is starting. Click a column to sort.">短期排名與長期排名倒轉，是輪動的早期跡象。點擊欄名排序。</span></p>
         </div>
+        <label class="rb-check" id="rank-sectors-wrap" hidden><input type="checkbox" id="rank-sectors"> <span data-en="Also show the 11 sectors">同時顯示11個板塊</span></label>
         <div class="rb-seg" role="group" aria-label="回報口徑" data-en-aria="Return basis">
           <button type="button" class="rb-mode" data-mode="rel" aria-pressed="true" data-en="vs S&amp;P 500">相對標普500</button>
           <button type="button" class="rb-mode" data-mode="abs" aria-pressed="false" data-en="Absolute">絕對回報</button>
@@ -755,7 +760,7 @@
   // ---------- helpers ----------
   const root = document.getElementById('rb-wrap');
   const tip = document.getElementById('rb-tip');
-  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', bench: 'spy', picks: ['MU', 'NBIS', 'GOOGL', 'SNDK', 'BE', 'CRWV', 'AVGO', 'LITE', 'INTC', 'CCJ'], range: { breadth: '3m', positioning: '3m' } };
+  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', withSectors: false, bench: 'spy', picks: ['MU', 'NBIS', 'GOOGL', 'SNDK', 'BE', 'CRWV', 'AVGO', 'LITE', 'INTC', 'CCJ'], range: { breadth: '3m', positioning: '3m' } };
   const DAYS = { '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
   // rows (with .d Date) inside the tab's chosen range, counted back from the last row
   const windowed = (rows, tab) => { if (!rows.length) return rows; const cut = +rows.at(-1).d - DAYS[state.range[tab]] * 864e5; return rows.filter((r) => +r.d >= cut); };
@@ -1361,7 +1366,10 @@
   };
   function drawTable() {
     const table = document.getElementById('sector-table');
-    table.dataset.source = isStock() ? 'stocks' : 'sectors';
+    const withSectors = state.withSectors && state.grp !== 'sector';
+    document.getElementById('rank-sectors-wrap').hidden = state.grp === 'sector';
+    document.getElementById('rank-sectors').checked = !!state.withSectors;
+    table.dataset.source = (isStock() ? 'stocks' : 'sectors') + (withSectors && isStock() ? ' sectors' : '');
     const st = status([table.dataset.source]);
     if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
     const Q = QNAME();
@@ -1380,13 +1388,17 @@
     const rows = rotationItems().slice();
     const qOrder = { leading: 3, improving: 2, weakening: 1, lagging: 0 };
     const key = (r) => (state.sort.key.startsWith('quadrant') ? qOrder[r[state.sort.key]] ?? -1 : state.sort.key === 'name' ? nm(r) : r[state.sort.key]);
-    rows.sort((a, b) => {
+    const order = (a, b) => {
       const va = key(a), vb = key(b);
       if (va == null) return 1; if (vb == null) return -1;
       return (va < vb ? -1 : va > vb ? 1 : 0) * state.sort.dir;
-    });
-    table.tBodies[0].replaceChildren(...rows.map((r) => {
+    };
+    rows.sort(order);
+    const extra = withSectors ? dash.data('sectors').data.filter((r) => r.group === 'sector').sort(order) : [];
+    const sepRow = () => { const tr = mk('tr', 'rb-sep'); const td = mk('td', null, L('11個板塊（比較用）', '11 sectors (for comparison)')); td.colSpan = cols.length; tr.append(td); return tr; };
+    table.tBodies[0].replaceChildren(...rows.map((r) => [r, false]).concat(extra.map((r) => [r, true])).flatMap(([r, muted], i) => {
       const row = document.createElement('tr');
+      if (muted) row.className = 'rb-muted';
       for (const c of cols) {
         const td = document.createElement('td');
         const v = r[c.f];
@@ -1404,7 +1416,7 @@
         else td.textContent = signed(v, 1);
         row.append(td);
       }
-      return row;
+      return muted && i === rows.length ? [sepRow(), row] : [row];
     }));
     drawAiInside();
   }
@@ -1889,6 +1901,7 @@
   document.querySelectorAll('.rb-grp').forEach((b) => b.addEventListener('click', () => { state.grp = b.dataset.grp; drawAll(); }));
   document.querySelectorAll('.rb-tail').forEach((b) => b.addEventListener('click', () => { state.tail = +b.dataset.tail; drawAll(); }));
   document.querySelectorAll('.rb-mode').forEach((b) => b.addEventListener('click', () => { state.mode = b.dataset.mode; drawAll(); }));
+  document.getElementById('rank-sectors').addEventListener('change', (e) => { state.withSectors = e.target.checked; drawAll(); });
   document.querySelectorAll('.rb-bench').forEach((b) => b.addEventListener('click', () => { state.bench = b.dataset.bench; drawAll(); }));
   document.getElementById('pick-add').addEventListener('click', () => addPick());
   document.getElementById('pick-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addPick(); } });
