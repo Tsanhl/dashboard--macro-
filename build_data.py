@@ -294,6 +294,14 @@ def main():
                 row["need_mom" + suffix] = need(base)       # relative return next week for momentum >= 100
                 row["need_ratio" + suffix] = need(100.0)    # relative return next week for RS-ratio >= 100
                 row["next_flat" + suffix] = quadrant(flat_ratio, 100 * flat_ratio / base)  # quadrant if it just matches
+            # Is a turn real or a base effect? confirmed = RS-ratio rising and beating the benchmark two weeks running;
+            # early = RS-ratio rising and beat it this week only; unconfirmed = anything else
+            if ok and len(rsv) >= 3 and len(ratio.dropna()) >= 2:
+                chg = ratio.iloc[-1] - ratio.iloc[-2]
+                w1, w2 = (rsv.iloc[-1] / rsv.iloc[-2] - 1) * 100, (rsv.iloc[-2] / rsv.iloc[-3] - 1) * 100
+                row["ratio_chg" + suffix], row["rel_w1" + suffix], row["rel_w2" + suffix] = r(chg), r(w1), r(w2)
+                row["turn" + suffix] = ("confirmed" if chg > 0 and w1 > 0 and w2 > 0
+                                        else "early" if chg > 0 and w1 > 0 else "unconfirmed")
             for d in ratio.index[-10:]:
                 tail.setdefault(d, {})["rs_ratio" + suffix] = r(ratio[d])
                 tail[d]["rs_mom" + suffix] = r(mom[d])
