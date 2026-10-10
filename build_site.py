@@ -46,6 +46,7 @@ def public_data():
 SHIM = """
 (() => {
   const DATASETS = __DATASETS__;
+  window.RB_PUBLIC = __PUBLIC__;
   const store = {}, calcs = [], listeners = [];
   const params = { lang: 'zh' };
   try { const saved = localStorage.getItem('rb-lang'); if (saved) params.lang = saved; } catch (e) {}
@@ -142,20 +143,26 @@ __BODY__
 """
 
 
-def main():
+def main(private=False):
+    """Public site into site/; with --private, a full-data local copy into site_private/ (never published)."""
+    global SITE
+    if private:
+        SITE = ROOT / "site_private"
     if SITE.exists():
         shutil.rmtree(SITE)
     (SITE / "data").mkdir(parents=True)
-    for name, rows in public_data().items():
+    data = {name: load(name) for name in DATASETS} if private else public_data()
+    for name, rows in data.items():
         (SITE / "data" / f"{name}.json").write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")))
     body = (ROOT / "index.html").read_text()
     page = (PAGE.replace("__TOKENS__", TOKENS)
-                .replace("__SHIM__", SHIM.replace("__DATASETS__", json.dumps(DATASETS)))
+                .replace("__SHIM__", SHIM.replace("__DATASETS__", json.dumps(DATASETS)).replace("__PUBLIC__", "false" if private else "true"))
                 .replace("__BODY__", body))
     (SITE / "index.html").write_text(page)
     (SITE / ".nojekyll").write_text("")
-    print("site/ built:", len(DATASETS), "data files")
+    print(f"{SITE.name}/ built:", len(DATASETS), "data files")
 
 
 if __name__ == "__main__":
-    main()
+    import sys
+    main(private="--private" in sys.argv)

@@ -302,6 +302,21 @@ def main():
                 row["ratio_chg" + suffix], row["rel_w1" + suffix], row["rel_w2" + suffix] = r(chg), r(w1), r(w2)
                 row["turn" + suffix] = ("confirmed" if chg > 0 and w1 > 0 and w2 > 0
                                         else "early" if chg > 0 and w1 > 0 else "unconfirmed")
+            # Where it is in its run: weeks in the current leading spell, the gap since the previous one (a short gap
+            # means a late re-entry), last week's quadrant, and whether the RS-ratio fell two weeks running.
+            if ok and len(ratio.dropna()) >= 3:
+                qs = [quadrant(a_, b_) for a_, b_ in zip(ratio, mom)]
+                lead = 0
+                while lead < len(qs) and qs[-1 - lead] == "leading":
+                    lead += 1
+                gap = None
+                if lead:
+                    start = len(qs) - lead
+                    prev = [i for i in range(start - 1, -1, -1) if qs[i] == "leading"]
+                    gap = (start - 1 - prev[0]) if prev else None
+                row["lead_weeks" + suffix], row["gap_before" + suffix] = lead, gap
+                row["quadrant_1w" + suffix] = qs[-2]
+                row["ratio_chg_prev" + suffix] = r(ratio.iloc[-2] - ratio.iloc[-3])
             for d in ratio.index[-10:]:
                 tail.setdefault(d, {})["rs_ratio" + suffix] = r(ratio[d])
                 tail[d]["rs_mom" + suffix] = r(mom[d])

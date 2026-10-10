@@ -125,7 +125,7 @@
         <button type="button" class="rb-lang" data-lang="en" aria-pressed="false">English</button>
       </div>
     </div>
-    <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows ai_flows positioning_now rates_now breadth_now sectors global"></div>
+    <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows ai_flows positioning_now rates_now breadth_now sectors global stocks"></div>
     <p class="rb-asof"><span data-en="Prices as of US close on">數據截至</span> <span data-source="breadth_now" data-field="asof" data-row="0">—</span> <span data-en="· breadth from today's">美股收市 · 市寬按標普500現有成分股</span> <span data-source="breadth_now" data-field="members" data-row="0">—</span> <span data-en="S&amp;P 500 members · futures positioning as of">隻計算 · 期貨持倉截至</span> <span data-source="positioning_now" data-field="date" data-row="0">—</span></p>
     <nav class="rb-tabs" role="tablist" aria-label="頁面" data-en-aria="Pages">
       <button type="button" role="tab" id="tab-overview" data-page="overview" aria-selected="true" data-en="Overview">總覽</button>
@@ -509,6 +509,30 @@
         <li data-en="Return rankings: red over six months but green over one month means a long-time laggard is turning up, an early rotation. Green over six months but red over one week means the leader is tiring.">回報排名：6個月紅、1個月綠，代表長期落後的板塊開始轉強，屬輪動早期；6個月綠、1週紅，代表龍頭開始累。</li>
         <li data-en="Off 52-week high: a big gap can mean a catch-up candidate or a collapse; read it with the quadrant. Members above 50-day: an ETF rising on a handful of stocks is not a reliable advance.">距52週高：距離越遠，可能是補漲候選，也可能正在崩潰，要配合象限判斷。成分股高於50天線：板塊ETF上升但只靠少數股票撐住，升勢不可靠。</li>
       </ul>
+
+      <div class="rb-private">
+      <h3 data-en="Trading the rotation (from a one-year backtest)">輪動操作（一年回測得出的規則）</h3>
+      <p data-en="Backtest of the graph's own signals, Oct 2025 to Oct 2026, weekly, against the S&amp;P 500: 26 sector, theme and AI-chain groups and about 500 stocks. One year, one AI bull market, no trading costs: a guide, not a promise, and not personal advice.">回測範圍：2025年10月至2026年10月，每週數據，對標普500；26個板塊、主題及AI籃子，另約500隻個股。只有一年、一個AI牛市，未計交易成本：屬參考，不是保證，也不是個人投資建議。</p>
+      <ul>
+        <li data-en="What the test found: quadrant signals alone have little edge (quick rules won 34–40% of trades; single stocks averaged about +0.5% vs the S&amp;P). Profits came from a few big winners (memory +77% and +98%, optical +81%, networking +44% vs the S&amp;P) against many small losses. So the exit's job is to keep losses small and let winners run.">回測發現：單靠象限訊號優勢很薄（快速進出的規則勝率只有34至40%；個股平均只跑贏約0.5%）。利潤來自少數大贏家（記憶體 +77% 及 +98%、光通訊 +81%、網絡與互連 +44%，均為相對標普500），抵銷大量小額虧損。所以出場的目的，是讓虧損細、讓贏家跑。</li>
+        <li data-en="Step 1, watch list: groups moving from lagging into improving, tagged confirmed or early (skip unconfirmed). After entering improving the next 8 weeks averaged only +1.6% vs the S&amp;P, close to a coin flip: watch, don't buy yet.">第一步，觀察名單：由落後進入改善、標記為「確認」或「初步」的組別（「未確認」暫時不理）。進入改善後8週平均只跑贏1.6%，接近擲毫：只觀察，未是買入。</li>
+        <li data-en="Step 2, trigger: entering leading with the RS-ratio still rising, the best state in the test (next 8 weeks +6.4% vs the S&amp;P, 54% beat it). Best of all is the first move into leading after a long lagging spell; the big wins came from those.">第二步，觸發：進入領先而且強度比率仍在上升，是回測中最好的狀態（之後8週平均跑贏6.4%，54%機會跑贏）。最好是長期落後之後第一次進入領先，大贏家多數來自這種情況。</li>
+        <li data-en="Step 3, confirm with the rest of the dashboard: participation inside the group rising, credit spreads not widening, the macro driver supportive (real yields not jumping), and for the AI chain, money flowing into that link on the inside-chain line and against semis.">第三步，用儀表板其他部分確認：組別內部參與度上升、信貸息差沒有擴闊、宏觀驅動支持（實際收益率不是急升）；AI產業鏈則看產業鏈內部輪動及「對半導體」基準，確認資金正流入這一環。</li>
+        <li data-en="Step 4, pick the stock: each link is led by its strongest name. Choose stocks with the highest RS-ratio in a leading group that are themselves leading. The strongest stock in a lagging group does not qualify; a stock's own signal alone gave little edge.">第四步，揀股：每一環由最強的股票帶頭。在處於領先的組別中，選強度比率最高、本身也在領先象限的股票。落後組別中最強的一隻並不符合；單靠個股自己的訊號，優勢很薄。</li>
+      </ul>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-cases">
+          <thead><tr><th scope="col" data-en="Exit rule">出場規則</th><th scope="col" data-en="How">做法</th><th scope="col" data-en="Why (backtest)">依據（回測）</th></tr></thead>
+          <tbody>
+            <tr><td data-en="1. Set a stop first">1. 先定止蝕</td><td data-en="An absolute stop when you buy, for example 10% below entry">買入時設定絕對止蝕，例如入場價下跌10%</td><td data-en="Cut the worst loss from −17% to about −15% without hurting the average">把最差一次虧損由 −17% 降至約 −15%，平均回報不受影響</td></tr>
+            <tr><td data-en="2. Give it time">2. 給它時間</td><td data-en="Unless the stop is hit, hold about 8 weeks">除非觸發止蝕，最少持有約8週</td><td data-en="Holding 8 weeks won 53–56%; leaving after one week won 35–39%">持有8週勝率53至56%；一週便走只有35至39%</td></tr>
+            <tr><td data-en="3. Leave on a real fade">3. 真正轉弱才走</td><td data-en="Weakening with the RS-ratio down two weeks running, or falling into lagging: exit or trim">「轉弱」而且強度比率連跌兩週，或跌入「落後」：出場或減持</td><td data-en="Stocks weakening with a falling RS-ratio did worst: next 8 weeks −1.2% vs the S&amp;P, only 37% beat it">個股處於「轉弱＋強度比率下跌」表現最差：之後8週平均跑輸1.2%，只有37%機會跑贏</td></tr>
+            <tr><td data-en="4. Don't flinch at one week">4. 不要被一週嚇走</td><td data-en="Momentum below 100 for one week with the RS-ratio still high is not an exit">動量只跌破100一週、強度比率仍高，不算出場訊號</td><td data-en="Quick exits had the lowest win rates and often sold at shake-out lows">快走規則勝率最低，經常賣在洗盤低位</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <p data-en="One more discipline: when a group has just finished a big run, be wary of its next quick return to leading. In the test, late re-entries mostly lost (optical in August −17%, neoclouds in August −12%). The headline's Rotation playbook line applies these rules every day and marks late re-entries.">再加一條紀律：一個組別剛完成大升浪，短期內再次轉入領先時要特別小心。回測中這類後期再追多數輸錢（光通訊8月 −17%、新雲8月 −12%）。頁首的「輪動操作」一行每日按這些規則自動分類，並標出後期再追。</p>
+      </div>
 
       <h3 data-en="5. Breadth tab">五、市寬分頁</h3>
       <div class="rb-tablebox" style="max-height: none">
@@ -918,6 +942,59 @@
   });
   const mk = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const sep = () => L('、', ', ');
+  // Rotation playbook from the Oct 2025–Oct 2026 backtest: trigger, hold, fade, exit warning, watch list, own picks
+  function rotState(r) {
+    const q = r.quadrant, up = r.ratio_chg > 0;
+    if ((q === 'weakening' && r.ratio_chg < 0 && r.ratio_chg_prev < 0) || (q === 'lagging' && r.quadrant_1w === 'weakening')) return 'exit';
+    if (q === 'leading' && up && r.lead_weeks >= 1 && r.lead_weeks <= 2) return 'trigger';
+    if (q === 'leading' && up) return 'hold';
+    if (q === 'leading') return 'fading';
+    if (q === 'improving' && (r.turn === 'confirmed' || r.turn === 'early')) return 'watch';
+    return q;
+  }
+  const STATE = () => ({
+    trigger: [L('觸發', 'Trigger'), 'rb-up'], hold: [L('持有區', 'Hold zone'), 'rb-up'], fading: [L('領先但強度回落', 'Leading, RS-ratio easing'), ''],
+    exit: [L('出場警號', 'Exit warning'), 'rb-down'], watch: [L('觀察', 'Watch'), ''],
+    weakening: [L('轉弱', 'Weakening'), ''], lagging: [L('落後', 'Lagging'), 'rb-down'], improving: [L('改善（未確認）', 'Improving (unconfirmed)'), ''],
+  });
+  function drawPlaybook(item, lines) {
+    if (status(['sectors']) !== 'ok') return;
+    const rows = dash.data('sectors').data.filter((r) => ['sector', 'theme', 'ai'].includes(r.group));
+    const by = (st) => rows.filter((r) => rotState(r) === st);
+    const T = TURN();
+    const names = (list, extra) => list.map((r) => nm(r) + (extra ? extra(r) : '')).join(sep()) || L('無', 'none');
+    const trig = names(by('trigger'), (r) => (r.gap_before == null || r.gap_before >= 8
+      ? L('（長期落後後首次）', ' (first after a long lag)') : L(`（距上次領先 ${r.gap_before} 週，後期再追要小心）`, ` (${r.gap_before} wks since last leading: late re-entry, take care)`)));
+    const out = [
+      [L('觸發', 'Trigger'), mk('span', 'rb-in', trig)],
+      [L('持有區', 'Hold zone'), names(by('hold'))],
+      [L('領先但回落', 'Leading, easing'), names(by('fading'))],
+      [L('出場警號', 'Exit warning'), mk('span', 'rb-out', names(by('exit')))],
+      [L('觀察', 'Watch'), names(by('watch'), (r) => L(`（${T[r.turn]}）`, ` (${T[r.turn]})`))],
+    ];
+    if (status(['stocks']) === 'ok') {
+      const all = dash.data('stocks').data, S = STATE();
+      const rank = (r) => (r.baskets || '').split(' ').filter(Boolean).map((b) => {
+        const peers = all.filter((x) => (x.baskets || '').split(' ').includes(b) && x.rs_ratio != null).sort((a, c) => c.rs_ratio - a.rs_ratio);
+        const g = rows.find((x) => x.ticker === b);
+        return L(`${g ? nm(g) : b}組第${peers.findIndex((x) => x.ticker === r.ticker) + 1}/${peers.length}`, `#${peers.findIndex((x) => x.ticker === r.ticker) + 1}/${peers.length} in ${g ? nm(g) : b}`);
+      }).join(sep());
+      const picks = mk('span');
+      DEFAULT_PICKS.map((t) => all.find((x) => x.ticker === t)).filter(Boolean).forEach((r, i) => {
+        const st = rotState(r), [label, c] = S[st] || [r.quadrant, ''];
+        // step 4: a buy state only counts if the stock's own AI group is leading too
+        const groups = (r.baskets || '').split(' ').filter(Boolean).map((b) => rows.find((x) => x.ticker === b)).filter(Boolean);
+        const groupNote = (st === 'trigger' || st === 'hold') && groups.length && !groups.some((g) => g.quadrant === 'leading')
+          ? L(`，但${groups.map((g) => nm(g)).join('、')}組別${QNAME()[groups[0].quadrant]}，未符合第四步`, `, but its group is ${QNAME()[groups[0].quadrant].toLowerCase()}: fails step 4`) : '';
+        if (i) picks.append(L('；', '; '));
+        picks.append(`${r.ticker} `, mk('span', c, label), rank(r) || groupNote ? L(`（${rank(r)}${groupNote}）`, ` (${rank(r)}${groupNote})`) : '');
+      });
+      out.push([L('自選股', 'My stocks'), picks]);
+    }
+    out.push([L('規則', 'Rules'), L('觸發＝剛進入領先且強度比率上升；出場警號＝轉弱且強度比率連跌兩週，或由轉弱跌入落後。止蝕按自己的入場價設定。詳見讀法「輪動操作」。', 'trigger = just entered leading with the RS-ratio rising; exit warning = weakening with two falling RS-ratio weeks, or weakening → lagging. Set stops from your own entry. See How to read, "Trading the rotation".')]);
+    item(L('輪動操作', 'Rotation playbook'), lines(out));
+  }
+
   function drawHeader() {
     const box = document.getElementById('takeaway');
     if (!ready(box, ['regime', 'flows', 'breadth_now', 'positioning_now', 'sectors', 'rates_now'])) return;
@@ -978,6 +1055,8 @@
       ? lines([...moves.map(([k, rows]) => { const [f, t] = k.split('>'); return [`${Q[f]} → ${Q[t]}`, rows.map((r) => tagged(r, t)).join(sep())]; }),
           ...(moves.some(([k]) => k.endsWith('>improving')) ? [[L('標記', 'Tags'), L('確認＝強度比率上升且連續兩週跑贏；初步＝上升且本週跑贏；未確認＝可能只是基數效應', 'confirmed = RS-ratio rising and beating two weeks running; early = rising and beat this week; unconfirmed = may be only a base effect')]] : [])])
       : L('11個板塊與4週前同屬一個象限', 'all 11 sectors sit in the same quadrant as four weeks ago'));
+
+    if (!window.RB_PUBLIC) drawPlaybook(item, lines);
 
     item(L('市寬', 'Breadth'), L(
       `高於50天線 ${fmt1(b.pct50)}%（一週 ${signed(g.breadth_chg_1w)} 個百分點）· 等權／市值加權20日 ${signed(g.rsp_spy_20d, 2)}% · 麥克連 ${signed(b.mcclellan, 0)}`,
@@ -1755,6 +1834,8 @@
   }
 
   // ---------- language: static text carries its English in data-en ----------
+  if (window.RB_PUBLIC) document.querySelectorAll('.rb-private').forEach((el) => { el.hidden = true; });
+
   function applyLang() {
     for (const el of root.querySelectorAll('[data-en]')) {
       if (el.dataset.zh == null) el.dataset.zh = el.textContent;
