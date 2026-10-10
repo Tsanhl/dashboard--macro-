@@ -305,7 +305,7 @@
       <div class="rb-cardhead">
         <div>
           <h2 class="rb-h2" data-en="Who added and who cut">持倉變化總覽</h2>
-          <p class="rb-sub" data-en="Change in net position, in percentage points of open interest. Positive: added longs or cut shorts. Negative: cut longs or added shorts. Moves of 2 points or more are in bold.">淨持倉變化，以佔未平倉合約的百分點計。正數為加好倉或減淡倉，負數為減好倉或加淡倉。變動2個百分點或以上以粗體顯示。</p>
+          <p class="rb-sub" data-en="Change in net position, in percentage points of open interest. Positive: added longs or cut shorts. Negative: cut longs or added shorts. Moves of 2 points or more are in bold.">淨持倉變化，以佔未平倉合約的百分點計。正數為加 long 或減 short，負數為減 long 或加 short。變動2個百分點或以上以粗體顯示。</p>
         </div>
         <div class="rb-seg" role="group" aria-label="變化期間" data-en-aria="Change period">
           <button type="button" class="rb-poswin" data-win="1w" aria-pressed="true" data-en="1 week">一週</button>
@@ -322,7 +322,7 @@
     <div class="rb-card" id="card-crowding">
       <div>
         <h2 class="rb-h2" data-en="Futures positioning: who is crowded">期貨持倉擁擠度</h2>
-        <p class="rb-sub" data-en="Net position (long minus short) as a share of open interest, from the CFTC weekly report. Percentile ranks this week against the past three years; 90 or above and 10 or below are marked as extremes. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs. For commodities the fund column is managed money. Updated once a week (Friday release).">淨持倉（好倉減淡倉）佔未平倉合約的百分比，來自美國商品期貨交易委員會（CFTC）每週報告。百分位為本週在過去三年的排位，90或以上、10或以下標記為極端。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問。商品一欄的基金為管理資金。每週更新一次（逢星期五公佈）。</p>
+        <p class="rb-sub" data-en="Net position (long minus short) as a share of open interest, from the CFTC weekly report. Percentile ranks this week against the past three years; 90 or above and 10 or below are marked as extremes. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs. For commodities the fund column is managed money. Updated once a week (Friday release).">淨持倉（long 減 short）佔未平倉合約的百分比，來自美國商品期貨交易委員會（CFTC）每週報告。百分位為本週在過去三年的排位，90或以上、10或以下標記為極端。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問。商品一欄的基金為管理資金。每週更新一次（逢星期五公佈）。</p>
       </div>
       <div class="rb-take-line" id="crowd-summary" data-source="positioning_now"></div>
       <div class="rb-tablebox" style="max-height: none">
@@ -510,18 +510,19 @@
 
       <h3 data-en="6. Positioning">六、期貨持倉</h3>
       <ul>
+        <li data-en="Long means bought, making money if the price rises; short means sold, making money if it falls. Net long or net short is longs minus shorts, shown as a share of all open contracts. A big net short is often a hedge against stocks held, not a bet on a crash; what matters is when shorts start being bought back.">Long 即買入，價格上升時賺錢；short 即沽出，價格下跌時賺錢。淨 long／淨 short 為 long 減 short，以佔全部未平倉合約的百分比表示。淨 short 大，往往是對沖手上持有的股票，未必是押注大跌；要留意的是 short 開始回補的時候。</li>
         <li data-en="Asset managers are pension funds, insurers and mutual funds: slow, long-term money. Leveraged funds are hedge funds and CTAs: fast money that chases trends and can be forced to unwind. For commodities the fund line is managed money.">資產管理機構即退休基金、保險公司、互惠基金，屬慢錢、長線；槓桿基金即對沖基金及商品交易顧問，屬快錢，會追勢，也會被迫平倉。商品的基金一欄為管理資金。</li>
-        <li data-en="Who added and who cut: one line per market. Positive means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal; a split means fast and slow money disagree.">持倉變化總覽：每個市場一行，正數為加好倉或減淡倉。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強；出現分歧，代表快錢與慢錢看法不同。</li>
+        <li data-en="Who added and who cut: one line per market. Positive means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal; a split means fast and slow money disagree.">持倉變化總覽：每個市場一行，正數為加 long 或減 short。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強；出現分歧，代表快錢與慢錢看法不同。</li>
         <li data-en="Crowding table: the percentile ranks this week against three years; 90+ or 10− is extreme. An extreme is not a trade signal by itself; it tells you how violent the unwind would be if the story changes. A turn from an extreme matters more than the level.">擁擠度表：百分位為本週在三年內的排位，90以上或10以下為極端。極端本身不是買賣訊號，代表一旦故事改變，平倉會很猛烈；由極端位置開始轉向，比水平本身重要。</li>
       </ul>
       <div class="rb-tablebox" style="max-height: none">
         <table class="rb-cases">
           <thead><tr><th scope="col" data-en="Pattern">情況</th><th scope="col" data-en="What it means">意思</th></tr></thead>
           <tbody>
-            <tr><td data-en="Leveraged funds very short equity futures while asset managers are long">股指期貨槓桿基金淨空倉極端，資產管理機構好倉高</td><td data-en="Mostly hedges or relative-value trades, not outright bearishness. A sharp rally can force short covering that lifts the index further.">多數是對沖或相對價值交易，未必看淡。若市場急升，淡倉被迫回補，會進一步推高指數。</td></tr>
-            <tr><td data-en="Very short VIX futures">VIX期貨淨空倉極端</td><td data-en="Many are selling volatility: complacency. A shock can make volatility jump.">很多人沽空波動率，市場自滿。一有衝擊，波動率會急升。</td></tr>
-            <tr><td data-en="Leveraged funds very short Treasury futures">美債期貨槓桿基金淨空倉極端</td><td data-en="The basis trade. When funding tightens it can be forced to unwind fast, as in March 2020.">屬基差交易。資金收緊時可能被迫急速平倉，例如2020年3月。</td></tr>
-            <tr><td data-en="Crowded yen shorts">日圓淡倉擁擠</td><td data-en="Crowded carry trade. A yen spike can trigger global deleveraging, as in August 2024.">套息交易擁擠。日圓急升會引發全球去槓桿，例如2024年8月。</td></tr>
+            <tr><td data-en="Leveraged funds very short equity futures while asset managers are long">股指期貨槓桿基金淨 short 極端，資產管理機構 long 倉位高</td><td data-en="Mostly hedges or relative-value trades, not outright bearishness. A sharp rally can force short covering that lifts the index further.">多數是對沖或相對價值交易，未必看淡。若市場急升，short 被迫回補，會進一步推高指數。</td></tr>
+            <tr><td data-en="Very short VIX futures">VIX期貨淨 short 極端</td><td data-en="Many are selling volatility: complacency. A shock can make volatility jump.">很多人沽空波動率，市場自滿。一有衝擊，波動率會急升。</td></tr>
+            <tr><td data-en="Leveraged funds very short Treasury futures">美債期貨槓桿基金淨 short 極端</td><td data-en="The basis trade. When funding tightens it can be forced to unwind fast, as in March 2020.">屬基差交易。資金收緊時可能被迫急速平倉，例如2020年3月。</td></tr>
+            <tr><td data-en="Crowded yen shorts">日圓 short 擁擠</td><td data-en="Crowded carry trade. A yen spike can trigger global deleveraging, as in August 2024.">套息交易擁擠。日圓急升會引發全球去槓桿，例如2024年8月。</td></tr>
           </tbody>
         </table>
       </div>
@@ -596,7 +597,7 @@
       <ul>
         <li data-en="Relative strength = ETF weekly close ÷ S&amp;P 500 (SPY). RS-ratio = 100 × relative strength ÷ its 10-week average; momentum = 100 × RS-ratio ÷ RS-ratio four weeks earlier. A public approximation, not the commercial indicator.">相對強度 = 交易所買賣基金週收市價 ÷ 標普500（SPY）。強度比率 = 100 × 相對強度 ÷ 其10週平均；動量 = 100 × 強度比率 ÷ 4週前的強度比率。這是公開近似算法，並非原版商業指標。</li>
         <li data-en="Breadth uses today's S&amp;P 500 members; stocks removed during the window are missing, a small survivorship bias. McClellan uses the net advance ratio times 1000.">市寬以標普500現有成分股計算，回看期內曾被剔除的股票不計，存在輕微倖存者偏差。麥克連振盪指標使用淨上升比率乘以1000。</li>
-        <li data-en="Futures positioning is futures only, reported each Friday for the Tuesday before. Asset-manager longs partly replicate index exposure.">期貨持倉只計期貨，每週五公佈該週二的數據；資產管理機構的好倉部分屬指數複製。</li>
+        <li data-en="Futures positioning is futures only, reported each Friday for the Tuesday before. Asset-manager longs partly replicate index exposure.">期貨持倉只計期貨，每週五公佈該週二的數據；資產管理機構的 long 倉位部分屬指數複製。</li>
         <li data-en="Sources: prices from Yahoo Finance (dividend-adjusted); members from github.com/datasets/s-and-p-500-companies; positioning from the CFTC; yields, credit spreads, term premium (Kim-Wright) and the Fed balance sheet from FRED. Refreshed Tuesday to Saturday at 07:00 UK time.">來源：價格來自 Yahoo Finance（經調整股息）；成分股名單來自 github.com/datasets/s-and-p-500-companies；期貨持倉來自 CFTC；收益率、信貸息差、期限溢價（Kim-Wright）及美聯儲資產負債表來自 FRED。逢星期二至星期六英國時間早上7時更新。</li>
       </ul>
     </div>
@@ -956,7 +957,7 @@
     item(L('持倉變化', 'Positioning'), lines([
       [L('本週', 'Week'), movers('c1')],
       [L('四週', '4 weeks'), movers('c4')],
-      [L('單位', 'Unit'), L('佔未平倉合約的百分點；正數為加好倉或減淡倉', 'points of open interest; positive = more long or less short')],
+      [L('單位', 'Unit'), L('佔未平倉合約的百分點；正數為加 long 或減 short', 'points of open interest; positive = more long or less short')],
     ]));
 
     box.replaceChildren(head, list);
@@ -1311,7 +1312,7 @@
   function holderRead(p, who) {
     const pct = p[who + '_pctile'], c1 = p[who + '_chg_1w'], c4 = p[who + '_chg_4w'], lvl = p[who + '_pct'];
     if (lvl == null) return null;
-    const side = lvl >= 0 ? L('淨好倉', 'net long') : L('淨淡倉', 'net short');
+    const side = lvl >= 0 ? L('淨 long', 'net long') : L('淨 short', 'net short');
     const zone = pct >= 90 ? 'high' : pct <= 10 ? 'low' : 'mid';
     let trend;
     if (zone === 'high') trend = c1 < 0 ? L('由三年高位開始回落，可能轉向', 'turning down from a 3-year high') : L('仍在三年高位附近，未見轉向', 'still near a 3-year high, no turn yet');
