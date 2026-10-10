@@ -119,6 +119,10 @@
 .rb-rrg .rb-item.on line { stroke-width: 2.5; opacity: 1 !important; }
 .rb-rrg .rb-item.on circle.t, .rb-rrg .rb-item.on .rb-arrow { opacity: 1 !important; }
 .rb-rrg .rb-lbl.on { font-weight: 700; }
+.rb-picks { display: grid; gap: 6px; }
+.rb-pgroup ol { margin: 2px 0 0; padding-inline-start: 1.6em; display: grid; gap: 1px; }
+.rb-ptitle { font-weight: var(--cds-font-weight-medium); }
+.rb-pgroup li.rb-weak { color: var(--color-fg-muted); }
 .rb-pick { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
 .rb-pick:hover { border-color: var(--color-bad); }
 .rb-pick:focus-visible, .rb-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
@@ -1000,16 +1004,27 @@
         const g = rows.find((x) => x.ticker === b);
         return L(`${g ? nm(g) : b}組第${peers.findIndex((x) => x.ticker === r.ticker) + 1}/${peers.length}`, `#${peers.findIndex((x) => x.ticker === r.ticker) + 1}/${peers.length} in ${g ? nm(g) : b}`);
       }).join(sep());
-      const picks = mk('span');
-      DEFAULT_PICKS.map((t) => all.find((x) => x.ticker === t)).filter(Boolean).forEach((r, i) => {
-        const st = rotState(r), [label, c] = S[st] || [r.quadrant, ''];
+      // own picks grouped by state, most urgent first, numbered inside each group
+      const ORDER = ['exit', 'trigger', 'hold', 'fading', 'watch', 'weakening', 'improving', 'lagging'];
+      const byState = {};
+      DEFAULT_PICKS.map((t) => all.find((x) => x.ticker === t)).filter(Boolean).forEach((r) => {
+        const st = rotState(r);
         // step 4: a buy state only counts if the stock's own AI group is leading too
         const groups = (r.baskets || '').split(' ').filter(Boolean).map((b) => rows.find((x) => x.ticker === b)).filter(Boolean);
         const groupNote = (st === 'trigger' || st === 'hold') && groups.length && !groups.some((g) => g.quadrant === 'leading')
-          ? L(`，但${groups.map((g) => nm(g)).join('、')}組別${QNAME()[groups[0].quadrant]}，未符合第四步`, `, but its group is ${QNAME()[groups[0].quadrant].toLowerCase()}: fails step 4`) : '';
-        if (i) picks.append(L('；', '; '));
-        picks.append(`${r.ticker} `, mk('span', c, label), rank(r) || groupNote ? L(`（${rank(r)}${groupNote}）`, ` (${rank(r)}${groupNote})`) : '');
+          ? L(`但${groups.map((g) => nm(g)).join('、')}組別${QNAME()[groups[0].quadrant]}，未符合第四步`, `but its group is ${QNAME()[groups[0].quadrant].toLowerCase()}: fails step 4`) : '';
+        const note = [rank(r), groupNote].filter(Boolean).join(L('，', ', '));
+        (byState[st] ||= []).push({ text: `${r.ticker}${note ? L(`（${note}）`, ` (${note})`) : ''}`, weak: !!groupNote });
       });
+      const picks = mk('div', 'rb-picks');
+      for (const st of ORDER.filter((x) => byState[x])) {
+        const [label, c] = S[st] || [st, ''];
+        const grp = mk('div', 'rb-pgroup');
+        const ol = mk('ol');
+        byState[st].sort((a, b) => a.weak - b.weak).forEach((x) => ol.append(mk('li', x.weak ? 'rb-weak' : null, x.text)));
+        grp.append(mk('span', 'rb-ptitle ' + c, `${label}（${byState[st].length}）`), ol);
+        picks.append(grp);
+      }
       out.push([L('自選股', 'My stocks'), picks]);
 
       // Suggestions (step 4): stocks in a trigger or hold state, top 3 by RS-ratio inside a group that is leading.
