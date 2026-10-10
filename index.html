@@ -1106,9 +1106,18 @@
 
     if (!window.RB_PUBLIC) drawPlaybook(item, lines);
 
-    item(L('市寬', 'Breadth'), L(
-      `高於50天線 ${fmt1(b.pct50)}%（一週 ${signed(g.breadth_chg_1w)} 個百分點）；等權／市值加權 20日 ${signed(g.rsp_spy_20d, 2)}%；麥克連 ${signed(b.mcclellan, 0)}`,
-      `${fmt1(b.pct50)}% above the 50-day (${signed(g.breadth_chg_1w)} pts on the week); equal/cap weight ${signed(g.rsp_spy_20d, 2)}% over 20 days; McClellan ${signed(b.mcclellan, 0)}`));
+    // breadth: each gauge with its week and month, then a plain verdict
+    const rsp = dash.data('sectors').data.find((r) => r.ticker === 'RSP');
+    const p1w = b.pct50 - b.pct50_1w, p1m = b.pct50 - b.pct50_1m;
+    const bread = p1w >= 5 && g.rsp_spy_20d >= 0 ? L('擴散中：參與度上升，等權一個月同步跑贏', 'broadening: participation up and equal weight ahead over the month')
+      : p1w >= 5 ? L('短期反彈，但未擴散（等權一個月仍跑輸）', 'a short-term bounce, not broadening (equal weight still behind over the month)')
+      : p1w <= -5 ? L('參與度轉弱', 'participation weakening') : L('變化不大', 'little change');
+    item(L('市寬', 'Breadth'), lines([
+      ['', L(`高於50天線 ${fmt1(b.pct50)}%：一週 ${signed(p1w)} 個百分點；一個月 ${signed(p1m)} 個百分點`, `Above the 50-day ${fmt1(b.pct50)}%: week ${signed(p1w)} pts; month ${signed(p1m)} pts`)],
+      ...(rsp ? [['', L(`等權相對市值加權：一週 ${signed(rsp.rel1w)}%；一個月 ${signed(g.rsp_spy_20d, 2)}%`, `Equal vs cap weight: week ${signed(rsp.rel1w)}%; month ${signed(g.rsp_spy_20d, 2)}%`)]] : []),
+      ['', L(`麥克連 ${signed(b.mcclellan, 0)}：一週前 ${signed(b.mcclellan_1w, 0)}；一個月前 ${signed(b.mcclellan_1m, 0)}`, `McClellan ${signed(b.mcclellan, 0)}: a week ago ${signed(b.mcclellan_1w, 0)}; a month ago ${signed(b.mcclellan_1m, 0)}`)],
+      ['→', bread],
+    ]));
 
     const rt = dash.data('rates_now').data[0];
     const bp = (v) => `${signed(v, 0)}${L(' 基點', 'bp')}`;
