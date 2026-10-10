@@ -784,6 +784,15 @@
     if (st.some((s) => ['error', 'connect', 'declined', 'missing'].includes(s))) return 'error';
     return st.every((s) => s === 'ok') ? 'ok' : 'loading';
   };
+  const tableState = (table, st) => {
+    const box = table.parentElement;
+    let note = box.querySelector(':scope > .rb-fail');
+    if (st === 'error') {
+      table.hidden = true;
+      if (!note) { note = Object.assign(document.createElement('div'), { className: 'rb-fail', textContent: L('未能載入', 'Failed to load') }); box.append(note); }
+    } else { table.hidden = false; if (note) note.remove(); }
+    return st === 'ok';
+  };
   const fail = (el) => { el.classList.remove('dash-skeleton'); el.replaceChildren(Object.assign(document.createElement('div'), { className: 'rb-fail', textContent: L('未能載入', 'Failed to load') })); };
   const ready = (el, ids) => {
     const s = status(ids);
@@ -1369,9 +1378,10 @@
     const withSectors = state.withSectors && state.grp !== 'sector';
     document.getElementById('rank-sectors-wrap').hidden = state.grp === 'sector';
     document.getElementById('rank-sectors').checked = !!state.withSectors;
-    table.dataset.source = (isStock() ? 'stocks' : 'sectors') + (withSectors && isStock() ? ' sectors' : '');
-    const st = status([table.dataset.source]);
-    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
+    const srcs = isStock() ? (withSectors ? ['stocks', 'sectors'] : ['stocks']) : ['sectors'];
+    table.dataset.source = srcs.join(' ');
+    const st = status(srcs);
+    if (!tableState(table, st)) return;
     const Q = QNAME();
     const cols = COLS();
     if (!cols.some((c) => c.f === state.sort.key)) state.sort.key = cols[5].f;
@@ -1428,7 +1438,7 @@
     if (card.hidden) return;
     const table = document.getElementById('ai-inside-table');
     const st = status(['ai_flows']);
-    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
+    if (!tableState(table, st)) return;
     const A = dash.data('ai_flows').data.slice().sort((a, b) => b.vs_chain_1w - a.vs_chain_1w);
     const cols = [
       { f: 'name', label: L('籃子', 'Basket') },
@@ -1513,7 +1523,7 @@
   function drawParticipation() {
     const table = document.getElementById('part-table');
     const st = status(['sectors']);
-    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
+    if (!tableState(table, st)) return;
     const cols = [
       { f: 'ticker', label: L('代號', 'Ticker') },
       { f: en() ? 'name_en' : 'name', label: L('板塊', 'Sector') },
@@ -1589,7 +1599,7 @@
     drawPosSummaries();
     const table = document.getElementById('pos-table');
     const st = status(['positioning_now']);
-    if (st === 'error') fail(table.parentElement);
+    tableState(table, st);
     const sel = document.getElementById('pos-market');
     if (st === 'ok') {
       const now = dash.data('positioning_now').data;
@@ -1776,7 +1786,7 @@
   function drawPosChange() {
     const table = document.getElementById('poschange-table');
     const st = status(['positioning_now']);
-    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
+    if (!tableState(table, st)) return;
     const k = state.posWin === '4w' ? '4w' : '1w';
     const cols = [
       { f: en() ? 'name_en' : 'name', label: L('市場', 'Market') },
@@ -1862,7 +1872,7 @@
         }
         return tr;
       }));
-    } else if (st === 'error') fail(table.parentElement);
+    } else tableState(table, st);
 
     const el = document.getElementById('ch-global');
     if (!ready(el, ['global'])) return;
