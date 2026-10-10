@@ -15,6 +15,8 @@
 .rb-bullets .rb-in { color: var(--color-ok); } .rb-bullets .rb-out { color: var(--color-bad); }
 .rb-sublines { display: grid; gap: 2px; }
 .rb-sublines > span > i { font-style: normal; color: var(--color-fg-muted); margin-inline-end: 6px; }
+.rb-take-line { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; }
+.rb-take-line b { font-weight: var(--cds-font-weight-medium); }
 .rb-mini { border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; width: auto; max-width: 100%; }
 .rb-mini th, .rb-mini td { padding: 2px 12px 2px 0; text-align: right; white-space: nowrap; }
 .rb-mini th { color: var(--color-fg-muted); font-weight: 400; }
@@ -283,15 +285,19 @@
       <div class="rb-cardhead">
         <div>
           <h2 class="rb-h2" data-en="Who added and who cut">持倉變化總覽</h2>
-          <p class="rb-sub" data-en="Change in net position, in percentage points of open interest. Right: added longs or cut shorts. Left: cut longs or added shorts.">淨持倉變化，以佔未平倉合約的百分點計。向右為加好倉或減淡倉，向左為減好倉或加淡倉。</p>
+          <p class="rb-sub" data-en="Change in net position, in percentage points of open interest. Positive: added longs or cut shorts. Negative: cut longs or added shorts. Moves of 2 points or more are in bold.">淨持倉變化，以佔未平倉合約的百分點計。正數為加好倉或減淡倉，負數為減好倉或加淡倉。變動2個百分點或以上以粗體顯示。</p>
         </div>
         <div class="rb-seg" role="group" aria-label="變化期間" data-en-aria="Change period">
           <button type="button" class="rb-poswin" data-win="1w" aria-pressed="true" data-en="1 week">一週</button>
           <button type="button" class="rb-poswin" data-win="4w" aria-pressed="false" data-en="4 weeks">四週</button>
         </div>
       </div>
-      <div class="rb-legend" id="lg-poschange"></div>
-      <div class="rb-chart dash-skeleton" id="ch-poschange" data-source="positioning_now" style="min-height: 22rem"></div>
+      <div class="rb-tablebox" style="max-height: none">
+        <table class="rb-table rb-pos" id="poschange-table" data-source="positioning_now" data-row-key="market">
+          <thead><tr></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
     </div>
     <div class="rb-card" id="card-crowding">
       <div>
@@ -335,6 +341,7 @@
       <div class="rb-card" id="card-credit">
         <h2 class="rb-h2" data-en="Credit spreads">信貸息差</h2>
         <p class="rb-sub" data-en="Option-adjusted spread over Treasuries, in percent. Stocks rising while high-yield spreads widen is a warning.">相對國債的期權調整息差（%）。股市上升而高收益債息差擴闊，屬於警號。</p>
+        <p class="rb-take-line" id="credit-vs-stocks" data-source="global rates_now"></p>
         <div class="rb-tablebox" style="max-height: none; border: 0"><table class="rb-mini" id="mini-credit"></table></div>
         <p class="rb-sub" id="credit-public-note" hidden data-en="This version shows the change in basis points since the start of the chosen range, and the latest reading as a three-year percentile.">此版本顯示自所選範圍起點以來的變化（基點），最新讀數以三年百分位表示。</p>
         <div class="rb-chart dash-skeleton" id="ch-credit" data-source="rates" style="min-height: 15rem"></div>
@@ -358,7 +365,7 @@
     <div class="rb-grid">
       <div class="rb-card" id="card-macro">
         <h2 class="rb-h2" data-en="Macro drivers">宏觀驅動</h2>
-        <p class="rb-sub" data-en="Yields change in basis points, everything else in percent. Most rotations are set off by these.">收益率以基點計變化，其餘以百分比計。輪動多數由這些因素觸發。</p>
+        <p class="rb-sub" data-en="Yields change in basis points, everything else in percent. Most rotations are set off by these. Yields here are Yahoo market quotes and can differ by a few basis points from the FRED closing data on the Positioning &amp; rates tab.">收益率以基點計變化，其餘以百分比計。輪動多數由這些因素觸發。此處收益率為 Yahoo 市場報價，與「持倉與利率」分頁的 FRED 收市數據可能相差數個基點。</p>
         <div class="rb-tablebox">
           <table class="rb-table" id="macro-table" data-source="macro" data-row-key="ticker">
             <thead><tr>
@@ -478,7 +485,7 @@
       <h3 data-en="6. Positioning">六、期貨持倉</h3>
       <ul>
         <li data-en="Asset managers are pension funds, insurers and mutual funds: slow, long-term money. Leveraged funds are hedge funds and CTAs: fast money that chases trends and can be forced to unwind. For commodities the fund line is managed money.">資產管理機構即退休基金、保險公司、互惠基金，屬慢錢、長線；槓桿基金即對沖基金及商品交易顧問，屬快錢，會追勢，也會被迫平倉。商品的基金一欄為管理資金。</li>
-        <li data-en="Who added and who cut: right means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal.">持倉變化總覽：向右為加好倉或減淡倉。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強。</li>
+        <li data-en="Who added and who cut: one line per market. Positive means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal; a split means fast and slow money disagree.">持倉變化總覽：每個市場一行，正數為加好倉或減淡倉。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強；出現分歧，代表快錢與慢錢看法不同。</li>
         <li data-en="Crowding table: the percentile ranks this week against three years; 90+ or 10− is extreme. An extreme is not a trade signal by itself; it tells you how violent the unwind would be if the story changes. A turn from an extreme matters more than the level.">擁擠度表：百分位為本週在三年內的排位，90以上或10以下為極端。極端本身不是買賣訊號，代表一旦故事改變，平倉會很猛烈；由極端位置開始轉向，比水平本身重要。</li>
       </ul>
       <div class="rb-tablebox" style="max-height: none">
@@ -1345,6 +1352,7 @@
       lineChart(lq, { series: [{ name: L('淨流動性（十億美元）', 'Net liquidity ($bn)'), color: colors()[0], values: rows.map((r) => ({ d: r.d, v: r.net_liq })) }], height: 200, yFmt: d3.format(','), tipFmt: d3.format(',') });
     }
     drawChips();
+    drawCreditVsStocks();
   }
 
   // Latest value plus one-week and one-month change under a chart title; each number is marked to rates_now.
@@ -1381,47 +1389,62 @@
     }
   }
 
-  // One bar per holder per market: change in net position over the chosen window
+  // One line per market: change in net position over the chosen window, and what the two groups did
   function drawPosChange() {
-    const el = document.getElementById('ch-poschange');
-    if (!ready(el, ['positioning_now'])) return;
+    const table = document.getElementById('poschange-table');
+    const st = status(['positioning_now']);
+    if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
     const k = state.posWin === '4w' ? '4w' : '1w';
-    const c = colors();
-    const now = dash.data('positioning_now').data;
-    legend(document.getElementById('lg-poschange'), [
-      { name: L('槓桿基金（商品為管理資金）', 'Leveraged funds (managed money for commodities)'), color: c[0] },
-      { name: L('資產管理機構', 'Asset managers'), color: c[1] },
-    ]);
-    const rows = now.map((p) => ({ p, key: p.market, label: nm(p), lev: p['lev_chg_' + k], am: p.has_am ? p['am_chg_' + k] : null }));
-    el.replaceChildren();
-    const W = Math.max(el.clientWidth, 280), rowH = 30, mt = 4, mb = 20, H = rows.length * rowH + mt + mb;
-    const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
-    const ml = measure(svg, rows.map((r) => r.label)) + 10;
-    const vals = rows.flatMap((r) => [r.lev, r.am]).filter((v) => v != null);
-    const pad = measure(svg, vals.map((v) => signed(v))) + 8;
-    const ext = d3.max(vals, (v) => Math.abs(v)) || 1;
-    const x = d3.scaleLinear([-ext, ext], [ml + pad, W - pad]).nice();
-    const y = d3.scaleBand(rows.map((r) => r.key), [mt, H - mb]).padding(0.2);
-    const sub = d3.scaleBand(['lev', 'am'], [0, y.bandwidth()]).padding(0.1);
-    svg.append('g').selectAll('line').data(x.ticks(4)).join('line').attr('class', (t) => (t === 0 ? 'rb-axis' : 'rb-gridline'))
-      .attr('x1', (t) => x(t)).attr('x2', (t) => x(t)).attr('y1', mt).attr('y2', H - mb);
-    svg.append('g').selectAll('text').data(x.ticks(4)).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text((t) => signed(t, 0));
-    svg.append('g').selectAll('text').data(rows).join('text').attr('x', ml - 8).attr('y', (r) => y(r.key) + y.bandwidth() / 2).attr('dy', '0.32em')
-      .attr('text-anchor', 'end').style('fill', 'var(--color-fg)').text((r) => r.label);
-    const bars = rows.flatMap((r) => [{ r, who: 'lev', v: r.lev }, { r, who: 'am', v: r.am }]).filter((b) => b.v != null);
-    svg.append('g').selectAll('rect').data(bars).join('rect').attr('y', (b) => y(b.r.key) + sub(b.who)).attr('height', sub.bandwidth())
-      .attr('x', (b) => Math.min(x(0), x(b.v))).attr('width', (b) => Math.max(1, Math.abs(x(b.v) - x(0)))).attr('rx', 3)
-      .attr('fill', (b) => (b.who === 'lev' ? c[0] : c[1]));
-    svg.append('g').selectAll('text').data(bars).join('text').attr('y', (b) => y(b.r.key) + sub(b.who) + sub.bandwidth() / 2).attr('dy', '0.32em')
-      .attr('x', (b) => (b.v >= 0 ? x(b.v) + 4 : x(b.v) - 4)).attr('text-anchor', (b) => (b.v >= 0 ? 'start' : 'end'))
-      .style('font-size', '10px').text((b) => signed(b.v));
-    svg.append('g').selectAll('rect').data(rows).join('rect').attr('x', 0).attr('width', W).attr('y', (r) => y(r.key)).attr('height', y.step())
-      .attr('fill', 'transparent')
-      .on('pointermove', (event, r) => showTip(event, r.label, [
-        { color: c[0], text: L(`${r.p.has_am ? '槓桿基金' : '管理資金'}：現 ${signed(r.p.lev_pct)}%，一週 ${signed(r.p.lev_chg_1w)}，四週 ${signed(r.p.lev_chg_4w)}`, `${r.p.has_am ? 'Leveraged funds' : 'Managed money'}: now ${signed(r.p.lev_pct)}%, 1 wk ${signed(r.p.lev_chg_1w)}, 4 wk ${signed(r.p.lev_chg_4w)}`) },
-        ...(r.p.has_am ? [{ color: c[1], text: L(`資產管理機構：現 ${signed(r.p.am_pct)}%，一週 ${signed(r.p.am_chg_1w)}，四週 ${signed(r.p.am_chg_4w)}`, `Asset managers: now ${signed(r.p.am_pct)}%, 1 wk ${signed(r.p.am_chg_1w)}, 4 wk ${signed(r.p.am_chg_4w)}`) }] : []),
-      ]))
-      .on('pointerleave', hideTip);
+    const cols = [
+      { f: en() ? 'name_en' : 'name', label: L('市場', 'Market') },
+      { f: 'lev_chg_' + k, label: L('槓桿基金／管理資金', 'Leveraged funds / managed money') },
+      { f: 'am_chg_' + k, label: L('資產管理機構', 'Asset managers') },
+      { f: null, label: L('解讀', 'Reading') },
+    ];
+    table.tHead.rows[0].replaceChildren(...cols.map((c) => { const th = mk('th', null, c.label); th.scope = 'col'; if (c.f) th.dataset.field = c.f; return th; }));
+    const word = (v) => (v == null ? null : v >= 0.5 ? 'add' : v <= -0.5 ? 'cut' : 'flat');
+    const read = (lev, am, hasAm) => {
+      const a = word(lev), b = hasAm ? word(am) : null;
+      if (!hasAm) return { add: L('基金加倉', 'Funds adding'), cut: L('基金減倉', 'Funds cutting'), flat: L('變化不大', 'Little change') }[a];
+      if (a === 'flat' && b === 'flat') return L('變化不大', 'Little change');
+      if (a === b) return a === 'add' ? L('兩者同時加倉', 'Both adding') : L('兩者同時減倉', 'Both cutting');
+      if (a === 'flat') return b === 'add' ? L('資管加倉', 'Asset managers adding') : L('資管減倉', 'Asset managers cutting');
+      if (b === 'flat') return a === 'add' ? L('槓桿基金加倉', 'Leveraged funds adding') : L('槓桿基金減倉', 'Leveraged funds cutting');
+      return a === 'add' ? L('分歧：槓桿基金加，資管減', 'Split: leveraged adding, asset managers cutting') : L('分歧：槓桿基金減，資管加', 'Split: leveraged cutting, asset managers adding');
+    };
+    table.tBodies[0].replaceChildren(...dash.data('positioning_now').data.map((p) => {
+      const tr = mk('tr');
+      const lev = p['lev_chg_' + k], am = p.has_am ? p['am_chg_' + k] : null;
+      tr.append(mk('td', null, nm(p)));
+      for (const v of [lev, am]) {
+        const td = mk('td', cls(v), v == null ? '—' : signed(v));
+        if (v != null && Math.abs(v) >= 2) td.style.fontWeight = 'var(--cds-font-weight-medium)';
+        tr.append(td);
+      }
+      tr.append(mk('td', 'rb-left', read(lev, am, p.has_am)));
+      return tr;
+    }));
+  }
+
+  // One sentence: did credit move with stocks this week and this month?
+  function drawCreditVsStocks() {
+    const el = document.getElementById('credit-vs-stocks');
+    if (status(['global', 'rates_now']) !== 'ok') { el.replaceChildren(); return; }
+    const spy = dash.data('global').data.find((g) => g.ticker === 'SPY');
+    const rt = dash.data('rates_now').data[0];
+    const verdict = (eq, hy) => {
+      if (eq == null || hy == null) return '';
+      if (eq >= 0 && hy >= 10) return L('背離：股市升但信貸轉差，屬警號', 'Divergence: stocks up but credit worse, a warning');
+      if (eq >= 0) return L('確認：信貸與股市同步向好', 'Confirmed: credit agrees with stocks');
+      if (hy >= 10) return L('同步走弱：股市與信貸一同轉差', 'Weakening together: stocks and credit both worse');
+      return L('信貸較穩：股市回落但信貸未見壓力，跌勢可能較短暫', 'Credit steady: stocks fell but credit shows no stress; the dip may be short-lived');
+    };
+    const line = (tag, eq, hy) => {
+      const s = mk('span'); s.style.display = 'block';
+      s.append(mk('b', null, tag + '：'), L(`標普500 ${signed(eq)}%，高收益債息差 ${signed(hy, 0)} 基點 → `, `S&P 500 ${signed(eq)}%, high-yield spread ${signed(hy, 0)}bp → `), mk('span', hy >= 10 && eq >= 0 ? 'rb-down' : '', verdict(eq, hy)));
+      return s;
+    };
+    el.replaceChildren(line(L('本週', 'This week'), spy.r1w, rt.hy_oas_1w), line(L('本月', 'This month'), spy.r1m, rt.hy_oas_1m));
   }
 
   function drawChips() {

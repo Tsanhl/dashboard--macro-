@@ -150,8 +150,9 @@ def main():
     # ---- member stats (breadth) ----
     stocks = [s for s in mem["Symbol"] if s in close and close[s].notna().sum() > 260]
     px = close[stocks].ffill(limit=3)
-    hi = high[stocks].loc[:asof]
-    lo = low[stocks].loc[:asof]
+    # same US trading days as the closes; futures and FX add holiday rows that would thin the 252-day window
+    hi = high[stocks].reindex(close.index)
+    lo = low[stocks].reindex(close.index)
     sma20, sma50, sma200 = px.rolling(20).mean(), px.rolling(50).mean(), px.rolling(200).mean()
     hi52, lo52 = hi.rolling(252, min_periods=240).max(), lo.rolling(252, min_periods=240).min()
     chg = px.pct_change(fill_method=None)
