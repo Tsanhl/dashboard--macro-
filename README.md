@@ -11,7 +11,18 @@ liquidity, with a 繁體 / English switch and a built-in reading guide (the 讀�
 |---|---|
 | `build_data.py` | Pulls the data and writes 13 JSON files to `data/` |
 | `index.html` | The dashboard page (runs inside the Claude Dashboard artifact type, which supplies `dash` and `d3`) |
-| `data/` | Generated output, not committed |
+| `build_site.py` | Builds the public website into `site/`: wraps `index.html` with a stand-in `dash` API, d3 and colour tokens, and copies a filtered copy of the data |
+| `.github/workflows/pages.yml` | Rebuilds the data and the site Tuesday to Saturday at 05:30 UTC and publishes it to GitHub Pages |
+| `data/`, `site/` | Generated output, not committed |
+
+## Two versions
+
+| | Local / Claude dashboard | Public website |
+|---|---|---|
+| CFTC positioning, FRED yields, breakevens, term premium, Fed balance sheet | Shown | Shown |
+| Indicators derived from Yahoo prices (returns, ratios, rotation, breadth) | Shown | Shown |
+| Raw Yahoo price levels (the "Last" column in macro) | Shown | Hidden; changes only |
+| ICE BofA credit-spread levels | Shown | Hidden; change in bp and 3-year percentile |
 
 ## Data sources
 
@@ -23,8 +34,10 @@ liquidity, with a 繁體 / English switch and a built-in reading guide (the 讀�
 ## Build
 
 ```bash
-pip3 install yfinance pandas numpy
-python3 build_data.py
+pip3 install -r requirements.txt
+python3 build_data.py      # full data, for the local / Claude dashboard
+python3 build_site.py      # public site in site/
+python3 -m http.server 8765 --directory site   # preview at http://localhost:8765
 ```
 
 `python3 build_data.py positioning` rebuilds only the CFTC and FRED files.

@@ -156,7 +156,7 @@
       </div>
       <div class="rb-tile" id="kpi-hy">
         <div class="rb-tlabel" data-en="High-yield credit spread">高收益債信貸息差</div>
-        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=hy_oas"></span><span class="rb-tunit">%</span></div>
+        <div><span class="rb-tval dash-skeleton" data-source="kpi" data-field="value" data-where="metric=hy_oas"></span><span class="rb-tunit" id="hy-unit">%</span></div>
         <div class="rb-tchg"><span data-source="kpi" data-field="change" data-where="metric=hy_oas">—</span> <span data-en="bp over a month">基點，一個月</span></div>
       </div>
       <div class="rb-tile" id="kpi-tnx">
@@ -336,6 +336,7 @@
         <h2 class="rb-h2" data-en="Credit spreads">信貸息差</h2>
         <p class="rb-sub" data-en="Option-adjusted spread over Treasuries, in percent. Stocks rising while high-yield spreads widen is a warning.">相對國債的期權調整息差（%）。股市上升而高收益債息差擴闊，屬於警號。</p>
         <div class="rb-tablebox" style="max-height: none; border: 0"><table class="rb-mini" id="mini-credit"></table></div>
+        <p class="rb-sub" id="credit-public-note" hidden data-en="This version shows the change in basis points since the start of the chosen range, and the latest reading as a three-year percentile.">此版本顯示自所選範圍起點以來的變化（基點），最新讀數以三年百分位表示。</p>
         <div class="rb-chart dash-skeleton" id="ch-credit" data-source="rates" style="min-height: 15rem"></div>
       </div>
       <div class="rb-card" id="card-curve">
@@ -573,7 +574,7 @@
         { metric: 'pct200', value: b.pct200, change: d(b.pct200, b.pct200_1w) },
         { metric: 'mcclellan', value: b.mcclellan, change: d(b.mcclellan, b.mcclellan_1w) },
         { metric: 'nhnl_5d', value: b.new_highs_5d - b.new_lows_5d, change: null },
-        { metric: 'hy_oas', value: rt.hy_oas, change: rt.hy_oas_1m },
+        { metric: 'hy_oas', value: rt.hy_oas ?? rt.hy_oas_pctile, change: rt.hy_oas_1m },
         { metric: 'tnx', value: rt.nominal10, change: rt.nominal10_1m },
       ];
     },
@@ -868,9 +869,10 @@
     const bp = (v) => `${signed(v, 0)}${L(' 基點', 'bp')}`;
     const lines = (rows) => { const w = mk('span', 'rb-sublines'); for (const [tag, text] of rows) { const l = mk('span'); l.append(mk('i', null, tag), text); w.append(l); } return w; };
     const cv = { widening: L('信貸未確認股市走勢', 'credit is not confirming'), tightening: L('信貸確認股市走勢', 'credit confirms'), steady: L('信貸平穩', 'credit is steady') }[g.credit];
+    const lvl = (k) => (rt[k] != null ? `${rt[k].toFixed(2)}%` : L(`三年第${rt[k + '_pctile']}百分位`, `${rt[k + '_pctile']}th 3-yr percentile`));
     item(L('信貸', 'Credit'), lines([
-      [L('高收益債', 'High yield'), L(`${rt.hy_oas.toFixed(2)}%，一週 ${bp(rt.hy_oas_1w)}，一個月 ${bp(rt.hy_oas_1m)}`, `${rt.hy_oas.toFixed(2)}%, ${bp(rt.hy_oas_1w)} on the week, ${bp(rt.hy_oas_1m)} on the month`)],
-      [L('投資級債', 'Inv. grade'), L(`${rt.ig_oas.toFixed(2)}%，一週 ${bp(rt.ig_oas_1w)}，一個月 ${bp(rt.ig_oas_1m)}`, `${rt.ig_oas.toFixed(2)}%, ${bp(rt.ig_oas_1w)} on the week, ${bp(rt.ig_oas_1m)} on the month`)],
+      [L('高收益債', 'High yield'), L(`${lvl('hy_oas')}，一週 ${bp(rt.hy_oas_1w)}，一個月 ${bp(rt.hy_oas_1m)}`, `${lvl('hy_oas')}, ${bp(rt.hy_oas_1w)} on the week, ${bp(rt.hy_oas_1m)} on the month`)],
+      [L('投資級債', 'Inv. grade'), L(`${lvl('ig_oas')}，一週 ${bp(rt.ig_oas_1w)}，一個月 ${bp(rt.ig_oas_1m)}`, `${lvl('ig_oas')}, ${bp(rt.ig_oas_1w)} on the week, ${bp(rt.ig_oas_1m)} on the month`)],
       [L('結論', 'Read'), cv],
     ]));
 
@@ -917,7 +919,9 @@
       const v = row[tile.dataset.field];
       tile.classList.remove('dash-skeleton');
       if (tile.dataset.field === 'value') {
-        tile.textContent = where === 'tnx' || where === 'hy_oas' ? v.toFixed(2) : where === 'nhnl_5d' ? signed(v, 0) : fmt1(v);
+        const pctileOnly = where === 'hy_oas' && status(['rates_now']) === 'ok' && dash.data('rates_now').data[0].hy_oas == null;
+        tile.textContent = pctileOnly ? d3.format('d')(v) : where === 'tnx' || where === 'hy_oas' ? v.toFixed(2) : where === 'nhnl_5d' ? signed(v, 0) : fmt1(v);
+        if (where === 'hy_oas') document.getElementById('hy-unit').textContent = pctileOnly ? L(' 三年百分位', ' 3-yr percentile') : '%';
         tile.className = 'rb-tval' + (where === 'nhnl_5d' ? ' ' + cls(v) : '');
       } else {
         const bp = where === 'tnx' || where === 'hy_oas';
@@ -1302,15 +1306,19 @@
         { name: L('期限溢價', 'Term premium'), k: 'tp10', color: real[3].color },
       ]);
       lineChart(rateEls[0], { series: real, height: 240, yFmt: pctFmt, tipFmt: (v) => v.toFixed(2) + '%' });
+      const levels = rs.length && rs[0].hy_oas != null;
+      document.getElementById('credit-public-note').hidden = levels;
+      const rel = (k) => { const base = rs.find((r) => r[k + '_cum'] != null)?.[k + '_cum'] ?? 0; return rs.map((r) => ({ d: r.d, v: r[k + '_cum'] == null ? null : r[k + '_cum'] - base })); };
       const credit = [
-        { name: L('高收益債', 'High yield'), color: c[0], values: rs.map((r) => ({ d: r.d, v: r.hy_oas })) },
-        { name: L('投資級債', 'Investment grade'), color: c[1], values: rs.map((r) => ({ d: r.d, v: r.ig_oas })) },
+        { name: L('高收益債', 'High yield'), color: c[0], values: levels ? rs.map((r) => ({ d: r.d, v: r.hy_oas })) : rel('hy_oas') },
+        { name: L('投資級債', 'Investment grade'), color: c[1], values: levels ? rs.map((r) => ({ d: r.d, v: r.ig_oas })) : rel('ig_oas') },
       ];
       miniTable('mini-credit', [
-        { name: L('高收益債', 'High yield'), k: 'hy_oas', color: credit[0].color },
-        { name: L('投資級債', 'Investment grade'), k: 'ig_oas', color: credit[1].color },
+        { name: L('高收益債', 'High yield'), k: 'hy_oas', color: credit[0].color, invert: true },
+        { name: L('投資級債', 'Investment grade'), k: 'ig_oas', color: credit[1].color, invert: true },
       ]);
-      lineChart(rateEls[1], { series: credit, height: 240, yFmt: pctFmt, tipFmt: (v) => v.toFixed(2) + '%' });
+      if (levels) lineChart(rateEls[1], { series: credit, height: 240, yFmt: pctFmt, tipFmt: (v) => v.toFixed(2) + '%' });
+      else lineChart(rateEls[1], { series: credit, height: 240, ref: 0, yFmt: (v) => signed(v, 0), tipFmt: (v) => signed(v, 0) + L(' 基點', 'bp') });
       lineChart(rateEls[2], { series: [{ name: L('10年減2年', '10y minus 2y'), color: c[0], values: rs.map((r) => ({ d: r.d, v: r.curve })) }], height: 200, ref: 0, yFmt: (v) => v.toFixed(1), tipFmt: (v) => signed(v, 2) });
     }
 
@@ -1345,9 +1353,12 @@
     for (const it of items) {
       const tr = mk('tr');
       const name = mk('td'); const sw = mk('span', 'rb-sw'); sw.style.background = it.color; name.append(sw, it.name);
-      const last = mk('td'); last.append(mark(it.k, rt[it.k].toFixed(2)), '%');
-      const w = mk('td'); w.append(mark(it.k + '_1w', signed(rt[it.k + '_1w'], 0), cls(rt[it.k + '_1w'])));
-      const m = mk('td'); m.append(mark(it.k + '_1m', signed(rt[it.k + '_1m'], 0), cls(rt[it.k + '_1m'])));
+      const last = mk('td');
+      if (rt[it.k] != null) last.append(mark(it.k, rt[it.k].toFixed(2)), '%');
+      else { const p = mk('span', null, L(`第${rt[it.k + '_pctile']}百分位`, `P${rt[it.k + '_pctile']}`)); p.dataset.source = 'rates_now'; p.dataset.field = it.k + '_pctile'; p.dataset.row = '0'; last.append(p); }
+      const tone = (v) => (it.invert ? cls(v == null ? v : -v) : cls(v));  // wider spreads are bad
+      const w = mk('td'); w.append(mark(it.k + '_1w', signed(rt[it.k + '_1w'], 0), tone(rt[it.k + '_1w'])));
+      const m = mk('td'); m.append(mark(it.k + '_1m', signed(rt[it.k + '_1m'], 0), tone(rt[it.k + '_1m'])));
       tr.append(name, last, w, m, mk('td'));
       t.tBodies[0].append(tr);
     }
@@ -1415,9 +1426,11 @@
     const st = status(['macro']);
     if (st === 'ok') {
       table.querySelector('th[data-field^="name"]').dataset.field = en() ? 'name_en' : 'name';
+      table.querySelector('th[data-field="last"]').hidden = dash.data('macro').data.every((m) => m.last == null);
       table.tBodies[0].replaceChildren(...dash.data('macro').data.map((m) => {
         const tr = document.createElement('tr');
-        const cells = [m.ticker, nm(m), m.unit === 'bp' ? m.last.toFixed(3) + '%' : d3.format(',.2f')(m.last)];
+        const cells = [m.ticker, nm(m)];
+        if (m.last != null) cells.push(m.unit === 'bp' ? m.last.toFixed(3) + '%' : d3.format(',.2f')(m.last));
         cells.forEach((v, i) => { const td = document.createElement('td'); td.textContent = v; if (i === 0) td.className = 'rb-tk'; tr.append(td); });
         for (const f of ['chg1w', 'chg1m', 'chg3m']) {
           const td = document.createElement('td'); const v = m[f];
@@ -1489,6 +1502,10 @@
     press('.rb-mode', 'mode', state.mode);
     press('.rb-poswin', 'win', state.posWin);
     document.querySelectorAll('.rb-range').forEach((b) => b.setAttribute('aria-pressed', String(state.range[b.dataset.tab] === b.dataset.range)));
+    for (const m of document.querySelectorAll('.rb-asof [data-field]')) {
+      const d = dash.data(m.dataset.source);
+      if (d.status === 'ok') m.textContent = d.data[+m.dataset.row][m.dataset.field];
+    }
     drawHeader();
     if (state.page === 'overview') drawOverview();
     if (state.page === 'rotation') { drawRRG(); drawTable(); }
