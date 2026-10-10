@@ -322,8 +322,9 @@
     <div class="rb-card" id="card-crowding">
       <div>
         <h2 class="rb-h2" data-en="Futures positioning: who is crowded">期貨持倉擁擠度</h2>
-        <p class="rb-sub" data-en="Net position (long minus short) as a share of open interest, from the CFTC weekly report. Percentile ranks this week against the past three years; 90 or above and 10 or below are marked as extremes. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs. For commodities the fund column is managed money.">淨持倉（好倉減淡倉）佔未平倉合約的百分比，來自美國商品期貨交易委員會（CFTC）每週報告。百分位為本週在過去三年的排位，90或以上、10或以下標記為極端。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問。商品一欄的基金為管理資金。</p>
+        <p class="rb-sub" data-en="Net position (long minus short) as a share of open interest, from the CFTC weekly report. Percentile ranks this week against the past three years; 90 or above and 10 or below are marked as extremes. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs. For commodities the fund column is managed money. Updated once a week (Friday release).">淨持倉（好倉減淡倉）佔未平倉合約的百分比，來自美國商品期貨交易委員會（CFTC）每週報告。百分位為本週在過去三年的排位，90或以上、10或以下標記為極端。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問。商品一欄的基金為管理資金。每週更新一次（逢星期五公佈）。</p>
       </div>
+      <div class="rb-take-line" id="crowd-summary" data-source="positioning_now"></div>
       <div class="rb-tablebox" style="max-height: none">
         <table class="rb-table rb-pos" id="pos-table" data-source="positioning_now" data-row-key="market">
           <thead><tr></tr></thead>
@@ -335,10 +336,11 @@
       <div class="rb-cardhead">
         <div>
           <h2 class="rb-h2" data-en="Net positioning over time">持倉走勢</h2>
-          <p class="rb-sub" data-en="Net position as a share of open interest. Turns from an extreme matter more than the level.">淨持倉佔未平倉合約的百分比。由極端位置轉向，比水平本身更重要。</p>
+          <p class="rb-sub" data-en="Net position as a share of open interest. Turns from an extreme matter more than the level. Weekly data: the CFTC reports Tuesday positions every Friday, so this changes once a week.">淨持倉佔未平倉合約的百分比。由極端位置轉向，比水平本身更重要。每週數據：CFTC 逢星期五公佈該週二的持倉，所以每週只變動一次。</p>
         </div>
         <select class="rb-select" id="pos-market" aria-label="市場" data-en-aria="Market" data-source="positioning_now"></select>
       </div>
+      <div class="rb-take-line" id="pos-summary" data-source="positioning_now"></div>
       <div class="rb-legend" id="lg-pos"></div>
       <div class="rb-chart dash-skeleton" id="ch-pos" data-source="positioning" style="min-height: 15rem"></div>
       <p class="rb-sub" id="poschg-note" data-en="Weekly change in net position (percentage points of open interest): who added and who cut.">每週淨持倉變化（佔未平倉合約的百分點）：誰在加倉、誰在減倉。</p>
@@ -1305,8 +1307,48 @@
   }
 
   // ---------- positioning & rates ----------
+  // One holder: where it sits in its 3-year range and whether it is turning from an extreme
+  function holderRead(p, who) {
+    const pct = p[who + '_pctile'], c1 = p[who + '_chg_1w'], c4 = p[who + '_chg_4w'], lvl = p[who + '_pct'];
+    if (lvl == null) return null;
+    const side = lvl >= 0 ? L('淨好倉', 'net long') : L('淨淡倉', 'net short');
+    const zone = pct >= 90 ? 'high' : pct <= 10 ? 'low' : 'mid';
+    let trend;
+    if (zone === 'high') trend = c1 < 0 ? L('由三年高位開始回落，可能轉向', 'turning down from a 3-year high') : L('仍在三年高位附近，未見轉向', 'still near a 3-year high, no turn yet');
+    else if (zone === 'low') trend = c1 > 0 ? L('由三年低位開始回升，可能轉向', 'turning up from a 3-year low') : L('仍在三年低位附近，未見轉向', 'still near a 3-year low, no turn yet');
+    else trend = Math.abs(c4) < 1 ? L('四週變化不大', 'little change over four weeks') : c4 > 0 ? L('四週持續加倉', 'adding over four weeks') : L('四週持續減倉', 'cutting over four weeks');
+    return { zone, text: L(`${side} ${signed(lvl)}%，三年第${pct}百分位；一週 ${signed(c1)}、四週 ${signed(c4)}；${trend}`, `${side} ${signed(lvl)}%, ${pct}th 3-yr percentile; 1 wk ${signed(c1)}, 4 wk ${signed(c4)}; ${trend}`) };
+  }
+  const holderName = (p, who) => (who === 'am' ? L('資產管理機構', 'Asset managers') : p.has_am ? L('槓桿基金', 'Leveraged funds') : L('管理資金', 'Managed money'));
+
+  function drawPosSummaries() {
+    const one = document.getElementById('pos-summary'), all = document.getElementById('crowd-summary');
+    if (status(['positioning_now']) !== 'ok') { one.replaceChildren(); all.replaceChildren(); return; }
+    const now = dash.data('positioning_now').data;
+    // trend card: the selected market, both holders
+    const p = now.find((x) => x.market === state.market);
+    one.replaceChildren(...(p ? ['lev', 'am'].map((w) => {
+      const r = holderRead(p, w); if (!r) return null;
+      const line = mk('span'); line.style.display = 'block';
+      line.append(mk('b', null, `${holderName(p, w)}：`), mk('span', r.zone === 'mid' ? '' : 'rb-ext', r.text));
+      return line;
+    }).filter(Boolean) : []));
+    // crowding card: extremes, and which of them are turning
+    const legs = now.flatMap((x) => ['lev', 'am'].map((w) => ({ x, w, r: holderRead(x, w) }))).filter((e) => e.r && e.r.zone !== 'mid');
+    const turning = legs.filter((e) => (e.r.zone === 'high' && e.x[e.w + '_chg_1w'] < 0) || (e.r.zone === 'low' && e.x[e.w + '_chg_1w'] > 0));
+    const name = (e) => L(`${e.x.name}${holderName(e.x, e.w)}（${e.r.zone === 'high' ? '高位' : '低位'}）`, `${e.x.name_en} ${holderName(e.x, e.w).toLowerCase()} (${e.r.zone})`);
+    const l1 = mk('span'); l1.style.display = 'block';
+    l1.append(mk('b', null, L(`三年極端：${legs.length} 項`, `3-year extremes: ${legs.length}`)), legs.length ? ' · ' + legs.map(name).join(sep()) : '');
+    const l2 = mk('span'); l2.style.display = 'block';
+    l2.append(mk('b', null, L('開始轉向：', 'Turning: ')), mk('span', turning.length ? 'rb-ext' : '', turning.length ? turning.map(name).join(sep()) : L('暫無，極端位置仍在延續', 'none yet; the extremes are still extending')));
+    const l3 = mk('span', 'rb-sub'); l3.style.display = 'block';
+    l3.textContent = L('轉向即極端位置的一週變化與極端方向相反，例如處低位而開始回升。極端本身不是訊號，轉向才值得留意。', 'Turning means the one-week change runs against the extreme, for example rising from a low. An extreme alone is not a signal; a turn is.');
+    all.replaceChildren(l1, l2, l3);
+  }
+
   function drawPositioning() {
     drawPosChange();
+    drawPosSummaries();
     const table = document.getElementById('pos-table');
     const st = status(['positioning_now']);
     if (st === 'error') fail(table.parentElement);
