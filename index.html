@@ -990,8 +990,36 @@
         picks.append(`${r.ticker} `, mk('span', c, label), rank(r) || groupNote ? L(`（${rank(r)}${groupNote}）`, ` (${rank(r)}${groupNote})`) : '');
       });
       out.push([L('自選股', 'My stocks'), picks]);
+
+      // Suggestions (step 4): stocks in a trigger or hold state, top 3 by RS-ratio inside a group that is leading.
+      // Group = its AI basket if it has one, else its S&P sector. Ranked: group RS-ratio rising first, then not a
+      // late re-entry, then RS-ratio.
+      const groupOf = (r) => {
+        const ai = (r.baskets || '').split(' ').filter(Boolean)[0];
+        const id = ai || r.sector;
+        const g = id && rows.find((x) => x.ticker === id) || (id && dash.data('sectors').data.find((x) => x.ticker === id));
+        if (!g) return null;
+        const peers = all.filter((x) => (ai ? (x.baskets || '').split(' ').includes(ai) : x.sector === r.sector) && x.rs_ratio != null).sort((a, c) => c.rs_ratio - a.rs_ratio);
+        return { g, rank: peers.findIndex((x) => x.ticker === r.ticker) + 1, n: peers.length };
+      };
+      const late = (x) => x.gap_before != null && x.gap_before < 8;
+      const ideas = all.filter((r) => ['trigger', 'hold'].includes(rotState(r))).map((r) => ({ r, ...(groupOf(r) || {}) }))
+        .filter((x) => x.g && x.g.quadrant === 'leading' && x.rank >= 1 && x.rank <= 3)
+        .sort((a, b) => ((b.g.ratio_chg > 0) - (a.g.ratio_chg > 0)) || ((late(a.r) || late(a.g)) - (late(b.r) || late(b.g))) || (b.r.rs_ratio - a.r.rs_ratio))
+        .slice(0, 8);
+      const sug = mk('span');
+      if (!ideas.length) sug.append(L('今日沒有股票符合全部條件', 'no stock meets every condition today'));
+      ideas.forEach((x, i) => {
+        if (i) sug.append(L('；', '; '));
+        const notes = [L(`${nm(x.g)}組第${x.rank}/${x.n}`, `#${x.rank}/${x.n} in ${nm(x.g)}`), S[rotState(x.r)][0]];
+        if (late(x.r)) notes.push(L('後期再追', 'late re-entry'));
+        else if (late(x.g)) notes.push(L('組別後期再追', 'group late re-entry'));
+        if (!(x.g.ratio_chg > 0)) notes.push(L('組別強度回落', 'group easing'));
+        sug.append(mk('b', null, x.r.ticker), L(`（${notes.join('，')}）`, ` (${notes.join(', ')})`));
+      });
+      out.push([L('建議', 'Suggestions'), sug]);
     }
-    out.push([L('規則', 'Rules'), L('觸發＝剛進入領先且強度比率上升；出場警號＝轉弱且強度比率連跌兩週，或由轉弱跌入落後。止蝕按自己的入場價設定。詳見讀法「輪動操作」。', 'trigger = just entered leading with the RS-ratio rising; exit warning = weakening with two falling RS-ratio weeks, or weakening → lagging. Set stops from your own entry. See How to read, "Trading the rotation".')]);
+    out.push([L('規則', 'Rules'), L('觸發＝剛進入領先且強度比率上升；出場警號＝轉弱且強度比率連跌兩週，或由轉弱跌入落後；建議＝觸發或持有區、在領先組別內排名前三。', 'trigger = just entered leading with the RS-ratio rising; exit warning = weakening with two falling RS-ratio weeks, or weakening → lagging; suggestions = trigger or hold zone, top three inside a leading group.')]);
     item(L('輪動操作', 'Rotation playbook'), lines(out));
   }
 

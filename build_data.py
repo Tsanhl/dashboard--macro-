@@ -343,6 +343,7 @@ def main():
 
     # ---- single stocks: S&P 500 members, basket members and the watch list ----
     names = dict(zip(mem["Symbol"], mem["Security"])) | EXTRA_NAMES
+    gics = dict(zip(mem["Symbol"], mem["GICS Sector"]))
     in_basket = {}
     for bid, (n, ms) in AI_BASKETS.items():
         for m in ms:
@@ -352,7 +353,8 @@ def main():
         if t not in close or close[t].dropna().shape[0] < 30:
             continue
         row, tl = rotation(t)
-        stock_rows.append({"ticker": t, "name": names.get(t, t), "baskets": " ".join(in_basket.get(t, [])), **row})
+        stock_rows.append({"ticker": t, "name": names.get(t, t), "baskets": " ".join(in_basket.get(t, [])),
+                           "sector": GICS_TO_ETF.get(gics.get(t)), **row})
         stock_tails += tl
     write("stocks", stock_rows)
     write("stock_tails", stock_tails)
