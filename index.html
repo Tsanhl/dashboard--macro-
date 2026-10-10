@@ -111,6 +111,9 @@
 .rb-pos th:nth-child(-n+3), .rb-pos td:nth-child(-n+3) { text-align: left; }
 .rb-pos th:nth-child(3), .rb-pos td:nth-child(3) { text-align: right; }
 .rb-wide { grid-column: 1 / -1; }
+.rb-pick { font: inherit; font-size: var(--cds-font-size-caption); border: 1px solid var(--color-border-line); background: var(--color-bg); color: var(--color-fg); border-radius: 999px; padding: 2px 10px; cursor: pointer; }
+.rb-pick:hover { border-color: var(--color-bad); }
+.rb-pick:focus-visible, .rb-select:focus-visible { outline: 2px solid var(--color-fg); outline-offset: 2px; }
 </style>
 
 <div id="rb-wrap">
@@ -183,6 +186,12 @@
         <button type="button" class="rb-grp" data-grp="sector" aria-pressed="true" data-en="11 sectors">11個板塊</button>
         <button type="button" class="rb-grp" data-grp="theme" aria-pressed="false" data-en="Themes">主題</button>
         <button type="button" class="rb-grp" data-grp="style" aria-pressed="false" data-en="Styles &amp; factors">風格與因子</button>
+        <button type="button" class="rb-grp" data-grp="ai" aria-pressed="false" data-en="AI chain">AI產業鏈</button>
+        <button type="button" class="rb-grp" data-grp="stock" aria-pressed="false" data-en="My stocks">自選股</button>
+      </div>
+      <div class="rb-seg" role="group" aria-label="基準" data-en-aria="Benchmark">
+        <button type="button" class="rb-bench" data-bench="spy" aria-pressed="true" data-en="vs S&amp;P 500">對標普500</button>
+        <button type="button" class="rb-bench" data-bench="smh" aria-pressed="false" data-en="vs semis">對半導體</button>
       </div>
       <span class="rb-sub" data-en="Tail">軌跡</span>
       <div class="rb-seg" role="group" aria-label="軌跡長度" data-en-aria="Tail length">
@@ -192,18 +201,29 @@
         <button type="button" class="rb-tail" data-tail="10" aria-pressed="false" data-en="10 weeks">10週</button>
       </div>
     </div>
+    <div class="rb-card" id="picker" hidden>
+      <div class="rb-controls">
+        <label class="rb-sub" for="pick-input" data-en="Add a stock">加入股票</label>
+        <input class="rb-select" id="pick-input" list="pick-list" autocomplete="off" placeholder="MU" style="width: 8rem">
+        <datalist id="pick-list"></datalist>
+        <button type="button" class="rb-select" id="pick-add" data-en="Add">加入</button>
+        <button type="button" class="rb-select" id="pick-reset" data-en="Reset to default list">回復預設名單</button>
+      </div>
+      <div class="rb-controls" id="pick-chips"></div>
+      <p class="rb-sub" id="pick-note"></p>
+    </div>
     <div class="rb-card" id="rrg-card">
       <div>
-        <h2 class="rb-h2" data-en="Relative rotation graph (vs S&amp;P 500)">相對輪動圖（對標普500）</h2>
+        <h2 class="rb-h2" id="rrg-title" data-en="Relative rotation graph">相對輪動圖</h2>
         <p class="rb-sub" data-en="Across: relative strength (above 100 = outperforming). Up: momentum of that strength (above 100 = accelerating). Sectors usually turn clockwise: improving → leading → weakening → lagging. The dot is the latest week; the line is its path.">橫軸為相對強度（高於100代表跑贏），縱軸為相對強度的動量（高於100代表正在加速）。板塊通常順時針移動：改善 → 領先 → 轉弱 → 落後。圓點為最新一週，線為過去軌跡。</p>
       </div>
-      <div class="rb-chart dash-skeleton" id="rrg" data-source="sectors rrg_tails" style="min-height: 24rem"></div>
+      <div class="rb-chart dash-skeleton" id="rrg" data-source="sectors rrg_tails stocks stock_tails" style="min-height: 24rem"></div>
     </div>
     <div class="rb-card" id="sector-card">
       <div class="rb-cardhead">
         <div>
           <h2 class="rb-h2" data-en="Return rankings">回報排名</h2>
-          <p class="rb-sub" data-en="When short-term and long-term rankings flip, rotation is starting. Click a column to sort.">短期排名與長期排名倒轉，是輪動的早期跡象。點擊欄名排序。</p>
+          <p class="rb-sub"><span id="rank-sub"></span> <span data-en="When short-term and long-term rankings flip, rotation is starting. Click a column to sort.">短期排名與長期排名倒轉，是輪動的早期跡象。點擊欄名排序。</span></p>
         </div>
         <div class="rb-seg" role="group" aria-label="回報口徑" data-en-aria="Return basis">
           <button type="button" class="rb-mode" data-mode="rel" aria-pressed="true" data-en="vs S&amp;P 500">相對標普500</button>
@@ -463,6 +483,10 @@
         <li data-en="Four quadrants. Leading (top right): outperforming and accelerating. Weakening (bottom right): still outperforming but slowing, often where profit-taking starts. Lagging (bottom left): underperforming and still slowing. Improving (top left): still underperforming but speeding up; the next leaders come from here.">四個象限：領先（右上）跑贏且加速；轉弱（右下）仍跑贏但減速，通常是獲利回吐的開始；落後（左下）跑輸且仍在減速；改善（左上）仍跑輸但開始加速，下一輪領先板塊多數由此而來。</li>
         <li data-en="Sectors usually turn clockwise: improving → leading → weakening → lagging. The most useful moves are a sector just entering improving from lagging, and one just entering weakening from leading.">板塊通常順時針轉動：改善 → 領先 → 轉弱 → 落後。最有用的訊號是剛由落後進入改善，以及剛由領先進入轉弱。</li>
         <li data-en="Tail length: 1 week shows the latest direction, 6–10 weeks the trend. A long, straight tail is a steady trend. A one-week jump can be noise; look for two or three weeks in the same direction.">軌跡長度：1週看最新方向，6至10週看趨勢。軌跡越長越直，趨勢越穩定。一週的跳動可能是雜音，要連續兩三週同方向才可信。</li>
+        <li data-en="Five groups. 11 sectors: the S&amp;P 500 split by industry; together they are the whole market. Themes: narrower industries inside sectors (semis, software, regional banks, biotech, homebuilders, defence), often leading signals. Styles &amp; factors: grouped by stock traits, not industry (equal weight, small caps, Nasdaq-100, momentum, low volatility). AI chain: nine equal-weight baskets along the AI capex chain. My stocks: up to eight single names you pick.">五組分類。11個板塊：標普500按行業劃分，合起來就是整個大市；主題：板塊內較窄的行業（半導體、軟件、地區銀行、生物科技、住宅建築、航天國防），往往是領先指標；風格與因子：按股票特性而非行業劃分（等權、小型股、納指100、動量、低波動）；AI產業鏈：沿AI資本開支鏈條的九個等權籃子；自選股：自選最多八隻個股。</li>
+        <li data-en="AI chain baskets: hyperscalers (MSFT AMZN GOOGL META ORCL), compute chips (NVDA AVGO AMD TSM), memory (MU WDC STX SNDK), networking &amp; interconnect (ANET MRVL CRDO ALAB), optical (COHR LITE CIEN GLW FN AAOI), power &amp; cooling (VRT ETN GEV PWR), IPPs &amp; on-site power (VST CEG TLN NRG BE), neoclouds (CRWV NBIS IREN APLD), crypto-linked (COIN MSTR HOOD). Each is an equal-weight average of its members, rebalanced daily. Money inside the chain has tended to move mega caps → crypto-linked → optical → cloud → memory; the graph shows which link it is in now.">AI產業鏈籃子：超大型雲端（MSFT AMZN GOOGL META ORCL）、運算晶片（NVDA AVGO AMD TSM）、記憶體（MU WDC STX SNDK）、網絡與互連（ANET MRVL CRDO ALAB）、光通訊（COHR LITE CIEN GLW FN AAOI）、電力與散熱（VRT ETN GEV PWR）、獨立發電與現場供電（VST CEG TLN NRG BE）、新雲（CRWV NBIS IREN APLD）、加密相關（COIN MSTR HOOD）。每個籃子為成分股等權平均，每日再平衡。產業鏈內的資金過往大致按超大型股 → 加密相關 → 光通訊 → 雲端 → 記憶體的次序輪動，輪動圖顯示資金現在走到哪一環。</li>
+        <li data-en="Benchmark. Against the S&amp;P 500 asks whether something beats the market. Against semis (SMH) asks where money is moving inside the AI chain: when the whole chain beats the market, everything looks leading against the S&amp;P, and only the semis benchmark separates the links.">基準。對標普500：問的是有沒有跑贏大市。對半導體（SMH）：問的是AI產業鏈內部資金流向。整條產業鏈都跑贏大市時，對標普500全部都顯示領先，只有對半導體才分辨得到哪一環在接力。</li>
+        <li data-en="My stocks: search any S&amp;P 500 member, AI basket member or watch-list name, up to eight at a time. The default list is the names most discussed in the trading chat. Picks reset when the page reloads; ask Claude to change the default list or add a stock that is not searchable.">自選股：可搜尋任何標普500成分股、AI籃子成分股及觀察名單，同時最多顯示八隻。預設名單為交易群組討論最多的股票。重新整理頁面後會回到預設名單；如要更改預設名單，或加入搜尋不到的股票，請告訴 Claude。</li>
         <li data-en="Return rankings: red over six months but green over one month means a long-time laggard is turning up, an early rotation. Green over six months but red over one week means the leader is tiring.">回報排名：6個月紅、1個月綠，代表長期落後的板塊開始轉強，屬輪動早期；6個月綠、1週紅，代表龍頭開始累。</li>
         <li data-en="Off 52-week high: a big gap can mean a catch-up candidate or a collapse; read it with the quadrant. Members above 50-day: an ETF rising on a handful of stocks is not a reliable advance.">距52週高：距離越遠，可能是補漲候選，也可能正在崩潰，要配合象限判斷。成分股高於50天線：板塊ETF上升但只靠少數股票撐住，升勢不可靠。</li>
       </ul>
@@ -666,7 +690,7 @@
   // ---------- helpers ----------
   const root = document.getElementById('rb-wrap');
   const tip = document.getElementById('rb-tip');
-  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', range: { breadth: '3m', positioning: '3m' } };
+  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', bench: 'spy', picks: ['MU', 'NBIS', 'GOOGL', 'SNDK', 'BE', 'CRWV', 'AVGO', 'LITE'], range: { breadth: '3m', positioning: '3m' } };
   const DAYS = { '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
   // rows (with .d Date) inside the tab's chosen range, counted back from the last row
   const windowed = (rows, tab) => { if (!rows.length) return rows; const cut = +rows.at(-1).d - DAYS[state.range[tab]] * 864e5; return rows.filter((r) => +r.d >= cut); };
@@ -741,8 +765,11 @@
       .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
     svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em')
       .attr('text-anchor', 'end').text(yFmt);
-    const xt = x.ticks(W < 520 ? 4 : 7);
-    svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(monthFmt);
+    const [d0, d1] = x.domain(), days = (d1 - d0) / 864e5;
+    const every = days > 500 ? (W < 520 ? 6 : 3) : days > 200 ? (W < 520 ? 3 : 2) : 1;
+    const xt = days > 60 ? x.ticks(d3.utcMonth.every(every)) : x.ticks(d3.utcWeek.every(W < 520 ? 2 : 1));
+    const dayFmt = (t) => (en() ? d3.utcFormat('%b %-d')(t) : d3.utcFormat('%-m/%-d')(t));
+    svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(days > 60 ? monthFmt : dayFmt);
     if (ref != null) svg.append('line').attr('class', 'rb-ref').attr('x1', ml).attr('x2', W - 6).attr('y1', y(ref)).attr('y2', y(ref));
     const line = d3.line().defined((p) => p.v != null).x((p) => x(p.d)).y((p) => y(p.v));
     for (const s of series) {
@@ -995,14 +1022,63 @@
   }
 
   // ---------- rotation ----------
+  // Items for the chosen group: sector/theme/style/AI baskets from `sectors`, single stocks from `stocks`
+  const DEFAULT_PICKS = ['MU', 'NBIS', 'GOOGL', 'SNDK', 'BE', 'CRWV', 'AVGO', 'LITE'];  // most-discussed names in the trading chat, Jul–Oct 2026
+  const MAX_PICKS = 8;
+  const sfx = () => (state.bench === 'smh' ? '_smh' : '');
+  const isStock = () => state.grp === 'stock';
+  const SHORT = { AI_HYPER: ['雲端', 'Hyper'], AI_CHIPS: ['晶片', 'Chips'], AI_MEM: ['記憶體', 'Memory'], AI_NET: ['互連', 'Network'], AI_OPT: ['光通訊', 'Optical'],
+    AI_PWR: ['電力', 'Power'], AI_IPP: ['發電', 'IPP'], AI_NEO: ['新雲', 'Neocloud'], AI_CRYPTO: ['加密', 'Crypto'] };
+  const itemLabel = (r) => (r.group === 'ai' && SHORT[r.ticker] ? L(...SHORT[r.ticker]) : r.ticker);
+  function rotationItems() {
+    if (isStock()) {
+      const by = new Map(dash.data('stocks').data.map((r) => [r.ticker, r]));
+      return state.picks.map((t) => by.get(t)).filter(Boolean);
+    }
+    return dash.data('sectors').data.filter((r) => r.group === state.grp);
+  }
+  const rotationIds = () => (isStock() ? ['stocks', 'stock_tails'] : ['sectors', 'rrg_tails']);
+
+  function drawPicker() {
+    const box = document.getElementById('picker');
+    box.hidden = !isStock();
+    if (!isStock() || status(['stocks']) !== 'ok') return;
+    const list = document.getElementById('pick-list');
+    if (!list.options.length) list.replaceChildren(...dash.data('stocks').data.map((r) => new Option(r.name, r.ticker)));
+    const chips = document.getElementById('pick-chips');
+    chips.replaceChildren(...state.picks.map((t) => {
+      const b = mk('button', 'rb-pick', t + ' ×'); b.type = 'button';
+      b.setAttribute('aria-label', L(`移除 ${t}`, `Remove ${t}`));
+      b.addEventListener('click', () => { state.picks = state.picks.filter((x) => x !== t); drawAll(); });
+      return b;
+    }));
+    document.getElementById('pick-note').textContent = state.picks.length >= MAX_PICKS
+      ? L(`已達上限 ${MAX_PICKS} 隻，先移除一隻再加入。`, `At the limit of ${MAX_PICKS}; remove one to add another.`)
+      : L(`可再加入 ${MAX_PICKS - state.picks.length} 隻。可搜尋標普500成分股、AI產業鏈籃子成分股及觀察名單。`, `${MAX_PICKS - state.picks.length} more allowed. Search S&P 500 members, AI-chain basket members and the watch list.`);
+  }
+  function addPick() {
+    const input = document.getElementById('pick-input');
+    const t = input.value.trim().toUpperCase();
+    const known = status(['stocks']) === 'ok' && dash.data('stocks').data.some((r) => r.ticker === t);
+    const msg = document.getElementById('pick-note');
+    if (!t) return;
+    if (!known) { msg.textContent = L(`找不到 ${t}。如需加入新股票，請告訴 Claude 把它加入觀察名單。`, `${t} is not in the data. Ask Claude to add it to the watch list.`); return; }
+    if (!state.picks.includes(t) && state.picks.length < MAX_PICKS) state.picks = [...state.picks, t];
+    input.value = '';
+    drawAll();
+  }
+
   function drawRRG() {
     const el = document.getElementById('rrg');
-    if (!ready(el, ['sectors', 'rrg_tails'])) return;
+    if (!ready(el, rotationIds())) return;
     const Q = QNAME();
-    const secs = dash.data('sectors').data.filter((s) => s.group === state.grp);
-    const tails = d3.group(dash.data('rrg_tails').data, (r) => r.ticker);
-    const pts = secs.map((s) => ({ s, tail: (tails.get(s.ticker) || []).filter((p) => p.rs_ratio != null && p.rs_mom != null).slice(-state.tail) }));
+    const k = sfx();
+    const secs = rotationItems();
+    const tails = d3.group(dash.data(isStock() ? 'stock_tails' : 'rrg_tails').data, (r) => r.ticker);
+    const pts = secs.map((s) => ({ s, tail: (tails.get(s.ticker) || []).filter((p) => p['rs_ratio' + k] != null && p['rs_mom' + k] != null)
+      .slice(-state.tail).map((p) => ({ rs_ratio: p['rs_ratio' + k], rs_mom: p['rs_mom' + k] })) })).filter((p) => p.tail.length);
     el.replaceChildren();
+    if (!pts.length) { el.append(mk('div', 'rb-fail', L('未有可顯示的項目', 'Nothing to show'))); return; }
     const W = Math.max(el.clientWidth, 280), H = Math.round(Math.min(Math.max(W * 0.62, 320), 520));
     const svg = d3.select(el).append('svg').attr('class', 'rb-svg').attr('width', '100%').attr('viewBox', `0 0 ${W} ${H}`);
     const xs = pts.flatMap((p) => p.tail.map((t) => t.rs_ratio)), ys = pts.flatMap((p) => p.tail.map((t) => t.rs_mom));
@@ -1026,9 +1102,10 @@
     svg.append('g').selectAll('text').data(x.ticks(W < 520 ? 4 : 6)).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(d3.format('d'));
     svg.append('g').selectAll('text').data(y.ticks(5)).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em').attr('text-anchor', 'end').text(d3.format('d'));
     const qc = { leading: 'var(--color-ok)', weakening: 'var(--color-warn)', lagging: 'var(--color-bad)', improving: 'var(--cds-text-secondary)' };
+    const benchName = state.bench === 'smh' ? L('半導體', 'semis') : L('標普', 'S&P');
+    const labels = [];
     for (const p of pts) {
-      if (!p.tail.length) continue;
-      const c = qc[p.s.quadrant];
+      const qd = p.s['quadrant' + k], c = qc[qd] || 'var(--cds-chart-muted)';
       const g = svg.append('g');
       for (let i = 1; i < p.tail.length; i++) {
         g.append('line').attr('x1', x(p.tail[i - 1].rs_ratio)).attr('y1', y(p.tail[i - 1].rs_mom))
@@ -1038,32 +1115,55 @@
       g.selectAll('circle.t').data(p.tail.slice(0, -1)).join('circle').attr('cx', (t) => x(t.rs_ratio)).attr('cy', (t) => y(t.rs_mom)).attr('r', 1.8).attr('fill', c).attr('opacity', 0.5);
       const last = p.tail.at(-1);
       g.append('circle').attr('cx', x(last.rs_ratio)).attr('cy', y(last.rs_mom)).attr('r', 5).attr('fill', c).attr('stroke', 'var(--color-panel)').attr('stroke-width', 1.5);
-      g.append('text').attr('x', x(last.rs_ratio) + 8).attr('y', y(last.rs_mom)).attr('dy', '0.32em')
-        .style('fill', 'var(--color-fg)').style('font-size', '11px').style('font-weight', 500).text(p.s.ticker);
+      labels.push({ x: x(last.rs_ratio), y: y(last.rs_mom), text: itemLabel(p.s) });
       g.append('circle').attr('cx', x(last.rs_ratio)).attr('cy', y(last.rs_mom)).attr('r', 12).attr('fill', 'transparent')
-        .on('pointermove', (event) => showTip(event, `${p.s.ticker} ${nm(p.s)}`, [
-          { color: c, text: `${Q[p.s.quadrant]}（${L('4週前', '4 weeks ago')}：${Q[p.s.quadrant_4w] || '—'}）` },
+        .on('pointermove', (event) => showTip(event, `${p.s.ticker.startsWith('AI_') ? '' : p.s.ticker + ' '}${nm(p.s)}`, [
+          { color: c, text: `${Q[qd] || '—'}（${L('4週前', '4 weeks ago')}：${Q[p.s['quadrant_4w' + k]] || '—'}）` },
           { text: L(`強度比率 ${fmt1(last.rs_ratio)} · 動量 ${fmt1(last.rs_mom)}`, `RS-ratio ${fmt1(last.rs_ratio)} · momentum ${fmt1(last.rs_mom)}`) },
-          { text: L(`1個月相對標普 ${signed(p.s.rel1m)}%`, `1 month vs S&P ${signed(p.s.rel1m)}%`) },
+          { text: L(`1個月相對${benchName} ${signed(p.s['rel1m' + k])}%`, `1 month vs ${benchName} ${signed(p.s['rel1m' + k])}%`) },
+          ...(p.s.members_list ? [{ text: L(`成分股：${p.s.members_list}`, `Members: ${p.s.members_list}`) }] : []),
         ]))
         .on('pointerleave', hideTip);
     }
+    // labels: to the right of the dot (left near the edge), pushed apart where they would overlap
+    const lg = svg.append('g').style('pointer-events', 'none');
+    for (const l of labels) {
+      const t = lg.append('text').style('fill', 'var(--color-fg)').style('font-size', '11px').style('font-weight', 500).attr('dy', '0.32em').text(l.text);
+      l.w = t.node().getComputedTextLength(); l.node = t;
+      l.left = l.x + 8 + l.w > W - mr;
+      l.x0 = l.left ? l.x - 8 - l.w : l.x + 8; l.ly = l.y;
+    }
+    labels.sort((a, b) => a.ly - b.ly);
+    for (let i = 0; i < labels.length; i++) {
+      for (let j = 0; j < i; j++) {
+        const a = labels[j], b = labels[i];
+        if (b.x0 < a.x0 + a.w + 4 && a.x0 < b.x0 + b.w + 4 && b.ly - a.ly < 12) b.ly = a.ly + 12;
+      }
+    }
+    for (const l of labels) {
+      l.node.attr('x', l.x0).attr('y', Math.min(l.ly, H - mb - 4));
+      if (Math.abs(l.ly - l.y) > 3) lg.append('line').attr('x1', l.left ? l.x - 5 : l.x + 5).attr('y1', l.y).attr('x2', l.left ? l.x0 + l.w : l.x0).attr('y2', l.ly).attr('stroke', 'var(--cds-chart-axis)').attr('stroke-width', 0.75);
+    }
   }
 
-  const COLS = () => [
-    { f: 'ticker', label: L('代號', 'Ticker') },
-    { f: en() ? 'name_en' : 'name', label: L('名稱', 'Name') },
-    { f: 'quadrant', label: L('象限', 'Quadrant') },
-    { f: 'quadrant_4w', label: L('4週前', '4 wks ago') },
-    { f: state.mode === 'rel' ? 'rel1w' : 'r1w', label: L('1週', '1 wk'), heat: 4 },
-    { f: state.mode === 'rel' ? 'rel1m' : 'r1m', label: L('1個月', '1 mo'), heat: 8 },
-    { f: state.mode === 'rel' ? 'rel3m' : 'r3m', label: L('3個月', '3 mo'), heat: 12 },
-    { f: state.mode === 'rel' ? 'rel6m' : 'r6m', label: L('6個月', '6 mo'), heat: 18 },
-    { f: 'rytd', label: L('年初至今', 'YTD'), heat: 25 },
-    { f: 'vs_50d', label: L('距50天線', 'vs 50-day'), heat: 8 },
-    { f: 'off_high', label: L('距52週高', 'Off 52-wk high'), heat: 25 },
-    { f: 'm_pct50', label: L('成分股高於50天線', 'Members > 50-day') },
-  ];
+  const COLS = () => {
+    const k = state.mode === 'rel' ? sfx() : '';
+    const r_ = (n) => (state.mode === 'rel' ? 'rel' + n + k : 'r' + n);
+    return [
+      { f: 'ticker', label: L('代號', 'Ticker') },
+      { f: 'name', label: L('名稱', 'Name') },
+      { f: 'quadrant' + sfx(), label: L('象限', 'Quadrant') },
+      { f: 'quadrant_4w' + sfx(), label: L('4週前', '4 wks ago') },
+      { f: r_('1w'), label: L('1週', '1 wk'), heat: 4 },
+      { f: r_('1m'), label: L('1個月', '1 mo'), heat: 8 },
+      { f: r_('3m'), label: L('3個月', '3 mo'), heat: 12 },
+      { f: r_('6m'), label: L('6個月', '6 mo'), heat: 18 },
+      { f: 'rytd', label: L('年初至今', 'YTD'), heat: 25 },
+      { f: 'vs_50d', label: L('距50天線', 'vs 50-day'), heat: 8 },
+      { f: 'off_high', label: L('距52週高', 'Off 52-wk high'), heat: 25 },
+      ...(state.grp === 'sector' ? [{ f: 'm_pct50', label: L('成分股高於50天線', 'Members > 50-day') }] : []),
+    ];
+  };
   const heatCell = (td, v, scale) => {
     const s = document.createElement('span');
     s.className = 'rb-heat'; s.textContent = signed(v, 1); s.style.padding = '1px 5px';
@@ -1073,22 +1173,25 @@
   };
   function drawTable() {
     const table = document.getElementById('sector-table');
-    const st = status(['sectors']);
+    table.dataset.source = isStock() ? 'stocks' : 'sectors';
+    const st = status([table.dataset.source]);
     if (st !== 'ok') { if (st === 'error') fail(table.parentElement); return; }
     const Q = QNAME();
     const cols = COLS();
-    if (!cols.some((c) => c.f === state.sort.key)) state.sort.key = state.mode === 'rel' ? 'rel1m' : 'r1m';
+    if (!cols.some((c) => c.f === state.sort.key)) state.sort.key = cols[5].f;
+    document.getElementById('rank-sub').textContent = state.mode === 'rel'
+      ? L(`相對${state.bench === 'smh' ? '半導體（SMH）' : '標普500'}的回報。`, `Returns relative to ${state.bench === 'smh' ? 'semis (SMH)' : 'the S&P 500'}.`) : L('絕對回報。', 'Absolute returns.');
     table.tHead.rows[0].replaceChildren(...cols.map((c) => {
-      const th = document.createElement('th'); th.scope = 'col'; th.dataset.field = c.f;
+      const th = document.createElement('th'); th.scope = 'col'; th.dataset.field = c.f === 'name' && en() && !isStock() ? 'name_en' : c.f;
       const b = document.createElement('button'); b.type = 'button'; b.className = 'rb-sort'; b.textContent = c.label;
       if (state.sort.key === c.f) b.setAttribute('aria-sort', state.sort.dir < 0 ? 'descending' : 'ascending');
       b.addEventListener('click', () => { state.sort = { key: c.f, dir: state.sort.key === c.f ? -state.sort.dir : -1 }; drawTable(); });
       th.append(b);
       return th;
     }));
-    const rows = dash.data('sectors').data.filter((s) => s.group === state.grp).slice();
+    const rows = rotationItems().slice();
     const qOrder = { leading: 3, improving: 2, weakening: 1, lagging: 0 };
-    const key = (r) => (state.sort.key.startsWith('quadrant') ? qOrder[r[state.sort.key]] ?? -1 : r[state.sort.key]);
+    const key = (r) => (state.sort.key.startsWith('quadrant') ? qOrder[r[state.sort.key]] ?? -1 : state.sort.key === 'name' ? nm(r) : r[state.sort.key]);
     rows.sort((a, b) => {
       const va = key(a), vb = key(b);
       if (va == null) return 1; if (vb == null) return -1;
@@ -1099,8 +1202,8 @@
       for (const c of cols) {
         const td = document.createElement('td');
         const v = r[c.f];
-        if (c.f === 'ticker') { td.className = 'rb-tk'; td.textContent = v; }
-        else if (c.f.startsWith('name')) td.textContent = v;
+        if (c.f === 'ticker') { td.className = 'rb-tk'; td.textContent = r.group === 'ai' ? '—' : v; if (r.group === 'ai') row.dataset.key = v; }
+        else if (c.f === 'name') td.textContent = nm(r);
         else if (c.f.startsWith('quadrant')) { const s = document.createElement('span'); s.className = 'rb-q ' + (v || ''); s.textContent = v ? Q[v] : '—'; td.append(s); }
         else if (c.f === 'm_pct50') td.textContent = v == null ? '—' : fmt1(v) + '%';
         else if (v != null && c.heat) heatCell(td, v, c.heat);
@@ -1516,6 +1619,10 @@
   document.querySelectorAll('.rb-grp').forEach((b) => b.addEventListener('click', () => { state.grp = b.dataset.grp; drawAll(); }));
   document.querySelectorAll('.rb-tail').forEach((b) => b.addEventListener('click', () => { state.tail = +b.dataset.tail; drawAll(); }));
   document.querySelectorAll('.rb-mode').forEach((b) => b.addEventListener('click', () => { state.mode = b.dataset.mode; drawAll(); }));
+  document.querySelectorAll('.rb-bench').forEach((b) => b.addEventListener('click', () => { state.bench = b.dataset.bench; drawAll(); }));
+  document.getElementById('pick-add').addEventListener('click', () => addPick());
+  document.getElementById('pick-input').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addPick(); } });
+  document.getElementById('pick-reset').addEventListener('click', () => { state.picks = [...DEFAULT_PICKS]; drawAll(); });
   document.querySelectorAll('.rb-poswin').forEach((b) => b.addEventListener('click', () => { state.posWin = b.dataset.win; drawAll(); }));
   document.querySelectorAll('.rb-range').forEach((b) => b.addEventListener('click', () => { state.range[b.dataset.tab] = b.dataset.range; drawAll(); }));
   document.getElementById('pos-market').addEventListener('change', (e) => { state.market = e.target.value; drawAll(); });
@@ -1541,6 +1648,7 @@
     press('.rb-tail', 'tail', state.tail);
     press('.rb-mode', 'mode', state.mode);
     press('.rb-poswin', 'win', state.posWin);
+    press('.rb-bench', 'bench', state.bench);
     document.querySelectorAll('.rb-range').forEach((b) => b.setAttribute('aria-pressed', String(state.range[b.dataset.tab] === b.dataset.range)));
     for (const m of document.querySelectorAll('.rb-asof [data-field]')) {
       const d = dash.data(m.dataset.source);
@@ -1548,7 +1656,10 @@
     }
     drawHeader();
     if (state.page === 'overview') drawOverview();
-    if (state.page === 'rotation') { drawRRG(); drawTable(); }
+    if (state.page === 'rotation') {
+      document.getElementById('rrg-title').textContent = state.bench === 'smh' ? L('相對輪動圖（對半導體）', 'Relative rotation graph (vs semis)') : L('相對輪動圖（對標普500）', 'Relative rotation graph (vs S&P 500)');
+      drawPicker(); drawRRG(); drawTable();
+    }
     if (state.page === 'breadth') drawBreadth();
     if (state.page === 'positioning') drawPositioning();
     if (state.page === 'macro') drawMacro();

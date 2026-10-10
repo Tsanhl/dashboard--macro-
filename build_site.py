@@ -15,7 +15,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent
 DATA, SITE = ROOT / "data", ROOT / "site"
 DATASETS = ["sectors", "rrg_tails", "ratios", "ratio_summary", "breadth", "breadth_now", "macro", "global",
-            "positioning", "positioning_now", "rates", "rates_now", "liquidity"]
+            "positioning", "positioning_now", "rates", "rates_now", "liquidity", "stocks", "stock_tails"]
 CREDIT = ["hy_oas", "ig_oas"]
 
 

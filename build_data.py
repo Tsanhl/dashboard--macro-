@@ -55,6 +55,28 @@ RATIOS = {
     "HYG_IEF": ("HYG", "IEF", "高收益債／中期國債", "信貸風險胃納上升"),
     "HG_GC": ("HG=F", "GC=F", "銅／金", "增長預期上升"),
 }
+# AI capex chain sub-sectors as equal-weight baskets (rulebook §5): id -> (繁體名, members)
+AI_BASKETS = {
+    "AI_HYPER": ("超大型雲端", ["MSFT", "AMZN", "GOOGL", "META", "ORCL"]),
+    "AI_CHIPS": ("運算晶片", ["NVDA", "AVGO", "AMD", "TSM"]),
+    "AI_MEM": ("記憶體", ["MU", "WDC", "STX", "SNDK"]),
+    "AI_NET": ("網絡與互連", ["ANET", "MRVL", "CRDO", "ALAB"]),
+    "AI_OPT": ("光通訊", ["COHR", "LITE", "CIEN", "GLW", "FN", "AAOI"]),
+    "AI_PWR": ("電力與散熱", ["VRT", "ETN", "GEV", "PWR"]),
+    "AI_IPP": ("獨立發電與現場供電", ["VST", "CEG", "TLN", "NRG", "BE"]),
+    "AI_NEO": ("新雲", ["CRWV", "NBIS", "IREN", "APLD"]),
+    "AI_CRYPTO": ("加密相關", ["COIN", "MSTR", "HOOD"]),
+}
+# Extra single names to make searchable beyond the S&P 500 and the baskets
+WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR"]
+# Company names for tickers outside the S&P 500 member list
+EXTRA_NAMES = {
+    "TSM": "Taiwan Semiconductor", "CRWV": "CoreWeave", "NBIS": "Nebius", "IREN": "IREN", "APLD": "Applied Digital",
+    "CRDO": "Credo Technology", "ALAB": "Astera Labs", "COHR": "Coherent", "LITE": "Lumentum", "CIEN": "Ciena",
+    "FN": "Fabrinet", "AAOI": "Applied Optoelectronics", "SNDK": "SanDisk", "TLN": "Talen Energy", "BE": "Bloom Energy",
+    "MSTR": "Strategy", "HOOD": "Robinhood", "COIN": "Coinbase", "CBRS": "Cerebras", "MRVL": "Marvell",
+}
+
 # English for every Chinese name, label and meaning written to the data files (繁體/English switch)
 EN = {
     "科技": "Technology", "通訊服務": "Communication services", "非必需消費": "Consumer discretionary",
@@ -83,6 +105,9 @@ EN = {
     "超長期美債期貨": "Ultra T-bond futures", "VIX期貨": "VIX futures", "美元指數期貨": "US dollar index futures",
     "日圓期貨": "Japanese yen futures", "WTI原油期貨": "WTI crude futures", "銅期貨": "Copper futures",
     "黃金期貨": "Gold futures",
+    "超大型雲端": "Hyperscalers", "運算晶片": "Compute chips", "記憶體": "Memory", "網絡與互連": "Networking & interconnect",
+    "光通訊": "Optical", "電力與散熱": "Power & cooling", "獨立發電與現場供電": "IPPs & on-site power", "新雲": "Neoclouds",
+    "加密相關": "Crypto-linked",
     "股票指數": "Equity index", "美債": "Treasuries", "波動率": "Volatility", "外匯": "FX", "商品": "Commodities",
 }
 
@@ -135,7 +160,9 @@ def write(name, rows):
 
 def main():
     mem = members()
-    tickers = list(ETFS) + list(GLOBAL) + list(MACRO) + ["SPY", "HYG", "IEF"] + list(mem["Symbol"])
+    basket_members = sorted({m for _, ms in AI_BASKETS.values() for m in ms})
+    tickers = (list(ETFS) + list(GLOBAL) + list(MACRO) + ["SPY", "HYG", "IEF"] + list(mem["Symbol"])
+               + basket_members + WATCH_EXTRA)
     print(f"downloading {len(set(tickers))} tickers…")
     close, high, low = download(tickers)
     close = close.dropna(how="all")
@@ -221,44 +248,81 @@ def main():
             "new_highs_5d": int((hi[syms].iloc[-5:] >= hi52[syms].iloc[-5:]).any().sum()),
         }
 
-    # ---- sectors, themes, styles: returns + relative rotation ----
-    weekly = close.resample("W-FRI").last()
-    weekly = weekly.loc[:asof]
-    spy_w = weekly["SPY"]
-    sectors, tails = [], []
-    for t, (name, group) in ETFS.items():
+    # ---- sectors, themes, styles, AI-chain baskets: returns + relative rotation ----
+    # AI baskets: equal-weight, rebalanced daily, from the members that have data that day
+    for bid, (_, ms) in AI_BASKETS.items():
+        rets = close[[m for m in ms if m in close]].pct_change(fill_method=None).mean(axis=1, skipna=True)
+        close[bid] = (1 + rets.fillna(0)).cumprod() * 100
+    weekly = close.resample("W-FRI").last().loc[:asof]
+    smh = close["SMH"].dropna()
+
+    def quadrant(rr, rm):
+        if rr is None or rm is None or pd.isna(rr) or pd.isna(rm):
+            return None
+        return "leading" if rr >= 100 and rm >= 100 else "weakening" if rr >= 100 else "improving" if rm >= 100 else "lagging"
+
+    def rrg(t, bench):
+        """Weekly RS-ratio (vs its 10-week average) and momentum (vs 4 weeks earlier), against a benchmark."""
+        rs = (weekly[t] / weekly[bench]).dropna()
+        ratio = 100 * rs / rs.rolling(10).mean()
+        return ratio, 100 * ratio / ratio.shift(4)
+
+    def rotation(t):
+        """Return fields and relative rotation vs the S&P 500 and vs semis (SMH)."""
         s = close[t].dropna()
-        rs = (weekly[t] / spy_w).dropna()
-        rs_ratio = 100 * rs / rs.rolling(10).mean()
-        rs_mom = 100 * rs_ratio / rs_ratio.shift(4)
-        rr, rm = rs_ratio.iloc[-1], rs_mom.iloc[-1]
-        quad = ("leading" if rr >= 100 and rm >= 100 else "weakening" if rr >= 100
-                else "improving" if rm >= 100 else "lagging")
-        quad_4w = None
-        if len(rs_mom.dropna()) > 4:
-            rr4, rm4 = rs_ratio.iloc[-5], rs_mom.iloc[-5]
-            quad_4w = ("leading" if rr4 >= 100 and rm4 >= 100 else "weakening" if rr4 >= 100
-                       else "improving" if rm4 >= 100 else "lagging")
-        row = {
-            "ticker": t, "name": name, "group": group, "price": r(s.iloc[-1]),
-            "r1w": r(pct(s, 5)), "r1m": r(pct(s, 21)), "r3m": r(pct(s, 63)), "r6m": r(pct(s, 126)),
-            "rytd": r(ytd(s)),
-            "rel1w": r(pct(s, 5) - pct(spy, 5)), "rel1m": r(pct(s, 21) - pct(spy, 21)),
-            "rel3m": r(pct(s, 63) - pct(spy, 63)), "rel6m": r(pct(s, 126) - pct(spy, 126)),
-            "rs_ratio": r(rr), "rs_mom": r(rm), "quadrant": quad, "quadrant_4w": quad_4w,
-            "vs_50d": r((s.iloc[-1] / s.rolling(50).mean().iloc[-1] - 1) * 100),
-            "vs_200d": r((s.iloc[-1] / s.rolling(200).mean().iloc[-1] - 1) * 100),
-            "off_high": r((s.iloc[-1] / s.iloc[-252:].max() - 1) * 100),
-        }
+        row = {"r1w": r(pct(s, 5)), "r1m": r(pct(s, 21)), "r3m": r(pct(s, 63)), "r6m": r(pct(s, 126)), "rytd": r(ytd(s)),
+               "vs_50d": r((s.iloc[-1] / s.rolling(50).mean().iloc[-1] - 1) * 100) if len(s) >= 50 else None,
+               "off_high": r((s.iloc[-1] / s.iloc[-252:].max() - 1) * 100)}
+        tail = {}
+        for suffix, bench, bs in (("", "SPY", spy), ("_smh", "SMH", smh)):
+            for n, k in ((5, "rel1w"), (21, "rel1m"), (63, "rel3m"), (126, "rel6m")):
+                a_, b_ = pct(s, n), pct(bs, n)
+                row[k + suffix] = None if a_ is None or b_ is None else r(a_ - b_)
+            ratio, mom = rrg(t, bench)
+            ok = len(mom.dropna()) > 0
+            row["rs_ratio" + suffix] = r(ratio.iloc[-1]) if ok else None
+            row["rs_mom" + suffix] = r(mom.iloc[-1]) if ok else None
+            row["quadrant" + suffix] = quadrant(ratio.iloc[-1], mom.iloc[-1]) if ok else None
+            row["quadrant_4w" + suffix] = quadrant(ratio.iloc[-5], mom.iloc[-5]) if len(mom.dropna()) > 4 else None
+            for d in ratio.index[-10:]:
+                tail.setdefault(d, {})["rs_ratio" + suffix] = r(ratio[d])
+                tail[d]["rs_mom" + suffix] = r(mom[d])
+        tails_out = [{"ticker": t, "week": d.strftime("%Y-%m-%d"), **v} for d, v in tail.items()]
+        return row, tails_out
+
+    sectors, tails = [], []
+    universe = [(t, name, group) for t, (name, group) in ETFS.items()] + [(b, n, "ai") for b, (n, _) in AI_BASKETS.items()]
+    for t, name, group in universe:
+        s = close[t].dropna()
+        row, tl = rotation(t)
+        row = {"ticker": t, "name": name, "group": group, "price": r(s.iloc[-1]), **row,
+               "vs_200d": r((s.iloc[-1] / s.rolling(200).mean().iloc[-1] - 1) * 100)}
+        if group == "ai":
+            row["members_list"] = " ".join(AI_BASKETS[t][1])
         p = participation.get(t, {})
         row.update({"members": p.get("members"), "m_pct50": p.get("pct50"), "m_pct50_1w": p.get("pct50_1w"), "m_pct50_1m": p.get("pct50_1m"),
                     "m_pct200": p.get("pct200"), "m_pct_up_1m": p.get("pct_up_1m"),
                     "m_median_1m": p.get("median_1m"), "m_new_highs_5d": p.get("new_highs_5d")})
         sectors.append(row)
-        for d in rs_ratio.index[-10:]:
-            tails.append({"ticker": t, "week": d.strftime("%Y-%m-%d"), "rs_ratio": r(rs_ratio[d]), "rs_mom": r(rs_mom[d])})
+        tails += tl
     write("sectors", sectors)
     write("rrg_tails", tails)
+
+    # ---- single stocks: S&P 500 members, basket members and the watch list ----
+    names = dict(zip(mem["Symbol"], mem["Security"])) | EXTRA_NAMES
+    in_basket = {}
+    for bid, (n, ms) in AI_BASKETS.items():
+        for m in ms:
+            in_basket.setdefault(m, []).append(bid)
+    stock_rows, stock_tails = [], []
+    for t in sorted(set(mem["Symbol"]) | set(basket_members) | set(WATCH_EXTRA)):
+        if t not in close or close[t].dropna().shape[0] < 30:
+            continue
+        row, tl = rotation(t)
+        stock_rows.append({"ticker": t, "name": names.get(t, t), "baskets": " ".join(in_basket.get(t, [])), **row})
+        stock_tails += tl
+    write("stocks", stock_rows)
+    write("stock_tails", stock_tails)
 
     # ---- ratio lines ----
     ratio_rows, ratio_summary = [], []
