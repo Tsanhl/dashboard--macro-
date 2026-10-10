@@ -66,15 +66,18 @@ AI_BASKETS = {
     "AI_IPP": ("獨立發電與現場供電", ["VST", "CEG", "TLN", "NRG", "BE"]),
     "AI_NEO": ("新雲", ["CRWV", "NBIS", "IREN", "APLD"]),
     "AI_CRYPTO": ("加密相關", ["COIN", "MSTR", "HOOD"]),
+    "AI_NUC": ("鈾與核能", ["CCJ", "UEC", "LEU", "OKLO", "SMR", "BWXT"]),
 }
 # Extra single names to make searchable beyond the S&P 500 and the baskets
-WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR"]
+WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR", "URA"]
 # Company names for tickers outside the S&P 500 member list
 EXTRA_NAMES = {
     "TSM": "Taiwan Semiconductor", "CRWV": "CoreWeave", "NBIS": "Nebius", "IREN": "IREN", "APLD": "Applied Digital",
     "CRDO": "Credo Technology", "ALAB": "Astera Labs", "COHR": "Coherent", "LITE": "Lumentum", "CIEN": "Ciena",
     "FN": "Fabrinet", "AAOI": "Applied Optoelectronics", "SNDK": "SanDisk", "TLN": "Talen Energy", "BE": "Bloom Energy",
     "MSTR": "Strategy", "HOOD": "Robinhood", "COIN": "Coinbase", "CBRS": "Cerebras", "MRVL": "Marvell",
+    "CCJ": "Cameco", "UEC": "Uranium Energy", "LEU": "Centrus Energy", "OKLO": "Oklo", "SMR": "NuScale Power",
+    "BWXT": "BWX Technologies", "URA": "Global X Uranium ETF",
 }
 
 # English for every Chinese name, label and meaning written to the data files (繁體/English switch)
@@ -107,7 +110,7 @@ EN = {
     "黃金期貨": "Gold futures",
     "超大型雲端": "Hyperscalers", "運算晶片": "Compute chips", "記憶體": "Memory", "網絡與互連": "Networking & interconnect",
     "光通訊": "Optical", "電力與散熱": "Power & cooling", "獨立發電與現場供電": "IPPs & on-site power", "新雲": "Neoclouds",
-    "加密相關": "Crypto-linked",
+    "加密相關": "Crypto-linked", "鈾與核能": "Uranium & nuclear",
     "股票指數": "Equity index", "美債": "Treasuries", "波動率": "Volatility", "外匯": "FX", "商品": "Commodities",
 }
 
