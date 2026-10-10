@@ -265,7 +265,7 @@ def main():
         """Weekly RS-ratio (vs its 10-week average) and momentum (vs 4 weeks earlier), against a benchmark."""
         rs = (weekly[t] / weekly[bench]).dropna()
         ratio = 100 * rs / rs.rolling(10).mean()
-        return ratio, 100 * ratio / ratio.shift(4)
+        return ratio, 100 * ratio / ratio.shift(4), rs
 
     def rotation(t):
         """Return fields and relative rotation vs the S&P 500 and vs semis (SMH)."""
@@ -278,12 +278,22 @@ def main():
             for n, k in ((5, "rel1w"), (21, "rel1m"), (63, "rel3m"), (126, "rel6m")):
                 a_, b_ = pct(s, n), pct(bs, n)
                 row[k + suffix] = None if a_ is None or b_ is None else r(a_ - b_)
-            ratio, mom = rrg(t, bench)
+            ratio, mom, rs = rrg(t, bench)
             ok = len(mom.dropna()) > 0
             row["rs_ratio" + suffix] = r(ratio.iloc[-1]) if ok else None
             row["rs_mom" + suffix] = r(mom.iloc[-1]) if ok else None
             row["quadrant" + suffix] = quadrant(ratio.iloc[-1], mom.iloc[-1]) if ok else None
             row["quadrant_4w" + suffix] = quadrant(ratio.iloc[-5], mom.iloc[-5]) if len(mom.dropna()) > 4 else None
+            # Next week, solved exactly: RS-ratio' = 1000·y / (S9 + y), where y is next week's relative strength and
+            # S9 the sum of the last nine; momentum' compares RS-ratio' with the ratio three weeks before the latest.
+            rsv = rs.dropna()
+            if ok and len(rsv) >= 10 and len(ratio.dropna()) >= 4:
+                s9, last, base = rsv.iloc[-9:].sum(), rsv.iloc[-1], ratio.iloc[-4]
+                need = lambda c: None if c >= 1000 else r((c * s9 / (1000 - c) / last - 1) * 100)
+                flat_ratio = 1000 * last / (s9 + last)
+                row["need_mom" + suffix] = need(base)       # relative return next week for momentum >= 100
+                row["need_ratio" + suffix] = need(100.0)    # relative return next week for RS-ratio >= 100
+                row["next_flat" + suffix] = quadrant(flat_ratio, 100 * flat_ratio / base)  # quadrant if it just matches
             for d in ratio.index[-10:]:
                 tail.setdefault(d, {})["rs_ratio" + suffix] = r(ratio[d])
                 tail[d]["rs_mom" + suffix] = r(mom[d])
