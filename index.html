@@ -14,7 +14,8 @@
 .rb-bullets > li > :last-child { min-width: 0; }
 .rb-bullets .rb-in { color: var(--color-ok); } .rb-bullets .rb-out { color: var(--color-bad); }
 .rb-sublines { display: grid; gap: 2px; }
-.rb-sublines > span { display: grid; grid-template-columns: 3.6em minmax(0, 1fr); column-gap: 8px; align-items: baseline; }
+.rb-sublines > span { display: grid; grid-template-columns: 3.8em minmax(0, 1fr); column-gap: 8px; align-items: baseline; }
+.rb-sublines > span.full { display: block; }
 .rb-sublines > span > i { font-style: normal; color: var(--color-fg-muted); white-space: nowrap; }
 .rb-take-line { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; }
 .rb-take-line b { font-weight: var(--cds-font-weight-medium); }
@@ -1074,7 +1075,8 @@
 
     const head = mk('div', 'rb-regime');
     head.append(mk('span', 'rb-rtag', L('一週', '1 wk')), mk('span', 'rb-rval', wk), mk('span', 'rb-rtag', '·'),
-      mk('span', 'rb-rtag', L('一個月', '1 mo')), mk('span', 'rb-rval', mo), mk('span', 'rb-rnote', wkText));
+      mk('span', 'rb-rtag', L('*一個月', '*1 mo')), mk('span', 'rb-rval', mo), mk('span', 'rb-rnote', wkText),
+      mk('span', 'rb-rnote', L('數字預設為一週；括號內為一週變化；標 * 者為其他時間框。', 'Figures are one week unless marked; brackets show the one-week change; * marks another window.')));
 
     const list = mk('ul', 'rb-bullets');
     const item = (label, content) => {
@@ -1082,11 +1084,11 @@
       const body = typeof content === 'string' ? mk('span', null, content) : content;
       li.append(body); list.append(li);
     };
-    const lines = (rows) => { const w = mk('span', 'rb-sublines'); for (const [tag, body] of rows) { const l = mk('span'); l.append(mk('i', null, tag), body); w.append(l); } return w; };
+    const lines = (rows) => { const w = mk('span', 'rb-sublines'); for (const [tag, body] of rows) { const l = mk('span', tag ? null : 'full'); if (tag) l.append(mk('i', null, tag)); l.append(body); w.append(l); } return w; };
     const flows = dash.data('flows').data;
     const fl = (dir) => flows.filter((f) => f.dir === dir).map((f) => `${nm(f)} ${signed(f.rel1w)}%`).join(sep()) || L('沒有板塊符合條件', 'none meet the rule');
-    item(L('資金流入（一週）', 'Money in (1 wk)'), mk('span', 'rb-in', fl('in')));
-    item(L('資金流出（一週）', 'Money out (1 wk)'), mk('span', 'rb-out', fl('out')));
+    item(L('資金流入', 'Money in'), mk('span', 'rb-in', fl('in')));
+    item(L('資金流出', 'Money out'), mk('span', 'rb-out', fl('out')));
 
     if (status(['ai_flows']) === 'ok' && dash.data('ai_flows').data.length) {
       const A = dash.data('ai_flows').data;
@@ -1104,11 +1106,10 @@
         : L(`跑輸標普500（${signed(m)}%）${fmt1(m - c)} 個百分點`, `lagging the S&P 500 (${signed(m)}%) by ${fmt1(m - c)} pts`));
       const a0 = A[0];
       item(L('AI產業鏈', 'AI chain'), lines([
-        [L('一週', '1 wk'), flow('1w')],
-        [L('一個月', '1 mo'), flow('1m')],
-        [L('整條', 'Whole'), L(`一週 ${signed(a0.chain_1w)}%，${vs(a0.chain_1w, a0.spy_1w)}；一個月 ${signed(a0.chain_1m)}%，${vs(a0.chain_1m, a0.spy_1m)}`,
-          `1 wk ${signed(a0.chain_1w)}%, ${vs(a0.chain_1w, a0.spy_1w)}; 1 mo ${signed(a0.chain_1m)}%, ${vs(a0.chain_1m, a0.spy_1m)}`)],
-        [L('單位', 'Unit'), L('括號內為相對產業鏈平均的百分點', 'brackets: points vs the chain average')],
+        ['', flow('1w')],
+        [L('*一個月', '*1 mo'), flow('1m')],
+        [L('整條', 'Whole'), L(`${signed(a0.chain_1w)}%（標普500 ${signed(a0.spy_1w)}%）；*一個月 ${signed(a0.chain_1m)}%（標普500 ${signed(a0.spy_1m)}%）`,
+          `${signed(a0.chain_1w)}% (S&P ${signed(a0.spy_1w)}%); *1 mo ${signed(a0.chain_1m)}% (S&P ${signed(a0.spy_1m)}%)`)],
       ]));
     }
 
@@ -1119,9 +1120,9 @@
     moves.sort((a, c) => (order[a[0]] ?? 9) - (order[c[0]] ?? 9));
     const T = TURN();
     const tagged = (r, to) => (to === 'improving' && r.turn ? L(`${nm(r)}（${T[r.turn]}）`, `${nm(r)} (${T[r.turn]})`) : nm(r));
-    item(L('象限轉變（對比4週前）', 'Quadrant moves (vs 4 wks ago)'), moves.length
+    item(L('象限轉變*', 'Quadrant moves*'), moves.length
       ? lines([...moves.map(([k, rows]) => { const [f, t] = k.split('>'); return [`${Q[f]} → ${Q[t]}`, rows.map((r) => tagged(r, t)).join(sep())]; }),
-          ...(moves.some(([k]) => k.endsWith('>improving')) ? [[L('標記', 'Tags'), L('確認＝強度比率上升且連續兩週跑贏；初步＝上升且本週跑贏；未確認＝可能只是基數效應', 'confirmed = RS-ratio rising and beating two weeks running; early = rising and beat this week; unconfirmed = may be only a base effect')]] : [])])
+          [L('*', '*'), L('對比4週前', 'vs four weeks ago')]])
       : L('11個板塊與4週前同屬一個象限', 'all 11 sectors sit in the same quadrant as four weeks ago'));
 
     if (!window.RB_PUBLIC) drawPlaybook(item, lines);
@@ -1132,11 +1133,9 @@
       : p1w >= 5 ? L('短期反彈，但未擴散：等權仍跑輸市值加權', 'a short-term bounce, not broadening: equal weight still lags')
       : p1w <= -5 ? L('參與度轉弱', 'participation weakening') : L('變化不大', 'little change');
     item(L('市寬', 'Breadth'), lines([
-      [L('最新', 'Latest'), L(`高於50天線 ${fmt1(b.pct50)}%；麥克連 ${signed(b.mcclellan, 0)}`, `${fmt1(b.pct50)}% above the 50-day; McClellan ${signed(b.mcclellan, 0)}`)],
-      [L('一週', '1 wk'), L(`高於50天線 ${signed(p1w)} 個百分點；麥克連由 ${signed(b.mcclellan_1w, 0)} 至 ${signed(b.mcclellan, 0)}${rsp ? `；等權相對市值加權 ${signed(rsp.rel1w)}%` : ''}`,
-        `above the 50-day ${signed(p1w)} pts; McClellan ${signed(b.mcclellan_1w, 0)} to ${signed(b.mcclellan, 0)}${rsp ? `; equal vs cap weight ${signed(rsp.rel1w)}%` : ''}`)],
-      [L('一個月', '1 mo'), L(`高於50天線 ${signed(p1m)} 個百分點（${fmt1(b.pct50_1m)}% → ${fmt1(b.pct50)}%）；麥克連由 ${signed(b.mcclellan_1m, 0)} 至 ${signed(b.mcclellan, 0)}；等權相對市值加權 ${signed(g.rsp_spy_20d, 2)}%`,
-        `above the 50-day ${signed(p1m)} pts (${fmt1(b.pct50_1m)}% → ${fmt1(b.pct50)}%); McClellan ${signed(b.mcclellan_1m, 0)} to ${signed(b.mcclellan, 0)}; equal vs cap weight ${signed(g.rsp_spy_20d, 2)}%`)],
+      ['', L(`高於50天線 ${fmt1(b.pct50)}%（${signed(p1w)}）；麥克連 ${signed(b.mcclellan, 0)}（${signed(b.mcclellan - b.mcclellan_1w, 0)}）${rsp ? `；等權跑贏市值加權 ${signed(rsp.rel1w)}%` : ''}`,
+        `${fmt1(b.pct50)}% above the 50-day (${signed(p1w)}); McClellan ${signed(b.mcclellan, 0)} (${signed(b.mcclellan - b.mcclellan_1w, 0)})${rsp ? `; equal vs cap weight ${signed(rsp.rel1w)}%` : ''}`)],
+      [L('*一個月', '*1 mo'), L(`高於50天線 ${signed(p1m)}；等權跑贏市值加權 ${signed(g.rsp_spy_20d, 2)}%`, `above the 50-day ${signed(p1m)}; equal vs cap weight ${signed(g.rsp_spy_20d, 2)}%`)],
       [L('結論', 'Read'), bread],
     ]));
 
@@ -1145,18 +1144,16 @@
     const cv = { widening: L('信貸未確認股市走勢', 'credit is not confirming'), tightening: L('信貸確認股市走勢', 'credit confirms'), steady: L('信貸平穩', 'credit is steady') }[g.credit];
     const lvl = (k) => (rt[k] != null ? `${rt[k].toFixed(2)}%` : L(`三年第${rt[k + '_pctile']}百分位`, `${rt[k + '_pctile']}th 3-yr percentile`));
     item(L('信貸息差', 'Credit spreads'), lines([
-      [L('最新', 'Latest'), L(`高收益債 ${lvl('hy_oas')}；投資級債 ${lvl('ig_oas')}`, `high yield ${lvl('hy_oas')}; investment grade ${lvl('ig_oas')}`)],
-      [L('一週', '1 wk'), L(`高收益債 ${bp(rt.hy_oas_1w)}；投資級債 ${bp(rt.ig_oas_1w)}`, `high yield ${bp(rt.hy_oas_1w)}; investment grade ${bp(rt.ig_oas_1w)}`)],
-      [L('一個月', '1 mo'), L(`高收益債 ${bp(rt.hy_oas_1m)}；投資級債 ${bp(rt.ig_oas_1m)}`, `high yield ${bp(rt.hy_oas_1m)}; investment grade ${bp(rt.ig_oas_1m)}`)],
+      ['', L(`高收益債 ${lvl('hy_oas')}（${bp(rt.hy_oas_1w)}）；投資級債 ${lvl('ig_oas')}（${bp(rt.ig_oas_1w)}）`, `high yield ${lvl('hy_oas')} (${bp(rt.hy_oas_1w)}); investment grade ${lvl('ig_oas')} (${bp(rt.ig_oas_1w)})`)],
+      [L('*一個月', '*1 mo'), L(`高收益債 ${bp(rt.hy_oas_1m)}；投資級債 ${bp(rt.ig_oas_1m)}`, `high yield ${bp(rt.hy_oas_1m)}; investment grade ${bp(rt.ig_oas_1m)}`)],
       [L('結論', 'Read'), cv],
     ]));
 
     const parts = L(`實際 ${signed(g.real10_1m, 0)}、通脹預期 ${signed(g.be10_1m, 0)}、期限溢價 ${signed(g.tp10_1m, 0)}`, `real ${signed(g.real10_1m, 0)}, breakeven ${signed(g.be10_1m, 0)}, term premium ${signed(g.tp10_1m, 0)}`);
     const why = { quiet: L('變動不大', 'a quiet move'), real_supply: L('政策或供應推動，而非增長', 'policy or supply, not growth'), inflation_growth: L('通脹或增長推動', 'inflation or growth') }[g.yields];
-    item(L('10年期收益率', '10-year yield'), lines([
-      [L('最新', 'Latest'), `${rt.nominal10.toFixed(2)}%`],
-      [L('一週', '1 wk'), bp(g.nominal10_1w)],
-      [L('一個月', '1 mo'), `${bp(g.nominal10_1m)}${L('（', ' (')}${parts}${L('）', ')')}`],
+    item(L('收益率', 'Yields'), lines([
+      ['', `${L('10年期 ', '10-year ')}${rt.nominal10.toFixed(2)}%${L('（', ' (')}${bp(g.nominal10_1w)}${L('）', ')')}`],
+      [L('*一個月', '*1 mo'), `${bp(g.nominal10_1m)}${L('（', ' (')}${parts}${L('）', ')')}`],
       [L('結論', 'Read'), why],
     ]));
 
@@ -1168,10 +1165,9 @@
     const parallel = Math.abs(c1m) < 5 && Math.abs(rt.nominal10_1m) >= 20
       ? L(`；但兩端同時${rt.nominal10_1m > 0 ? '上升' : '下跌'}約 ${Math.abs(Math.round(rt.nominal10_1m))} 基點，屬整條曲線${rt.nominal10_1m > 0 ? '上移' : '下移'}`, `; but both ends moved about ${Math.abs(Math.round(rt.nominal10_1m))}bp ${rt.nominal10_1m > 0 ? 'up' : 'down'}, a parallel ${rt.nominal10_1m > 0 ? 'rise' : 'fall'}`)
       : '';
-    item(L('曲線（10年減2年）', 'Curve (10y–2y)'), lines([
-      [L('最新', 'Latest'), `${rt.curve.toFixed(2)}%`],
-      [L('一週', '1 wk'), bp(rt.curve_1w)],
-      [L('一個月', '1 mo'), L(`${bp(c1m)}（2年期 ${bp(two1m)}，10年期 ${bp(rt.nominal10_1m)}）`, `${bp(c1m)} (2-year ${bp(two1m)}, 10-year ${bp(rt.nominal10_1m)})`)],
+    item(L('曲線', 'Curve'), lines([
+      ['', `${L('10年減2年 ', '10y–2y ')}${rt.curve.toFixed(2)}%${L('（', ' (')}${bp(rt.curve_1w)}${L('）', ')')}`],
+      [L('*一個月', '*1 mo'), L(`${bp(c1m)}（2年期 ${bp(two1m)}，10年期 ${bp(rt.nominal10_1m)}）`, `${bp(c1m)} (2-year ${bp(two1m)}, 10-year ${bp(rt.nominal10_1m)})`)],
       [L('結論', 'Read'), shape + parallel],
     ]));
 
@@ -1183,9 +1179,8 @@
     const movers = (k) => legs.filter((x) => x[k] != null).sort((x, y) => Math.abs(y[k]) - Math.abs(x[k])).slice(0, 3)
       .map((x) => L(`${x.p.name}${x.who} ${signed(x[k])}`, `${x.p.name_en} ${x.who} ${signed(x[k])}`)).join(sep());
     item(L('持倉變化', 'Positioning'), lines([
-      [L('一週', '1 wk'), movers('c1')],
-      [L('四週', '4 wks'), movers('c4')],
-      [L('單位', 'Unit'), L('佔未平倉合約的百分點；正數為加 long 或減 short；CFTC 數據每週五更新', 'points of open interest; positive = more long or less short; CFTC data updates each Friday')],
+      ['', movers('c1')],
+      [L('*四週', '*4 wks'), movers('c4')],
     ]));
 
     box.replaceChildren(head, list);
