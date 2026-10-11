@@ -106,6 +106,11 @@
 .rb-wide { grid-column: 1 / -1; }
 .rb-check { display: inline-flex; align-items: center; gap: 6px; font-size: var(--cds-font-size-caption); color: var(--color-fg-muted); cursor: pointer; }
 .rb-check input { accent-color: var(--color-fg); }
+.rb-table.rb-leaders td { white-space: normal; text-align: left; line-height: 1.7; }
+.rb-h3 { font-size: var(--cds-font-size-body); font-weight: var(--cds-font-weight-medium); margin: 12px 0 8px; }
+.rb-table.rb-leaders td:first-child { white-space: nowrap; }
+.rb-table.rb-leaders th { text-align: left; }
+#leaders-card details summary { cursor: pointer; margin-block: 12px 8px; font-weight: var(--cds-font-weight-medium); }
 .rb-table tr.rb-sep td { background: var(--color-bg); color: var(--color-fg-muted); font-weight: var(--cds-font-weight-medium); text-align: left; }
 .rb-table tr.rb-muted td { color: var(--color-fg-muted); }
 .rb-rrg.focus .rb-item:not(.on), .rb-rrg.focus .rb-lbl:not(.on) { opacity: 0.18; }
@@ -254,6 +259,13 @@
           <tbody></tbody>
         </table>
       </div>
+    </div>
+    <div class="rb-card rb-private" id="leaders-card">
+      <div>
+        <h2 class="rb-h2" data-en="Leaders list">龍頭名單</h2>
+        <p class="rb-sub"><span id="leaders-asof"></span><span data-en=". AI baskets: the top three by 26-week strength vs the S&amp;P 500, plus new entrants (ahead of the S&amp;P 500 by 15%+ over four weeks with a rising RS-ratio). S&amp;P sectors: the top two. States follow the rotation playbook: entry candidate = improving and confirmed; watch = improving but early or unconfirmed; hold = leading with the RS-ratio rising; don't add = leading with it falling; exit = weakening with the RS-ratio down two weeks, or a drop into lagging; spike = RS-ratio up 5+ and 8%+ ahead in a week, trim part; quick return = back in leading within 8 weeks, half size for a new entry. ★ = my stocks.">。AI 子板塊：按半年相對標普500強度排頭三名，另加新晉股（4週跑贏標普500 15%以上，而且強度比率上升）。標普板塊：頭兩名。狀態按輪動操作規則：入場候選＝改善而且已確認；觀察＝改善但只屬初步或未確認；持有＝領先而強度比率上升；不加注＝領先但強度比率回落；出場＝轉弱且強度比率連跌兩週，或跌入落後；急升＝強度比率一週升5以上而且一週跑贏8%以上，可先減一部分；重返＝距上次領先不足8週，新入場注碼減半。★＝自選股。</span></p>
+      </div>
+      <div id="leaders-body"></div>
     </div>
   </section>
 
@@ -525,7 +537,7 @@
         <li data-en="Timing, as a reference (11 sector ETFs 1999–2026, AI baskets and ~500 stocks over 3 years, all alike): a leading spell lasts a median 4 weeks (middle half 2–6, 1 in 10 runs 8+). After 4 weeks leading only about 25% are still leading a month later; after 8 weeks about 13%. From one leading spell to the next takes a median 11 weeks. Leaving leading, about half go to weakening and a quarter straight to lagging; from improving only about half reach leading; from weakening about half return to leading. Big themes come back again and again in short leading spells. These are base rates, not forecasts: the actual market response decides, so trade with the trigger and exit rules, not the calendar.">時間規律（參考）：11個板塊ETF（1999至2026年）、AI籃子及約500隻個股（3年）的結果幾乎一樣。領先期中位數4週（中間一半2至6週，十次中有一次8週或以上）。領先滿4週後，只有約25%會再領先一個月；滿8週後約13%。由一次領先到下一次領先，中位數11週。離開領先時，約一半轉入轉弱，約四分之一直接跌入落後；由改善只有約一半升入領先；由轉弱約一半重返領先。大主題會多次以短暫的領先重現。這些是歷史基準，不是預測：實際以市場反應為準，所以要用觸發和出場規則操作，不要靠日曆。</li>
         <li data-en="Tail length: 1 week shows the latest direction, 4–6 weeks the trend (default 6); 10 weeks gives the longer backdrop but gets cluttered. A long, straight tail is a steady trend. A one-week jump can be noise; look for two or three weeks in the same direction.">軌跡長度：1週看最新方向，4至6週看趨勢（預設6週）；10週看較長的背景，但線條較亂。軌跡越長越直，趨勢越穩定。一週的跳動可能是雜音，要連續兩三週同方向才可信。</li>
         <li data-en="Five groups. 11 sectors: the S&amp;P 500 split by industry; together they are the whole market. Themes: narrower industries inside sectors (semis, software, regional banks, biotech, homebuilders, defence), often leading signals. Styles &amp; factors: grouped by stock traits, not industry (equal weight, small caps, Nasdaq-100, momentum, low volatility). AI chain: ten equal-weight baskets along the AI capex chain. My stocks: up to sixteen single names you pick.">五組分類。11個板塊：標普500按行業劃分，合起來就是整個大市；主題：板塊內較窄的行業（半導體、軟件、地區銀行、生物科技、住宅建築、航天國防），往往是領先指標；風格與因子：按股票特性而非行業劃分（等權、小型股、納指100、動量、低波動）；AI產業鏈：沿AI資本開支鏈條的十個等權籃子；自選股：自選最多十六隻個股。</li>
-        <li data-en="AI chain baskets: hyperscalers (MSFT AMZN GOOGL META ORCL), compute chips (NVDA AVGO AMD TSM), memory (MU WDC STX SNDK), networking &amp; interconnect (ANET MRVL CRDO ALAB), optical (COHR LITE CIEN GLW FN AAOI), power &amp; cooling (VRT ETN GEV PWR), IPPs &amp; on-site power (VST CEG TLN NRG BE), neoclouds (CRWV NBIS IREN APLD), crypto-linked (COIN MSTR HOOD), uranium &amp; nuclear (CCJ UEC LEU OKLO SMR BWXT). Each is an equal-weight average of its members, rebalanced daily. Money inside the chain has tended to move mega caps → crypto-linked → optical → cloud → memory; the graph shows which link it is in now.">AI產業鏈籃子：超大型雲端（MSFT AMZN GOOGL META ORCL）、運算晶片（NVDA AVGO AMD TSM）、記憶體（MU WDC STX SNDK）、網絡與互連（ANET MRVL CRDO ALAB）、光通訊（COHR LITE CIEN GLW FN AAOI）、電力與散熱（VRT ETN GEV PWR）、獨立發電與現場供電（VST CEG TLN NRG BE）、新雲（CRWV NBIS IREN APLD）、加密相關（COIN MSTR HOOD）、鈾與核能（CCJ UEC LEU OKLO SMR BWXT）。每個籃子為成分股等權平均，每日再平衡。產業鏈內的資金過往大致按超大型股 → 加密相關 → 光通訊 → 雲端 → 記憶體的次序輪動，輪動圖顯示資金現在走到哪一環。</li>
+        <li data-en="AI chain baskets: hyperscalers (MSFT AMZN GOOGL META ORCL), compute chips (NVDA AVGO AMD TSM), memory (MU WDC STX SNDK), networking &amp; interconnect (ANET MRVL CRDO ALAB), optical (COHR LITE CIEN GLW FN AAOI), power &amp; cooling (VRT ETN GEV PWR), IPPs &amp; on-site power (VST CEG TLN NRG BE), neoclouds (CRWV NBIS IREN APLD), crypto-linked (COIN MSTR HOOD), uranium &amp; nuclear (CCJ UEC LEU OKLO SMR BWXT). Each is an equal-weight average of its members, rebalanced daily. Money has not rotated through the chain in a fixed order (tested 2023–2026): use the graph, the semis benchmark and four-week persistence to see which link has it now.">AI產業鏈籃子：超大型雲端（MSFT AMZN GOOGL META ORCL）、運算晶片（NVDA AVGO AMD TSM）、記憶體（MU WDC STX SNDK）、網絡與互連（ANET MRVL CRDO ALAB）、光通訊（COHR LITE CIEN GLW FN AAOI）、電力與散熱（VRT ETN GEV PWR）、獨立發電與現場供電（VST CEG TLN NRG BE）、新雲（CRWV NBIS IREN APLD）、加密相關（COIN MSTR HOOD）、鈾與核能（CCJ UEC LEU OKLO SMR BWXT）。每個籃子為成分股等權平均，每日再平衡。回測顯示鏈內並無固定的輪動次序（2023至2026年），要用輪動圖、對半導體的角度和4週持續強勢，看資金現在在哪一環。</li>
         <li data-en="AI chain line in the headline: each basket's return minus the average of the ten baskets. Over a week, +1.5 points or more is money in and −1.5 or less is money out; over a month the bar is ±3. It shows where money moves inside the chain even when the whole chain rises or falls with the market.">頁首的「AI產業鏈」一行：每個籃子的回報減去十個籃子的平均。一週計，高於+1.5個百分點為流入，低於−1.5為流出；一個月計以±3為界。即使整條產業鏈隨大市升跌，也能看到資金在鏈內由哪一環流向哪一環。</li>
         <li data-en="Benchmark. Against the S&amp;P 500 asks whether something beats the market. Against semis (SMH) asks where money is moving inside the AI chain: when the whole chain beats the market, everything looks leading against the S&amp;P, and only the semis benchmark separates the links.">基準。對標普500：問的是有沒有跑贏大市。對半導體（SMH）：問的是AI產業鏈內部資金流向。整條產業鏈都跑贏大市時，對標普500全部都顯示領先，只有對半導體才分辨得到哪一環在接力。</li>
         <li data-en="My stocks: search any S&amp;P 500 member, AI basket member or watch-list name, up to sixteen at a time. The default list is the names most discussed in the trading chat. Picks reset when the page reloads; ask Claude to change the default list or add a stock that is not searchable.">自選股：可搜尋任何標普500成分股、AI籃子成分股及觀察名單，同時最多顯示十六隻。預設名單為交易群組討論最多的股票。重新整理頁面後會回到預設名單；如要更改預設名單，或加入搜尋不到的股票，請告訴 Claude。</li>
@@ -979,10 +991,10 @@
   });
   const mk = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; };
   const sep = () => L('；', '; ');
-  // Rotation playbook from the Oct 2025–Oct 2026 backtest: trigger, hold, fade, exit warning, watch list, own picks
+  // Rotation states (rulebook §10a): trigger, hold, fade, exit warning, watch list
   function rotState(r) {
     const q = r.quadrant, up = r.ratio_chg > 0;
-    if ((q === 'weakening' && r.ratio_chg < 0 && r.ratio_chg_prev < 0) || (q === 'lagging' && r.quadrant_1w === 'weakening')) return 'exit';
+    if ((q === 'weakening' && r.ratio_chg < 0 && r.ratio_chg_prev < 0) || (q === 'lagging' && (r.quadrant_1w === 'weakening' || r.quadrant_1w === 'leading'))) return 'exit';
     if (q === 'leading' && up && r.lead_weeks >= 1 && r.lead_weeks <= 2) return 'trigger';
     if (q === 'leading' && up) return 'hold';
     if (q === 'leading') return 'fading';
@@ -990,78 +1002,168 @@
     return q;
   }
   const STATE = () => ({
-    trigger: [L('觸發', 'Trigger'), 'rb-up'], hold: [L('持有區', 'Hold zone'), 'rb-up'], fading: [L('領先但強度回落', 'Leading, RS-ratio easing'), ''],
+    trigger: [L('觸發（轉為持有）', 'Trigger (now hold)'), 'rb-up'], hold: [L('持有區', 'Hold zone'), 'rb-up'], fading: [L('領先但強度回落', 'Leading, RS-ratio easing'), ''],
     exit: [L('出場警號', 'Exit warning'), 'rb-down'], watch: [L('觀察', 'Watch'), ''],
     weakening: [L('轉弱', 'Weakening'), ''], lagging: [L('落後', 'Lagging'), 'rb-down'], improving: [L('改善（未確認）', 'Improving (unconfirmed)'), ''],
   });
   // a line of items joined with ；, each item text or a [text, className] pair
   const joined = (parts) => { const w = mk('span'); parts.forEach((p, i) => { if (i) w.append(sep()); w.append(Array.isArray(p) ? mk('span', p[1], p[0]) : p); }); return w; };
 
-  function drawPlaybook(item, lines) {
-    if (status(['sectors']) !== 'ok') return;
-    const rows = dash.data('sectors').data.filter((r) => ['sector', 'theme', 'ai'].includes(r.group));
-    const by = (st) => rows.filter((r) => rotState(r) === st);
-    const T = TURN();
-    const names = (list, extra) => (list.length ? list.map((r) => nm(r) + (extra ? extra(r) : '')).join(sep()) : L('無', 'none'));
-    const wk = (r) => (r.lead_weeks ? L(`（第${r.lead_weeks}週）`, ` (week ${r.lead_weeks})`) : '');
-    const trig = names(by('trigger'), (r) => (r.gap_before == null || r.gap_before >= 8
-      ? L('（長期落後後首次）', ' (first after a long lag)') : L(`（短期重返領先，${r.gap_before}週）`, ` (quick return to leading, ${r.gap_before} wks)`)));
-    item(L('輪動操作', 'Rotation playbook'), lines([
-      [L('觸發', 'Trigger'), mk('span', 'rb-in', trig)],
-      [L('持有區', 'Hold zone'), names(by('hold'), wk)],
-      [L('領先但回落', 'Leading, easing'), names(by('fading'), wk)],
-      [L('出場警號', 'Exit warning'), mk('span', 'rb-out', names(by('exit')))],
-      [L('觀察', 'Watch'), names(by('watch'), (r) => L(`（${T[r.turn]}）`, ` (${T[r.turn]})`))],
-    ]));
-    if (status(['stocks']) !== 'ok') return;
-    const all = dash.data('stocks').data, S = STATE();
+  // The playbook acts on completed weeks (Friday close): fields *_fw. The plain fields include the unfinished week and
+  // only feed the midweek preview line.
+  const fwView = (r) => ({ ...r, quadrant: r.q_fw, quadrant_1w: r.q1_fw, turn: r.turn_fw, ratio_chg: r.chg_fw,
+    ratio_chg_prev: r.chg_prev_fw, lead_weeks: r.lead_fw, gap_before: r.gap_fw });
+  const OWN = () => new Set([...DEFAULT_PICKS, ...state.picks]);
+  // Leaders (rulebook §10a step 3): AI baskets top three by 26-week RS plus new entrants (4 weeks >= +15% vs the
+  // S&P 500, RS-ratio rising); S&P sectors top two. A name in two groups is kept once in the headline (AI first).
+  function leaderPool() {
+    const groups = dash.data('sectors').data, all = dash.data('stocks').data;
+    const str = (r) => r.rel26w_fw ?? r.rel6m;
+    const out = [], seen = new Set();
+    const add = (r, g, kind, rank) => { out.push({ r, g, kind, rank, dup: seen.has(r.ticker) }); seen.add(r.ticker); };
+    for (const g of groups.filter((x) => x.group === 'ai')) {
+      const ms = all.filter((x) => (x.baskets || '').split(' ').includes(g.ticker) && str(x) != null).sort((a, c) => str(c) - str(a));
+      ms.slice(0, 3).forEach((x, i) => add(x, g, 'top', i + 1));
+      ms.slice(3).filter((x) => x.rel4w_fw >= 15 && x.chg_fw > 0).forEach((x) => add(x, g, 'new'));
+    }
+    for (const g of groups.filter((x) => x.group === 'sector')) {
+      const ms = all.filter((x) => x.sector === g.ticker && str(x) != null).sort((a, c) => str(c) - str(a));
+      ms.slice(0, 2).forEach((x, i) => add(x, g, 'top', i + 1));
+    }
+    return out;
+  }
+  // entry stage on the Friday close: confirmed straight from outside improving, confirmed after an earlier improving
+  // week, early, unconfirmed; null when not in improving
+  const stageOf = (r) => (r.q_fw !== 'improving' ? null : r.turn_fw === 'confirmed' ? (r.q1_fw === 'improving' ? 'conf_after' : 'conf_direct')
+    : r.turn_fw === 'early' ? 'early' : 'uncon');
+  const FWSTATE = () => ({
+    entry: [L('入場候選', 'Entry candidate'), 'rb-up'], watch: [L('觀察', 'Watch'), ''], hold: [L('持有', 'Hold'), 'rb-up'],
+    noadd: [L('不加注', "Hold, don't add"), ''], exit: [L('出場', 'Exit'), 'rb-down'], weak: [L('轉弱', 'Weakening'), ''], lag: [L('落後', 'Lagging'), 'rb-down'],
+  });
+  const GROUPSTATE = () => ({ ...FWSTATE(), entry: [L('改善（確認）', 'Improving (confirmed)'), 'rb-up'], watch: [L('改善', 'Improving'), ''],
+    hold: [L('領先', 'Leading'), 'rb-up'], noadd: [L('領先（強度回落）', 'Leading (easing)'), ''] });
+  function fwState(r) {
+    const st = rotState(fwView(r));
+    if (st === 'exit') return 'exit';
+    if (st === 'trigger' || st === 'hold') return 'hold';
+    if (st === 'fading') return 'noadd';
+    if (r.q_fw === 'improving') return r.turn_fw === 'confirmed' ? 'entry' : 'watch';
+    return r.q_fw === 'weakening' ? 'weak' : 'lag';
+  }
+  // spike = RS-ratio up 5+ and 8%+ ahead of the S&P 500 in the week; quick return = back in leading within 8 weeks
+  const fwFlags = (r) => [r.chg_fw >= 5 && r.relw_fw >= 8 ? L('急升', 'spike') : null,
+    r.q_fw === 'leading' && r.gap_fw != null && r.gap_fw < 8 ? L('重返', 'quick return') : null].filter(Boolean);
+  const where = (x) => (x.kind === 'new' ? L(`${nm(x.g)} 新晉`, `${nm(x.g)} new`) : L(`${nm(x.g)} 第${x.rank}`, `${nm(x.g)} #${x.rank}`));
+  const tagName = (x, extra) => {
+    const notes = [where(x), ...(extra || [])].join(L('，', ', '));
+    return `${OWN().has(x.r.ticker) ? '★' : ''}${x.r.ticker}${L(`（${notes}）`, ` (${notes})`)}`;
+  };
+
+  function drawPlaybook(item, lines, ctx) {
+    if (status(['sectors', 'stocks']) !== 'ok') return;
+    const g0 = dash.data('sectors').data[0];
+    const pool = leaderPool().filter((x) => !x.dup);
+    const none = L('無', 'none');
+    const names = (xs, extra) => (xs.length ? xs.map((x) => tagName(x, extra && extra(x))).join(sep()) : none);
+    const at = (k) => pool.filter((x) => stageOf(x.r) === k);
+    // watch lines share eight places: groups leading or improving with a rising RS-ratio first, then rank
+    const strong = (x) => (x.g.q_fw === 'leading' || x.g.q_fw === 'improving') && x.g.chg_fw > 0;
+    const watch = [...at('early'), ...at('uncon')]
+      .sort((a, c) => (strong(c) - strong(a)) || ((a.kind === 'new') - (c.kind === 'new')) || ((a.rank || 9) - (c.rank || 9))).slice(0, 8);
+    const second = (x) => (x.r.q1_fw === 'improving' && x.r.turn1_fw === 'confirmed' ? [L('已連續確認', 'confirmed again')] : []);
+    const groupNote = (x) => (strong(x) ? [] : [L(`組別${QNAME()[x.g.q_fw] || ''}`, `group ${(QNAME()[x.g.q_fw] || '').toLowerCase()}`)]);
+    const fresh = pool.filter((x) => x.kind === 'new').sort((a, c) => c.r.rel4w_fw - a.r.rel4w_fw).slice(0, 6);
+    // week-on-week changes among the leaders
+    const upL = pool.filter((x) => x.r.q_fw === 'leading' && x.r.q1_fw && x.r.q1_fw !== 'leading');
+    const backG = pool.filter((x) => x.r.q_fw === 'lagging' && x.r.q1_fw === 'improving');
+    const outs = pool.filter((x) => x.kind === 'top' && fwState(x.r) === 'exit');
+    const tk = (xs) => xs.map((x) => x.r.ticker).join(L('、', ', '));
+    const changes = [];
+    if (upL.length) changes.push([[L('↑ 升入領先（觸發，轉為持有）', '↑ Into leading (trigger, now hold)'), 'rb-in'], tk(upL)]);
+    if (backG.length) changes.push([[L('↓ 由改善跌回落後（移出名單）', '↓ Back to lagging (off the list)'), 'rb-out'], tk(backG)]);
+    if (outs.length) changes.push([[L(`↓ 龍頭出場（共 ${outs.length} 隻）`, `↓ Leaders exiting (${outs.length})`), 'rb-out'], tk(outs)]);
+    // backdrop sets the size (rulebook §10a step 1)
+    const why = [];
+    if (ctx.g.regime_1w === 'risk_off') why.push(L('本週格局為避險', 'risk-off this week'));
+    if (ctx.rt.nominal2_3m >= 50) why.push(L(`2年期三個月 ${signed(ctx.rt.nominal2_3m, 0)} 基點`, `2-year ${signed(ctx.rt.nominal2_3m, 0)}bp over 3 months`));
+    if (ctx.rt.hy_oas_1m >= 40) why.push(L(`高收益債息差一個月 ${signed(ctx.rt.hy_oas_1m, 0)} 基點`, `high-yield spread ${signed(ctx.rt.hy_oas_1m, 0)}bp over the month`));
+    const backdrop = mk('span');
+    backdrop.append(why.length ? mk('span', 'rb-out', L('注碼宜小', 'size down')) : mk('span', null, L('正常注碼', 'normal size')),
+      why.length ? L(`：${why.join('；')}`, `: ${why.join('; ')}`) : L('：未見減注條件', ': no size-down condition'));
+    // the week only shows direction; the size decision stays on the one- and three-month windows
+    const d2 = ctx.rt.nominal2_1w, dh = ctx.rt.hy_oas_1w;
+    const dirW = d2 <= 0 && dh <= 0 ? L('壓力略為緩和', 'pressure easing') : d2 > 0 && dh > 0 ? L('壓力仍在增加', 'pressure still building') : L('方向不一', 'mixed');
+    const tail = why.length && d2 <= 0 && dh <= 0 ? L('，未足以解除減注', ', not enough to lift the size-down') : '';
+    backdrop.append(L(`。本週：2年期 ${signed(d2, 0)}，息差 ${signed(dh, 0)} 基點，${dirW}${tail}`, `. This week: 2-year ${signed(d2, 0)}bp, spread ${signed(dh, 0)}bp, ${dirW}${tail}`));
+    const rows = [
+      [[L('確認（直接）', 'Confirmed (direct)'), 'rb-in'], names(at('conf_direct'), groupNote)],
+      [[L('確認（初步後）', 'Confirmed (after early)'), 'rb-in'], names(at('conf_after'), (x) => [...second(x), ...groupNote(x)])],
+      [L('初步（觀察）', 'Early (watch)'), names(watch.filter((x) => stageOf(x.r) === 'early'), groupNote)],
+      [L('未確認（觀察）', 'Unconfirmed (watch)'), names(watch.filter((x) => stageOf(x.r) === 'uncon'), groupNote)],
+      [L('新晉（4週持續強勢）', 'New entrants (4-week strength)'), fresh.length ? fresh.map((x) =>
+        `${OWN().has(x.r.ticker) ? '★' : ''}${x.r.ticker}${L(`（${nm(x.g)}，4週 ${signed(x.r.rel4w_fw)}%）`, ` (${nm(x.g)}, 4 wks ${signed(x.r.rel4w_fw)}%)`)}`).join(sep()) : none],
+      ...(changes.length ? changes : [[L('本週變化', 'This week'), L('名單沒有升降', 'no moves on the list')]]),
+      [L('大環境', 'Backdrop'), backdrop],
+    ];
+    if (!g0.week_done) {
+      // midweek preview: would become confirmed if the week closed now
+      const pre = leaderPool().filter((x) => !x.dup && x.r.quadrant === 'improving' && x.r.turn === 'confirmed' && !String(stageOf(x.r)).startsWith('conf'));
+      rows.push([L('本週至今（未定）', 'Week so far (provisional)'), pre.length ? L(`${pre.map((x) => x.r.ticker).join('、')}：如週五收市維持，會升為確認`, `${pre.map((x) => x.r.ticker).join(', ')}: confirmed if the week closes like this`) : none]);
+    }
+    item(L(`輪動操作（以 ${g0.week_fw} 收市為準）`, `Rotation playbook (as of the ${g0.week_fw} close)`), lines(rows));
+
+    // own picks: one line per state on the Friday close, most urgent first
+    const all = dash.data('stocks').data, groups = dash.data('sectors').data, S = STATE();
     const rank = (r) => (r.baskets || '').split(' ').filter(Boolean).map((b) => {
       const peers = all.filter((x) => (x.baskets || '').split(' ').includes(b) && x.rs_ratio != null).sort((a, c) => c.rs_ratio - a.rs_ratio);
-      const g = rows.find((x) => x.ticker === b);
+      const g = groups.find((x) => x.ticker === b);
       return `${g ? nm(g) : b} ${peers.findIndex((x) => x.ticker === r.ticker) + 1}/${peers.length}`;
     }).join(sep());
-    // own picks: one line per state, most urgent first; within a state, picks that pass every step come first
     const ORDER = ['exit', 'trigger', 'hold', 'fading', 'watch', 'weakening', 'improving', 'lagging'];
     const byState = {};
     DEFAULT_PICKS.map((t) => all.find((x) => x.ticker === t)).filter(Boolean).forEach((r) => {
-      const st = rotState(r);
-      const groups = (r.baskets || '').split(' ').filter(Boolean).map((b) => rows.find((x) => x.ticker === b)).filter(Boolean);
-      const groupNote = (st === 'trigger' || st === 'hold') && groups.length && !groups.some((g) => g.quadrant === 'leading')
-        ? L(`組別${QNAME()[groups[0].quadrant]}`, `group ${QNAME()[groups[0].quadrant].toLowerCase()}`) : '';
-      const note = [rank(r), groupNote].filter(Boolean).join(L('，', ', '));
-      (byState[st] ||= []).push({ text: `${r.ticker}${note ? L(`（${note}）`, ` (${note})`) : ''}`, weak: !!groupNote });
+      const st = rotState(fwView(r));
+      const note = [rank(r), ...fwFlags(r)].filter(Boolean).join(L('，', ', '));
+      (byState[st] ||= []).push(`${r.ticker}${note ? L(`（${note}）`, ` (${note})`) : ''}`);
     });
     item(L('自選股', 'My stocks'), lines(ORDER.filter((x) => byState[x]).map((st) => {
       const [label, c] = S[st] || [st, ''];
-      return [[label, c], joined(byState[st].sort((a, b) => a.weak - b.weak).map((x) => x.text))];
+      return [[label, c], byState[st].join(sep())];
     })));
+  }
 
-    // Suggestions (step 4): trigger or hold, top two by RS-ratio inside a leading group (AI basket, else S&P sector),
-    // two per group, own picks excluded. Ranked: group RS-ratio rising first, then not a quick return, then RS-ratio.
-    const groupOf = (r) => {
-      const ai = (r.baskets || '').split(' ').filter(Boolean)[0];
-      const id = ai || r.sector;
-      const g = id && rows.find((x) => x.ticker === id) || (id && dash.data('sectors').data.find((x) => x.ticker === id));
-      if (!g) return null;
-      const peers = all.filter((x) => (ai ? (x.baskets || '').split(' ').includes(ai) : x.sector === r.sector) && x.rs_ratio != null).sort((a, c) => c.rs_ratio - a.rs_ratio);
-      return { g, rank: peers.findIndex((x) => x.ticker === r.ticker) + 1, n: peers.length };
+  // Leaders list card (rotation tab, private): every group, its state and its leaders with their states
+  function drawLeaders() {
+    const box = document.getElementById('leaders-body');
+    if (!box || window.RB_PUBLIC || status(['sectors', 'stocks']) !== 'ok') return;
+    const pool = leaderPool(), F = FWSTATE(), groups = dash.data('sectors').data;
+    document.getElementById('leaders-asof').textContent = L(`以 ${groups[0].week_fw} 收市為準`, `As of the ${groups[0].week_fw} close`);
+    const chip = (x) => {
+      const w = mk('span'), [lab, c] = F[fwState(x.r)];
+      w.append(mk('b', null, `${OWN().has(x.r.ticker) ? '★' : ''}${x.r.ticker}`), ' ', mk('span', c, [lab, ...fwFlags(x.r)].join(L('，', ', '))));
+      return w;
     };
-    const late = (x) => x.gap_before != null && x.gap_before < 8;
-    const own = new Set([...DEFAULT_PICKS, ...state.picks]);
-    const perGroup = {};
-    const ideas = all.filter((r) => !own.has(r.ticker) && ['trigger', 'hold'].includes(rotState(r))).map((r) => ({ r, ...(groupOf(r) || {}) }))
-      .filter((x) => x.g && x.g.quadrant === 'leading' && x.rank >= 1 && x.rank <= 2)
-      .sort((a, b) => ((b.g.ratio_chg > 0) - (a.g.ratio_chg > 0)) || ((late(a.r) || late(a.g)) - (late(b.r) || late(b.g))) || (b.r.rs_ratio - a.r.rs_ratio))
-      .filter((x) => (perGroup[x.g.ticker] = (perGroup[x.g.ticker] || 0) + 1) <= 2)
-      .slice(0, 8);
-    item(L('建議', 'Suggestions'), ideas.length ? joined(ideas.map((x) => {
-      const notes = [`${nm(x.g)} ${x.rank}/${x.n}`, S[rotState(x.r)][0]];
-      if (late(x.r)) notes.push(L('短期重返領先', 'quick return to leading'));
-      else if (late(x.g)) notes.push(L('組別短期重返領先', 'group quick return to leading'));
-      if (!(x.g.ratio_chg > 0)) notes.push(L('組別強度回落', 'group easing'));
-      if (x.r.rel6m > 15) notes.push(L(`大贏家 ${signed(x.r.rel6m, 0)}%`, `big winner ${signed(x.r.rel6m, 0)}%`));
-      return `${x.r.ticker}${L(`（${notes.join('，')}）`, ` (${notes.join(', ')})`)}`;
-    })) : L('今日沒有股票符合全部條件', 'no stock meets every condition today'));
+    const table = (rows, withNew) => {
+      const t = mk('table', 'rb-table rb-leaders'), h = t.createTHead().insertRow();
+      [L('組別', 'Group'), L('組別狀態', 'Group state'), withNew ? L('頭三名', 'Top three') : L('頭兩名', 'Top two'), ...(withNew ? [L('新晉', 'New entrants')] : [])]
+        .forEach((x) => h.append(mk('th', null, x)));
+      const tb = t.createTBody();
+      for (const g of rows) {
+        const tr = tb.insertRow(), xs = pool.filter((x) => x.g.ticker === g.ticker);
+        tr.insertCell().textContent = nm(g);
+        const [gl, gc] = GROUPSTATE()[fwState(g)]; tr.insertCell().append(mk('span', gc, gl));
+        for (const kind of withNew ? ['top', 'new'] : ['top']) {
+          const td = tr.insertCell(), ys = xs.filter((x) => x.kind === kind);
+          if (!ys.length) td.textContent = '—';
+          ys.forEach((x, i) => { if (i) td.append(sep()); td.append(chip(x)); });
+        }
+      }
+      const box2 = mk('div', 'rb-tablebox'); box2.style.maxHeight = 'none'; box2.append(t); return box2;
+    };
+    const wasOpen = box.querySelector('details')?.open || false;
+    const det = mk('details'); det.open = wasOpen;
+    det.append(mk('summary', null, L('標普500的11個板塊（頭兩名）', 'The 11 S&P 500 sectors (top two)')), table(groups.filter((x) => x.group === 'sector'), false));
+    box.replaceChildren(mk('h3', 'rb-h3', L('AI產業鏈子板塊', 'AI chain sub-sectors')), table(groups.filter((x) => x.group === 'ai'), true), det);
   }
 
   function drawHeader() {
@@ -1128,7 +1230,7 @@
       ? lines(moves.map(([k, rows]) => { const [f, t] = k.split('>'); return [`${Q[f]} → ${Q[t]}`, rows.map((r) => tagged(r, t)).join(sep())]; }))
       : L('11個板塊與4週前同屬一個象限', 'all 11 sectors sit in the same quadrant as four weeks ago'));
 
-    if (!window.RB_PUBLIC) drawPlaybook(item, lines);
+    if (!window.RB_PUBLIC) drawPlaybook(item, lines, { g, rt: dash.data('rates_now').data[0] });
 
     // breadth: each gauge with its week and month, then a plain verdict
     const rsp = dash.data('sectors').data.find((r) => r.ticker === 'RSP');
@@ -2025,7 +2127,7 @@
     if (state.page === 'overview') drawOverview();
     if (state.page === 'rotation') {
       document.getElementById('rrg-title').textContent = state.bench === 'smh' ? L('相對輪動圖（對半導體）', 'Relative rotation graph (vs semis)') : L('相對輪動圖（對標普500）', 'Relative rotation graph (vs S&P 500)');
-      drawPicker(); drawRRG(); drawTable();
+      drawPicker(); drawRRG(); drawTable(); drawLeaders();
     }
     if (state.page === 'breadth') drawBreadth();
     if (state.page === 'positioning') drawPositioning();

@@ -258,6 +258,11 @@ def main():
         close[bid] = (1 + rets.fillna(0)).cumprod() * 100
     weekly = close.resample("W-FRI").last().loc[:asof]
     smh = close["SMH"].dropna()
+    # The playbook acts on the Friday close, so it also gets tags from completed weeks only: a midweek build drops the
+    # unfinished week; a build on the weekend (or after a Friday close) keeps it.
+    week_done = bool(asof.weekday() == 4 or datetime.now(timezone.utc).weekday() >= 5)
+    weekly_fw = weekly if week_done else weekly.iloc[:-1]
+    week_fw = close.index[close.index <= weekly_fw.index[-1]][-1].strftime("%Y-%m-%d")
 
     def quadrant(rr, rm):
         if rr is None or rm is None or pd.isna(rr) or pd.isna(rm):
@@ -269,6 +274,36 @@ def main():
         rs = (weekly[t] / weekly[bench]).dropna()
         ratio = 100 * rs / rs.rolling(10).mean()
         return ratio, 100 * ratio / ratio.shift(4), rs
+
+    def week_fields(t):
+        """Rotation tags vs the S&P 500 on completed weeks (suffix _fw): this week's and last week's quadrant and tag,
+        RS-ratio changes, 1-, 4- and 26-week relative returns, and the leading spell."""
+        rs = (weekly_fw[t] / weekly_fw["SPY"]).dropna()
+        if len(rs) < 16:
+            return {}
+        ratio = 100 * rs / rs.rolling(10).mean()
+        mom = 100 * ratio / ratio.shift(4)
+        qs = [quadrant(a_, b_) for a_, b_ in zip(ratio, mom)]
+        if qs[-1] is None or qs[-2] is None:
+            return {}
+        w = rs.pct_change() * 100
+
+        def tag(i):
+            c = ratio.iloc[i] - ratio.iloc[i - 1]
+            return "confirmed" if c > 0 and w.iloc[i] > 0 and w.iloc[i - 1] > 0 else "early" if c > 0 and w.iloc[i] > 0 else "unconfirmed"
+        lead = 0
+        while lead < len(qs) and qs[-1 - lead] == "leading":
+            lead += 1
+        gap = None
+        if lead:
+            start = len(qs) - lead
+            prev = [i for i in range(start - 1, -1, -1) if qs[i] == "leading"]
+            gap = (start - 1 - prev[0]) if prev else None
+        return {"q_fw": qs[-1], "q1_fw": qs[-2], "turn_fw": tag(-1), "turn1_fw": tag(-2),
+                "chg_fw": r(ratio.iloc[-1] - ratio.iloc[-2]), "chg_prev_fw": r(ratio.iloc[-2] - ratio.iloc[-3]),
+                "relw_fw": r(w.iloc[-1]), "rel4w_fw": r((rs.iloc[-1] / rs.iloc[-5] - 1) * 100),
+                "rel26w_fw": r((rs.iloc[-1] / rs.iloc[-27] - 1) * 100) if len(rs) > 27 else None,
+                "lead_fw": lead, "gap_fw": gap}
 
     def rotation(t):
         """Return fields and relative rotation vs the S&P 500 and vs semis (SMH)."""
@@ -323,6 +358,7 @@ def main():
             for d in ratio.index[-10:]:
                 tail.setdefault(d, {})["rs_ratio" + suffix] = r(ratio[d])
                 tail[d]["rs_mom" + suffix] = r(mom[d])
+        row.update(week_fields(t))
         tails_out = [{"ticker": t, "week": d.strftime("%Y-%m-%d"), **v} for d, v in tail.items()]
         return row, tails_out
 
@@ -332,7 +368,8 @@ def main():
         s = close[t].dropna()
         row, tl = rotation(t)
         row = {"ticker": t, "name": name, "group": group, "price": r(s.iloc[-1]), **row,
-               "vs_200d": r((s.iloc[-1] / s.rolling(200).mean().iloc[-1] - 1) * 100)}
+               "vs_200d": r((s.iloc[-1] / s.rolling(200).mean().iloc[-1] - 1) * 100),
+               "week_fw": week_fw, "week_done": week_done}
         if group == "ai":
             row["members_list"] = " ".join(AI_BASKETS[t][1])
         p = participation.get(t, {})
