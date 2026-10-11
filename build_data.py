@@ -43,6 +43,7 @@ MACRO = {
     "^IRX": ("美國3個月國庫券收益率", "%"), "DX-Y.NYB": ("美元指數", ""),
     "CL=F": ("WTI原油", "$"), "HG=F": ("銅", "$"), "GC=F": ("黃金", "$"),
     "^VIX": ("VIX波動率", ""), "^MOVE": ("MOVE債市波動率", ""), "USDJPY=X": ("美元兌日圓", ""),
+    "CNY=X": ("美元兌人民幣", ""),
 }
 # pair id: (numerator, denominator, 繁體 label, what rising means)
 RATIOS = {
@@ -94,7 +95,7 @@ EN = {
     "標普500": "S&P 500",
     "美國10年期國債收益率": "US 10-year Treasury yield", "美國5年期國債收益率": "US 5-year Treasury yield",
     "美國3個月國庫券收益率": "US 3-month bill yield", "美元指數": "US dollar index", "WTI原油": "WTI crude",
-    "銅": "Copper", "VIX波動率": "VIX", "MOVE債市波動率": "MOVE bond volatility", "美元兌日圓": "USD/JPY",
+    "銅": "Copper", "VIX波動率": "VIX", "MOVE債市波動率": "MOVE bond volatility", "美元兌日圓": "USD/JPY", "美元兌人民幣": "USD/CNY",
     "非必需／必需消費": "Discretionary / staples", "風險胃納上升": "risk appetite rising",
     "等權／市值加權": "Equal weight / cap weight", "市寬擴闊": "breadth widening",
     "小型股／納指100": "Small caps / Nasdaq-100", "資金由龍頭擴散": "money spreading from leaders",
@@ -311,6 +312,14 @@ def main():
         row = {"r1w": r(pct(s, 5)), "r1m": r(pct(s, 21)), "r3m": r(pct(s, 63)), "r6m": r(pct(s, 126)), "rytd": r(ytd(s)),
                "vs_50d": r((s.iloc[-1] / s.rolling(50).mean().iloc[-1] - 1) * 100) if len(s) >= 50 else None,
                "off_high": r((s.iloc[-1] / s.iloc[-252:].max() - 1) * 100)}
+        # stop distance (rulebook §10a step 5): the wider of 15% and 3 x the 14-day ATR, as % of the close
+        if t in high and t in low:
+            h, l_ = high[t].reindex(s.index), low[t].reindex(s.index); pc = s.shift(1)
+            tr = pd.concat([h - l_, (h - pc).abs(), (l_ - pc).abs()], axis=1).max(axis=1, skipna=False)
+            atr = tr.rolling(14).mean().iloc[-1]
+            if pd.notna(atr):
+                row["atr_pct"] = r(atr / s.iloc[-1] * 100)
+                row["stop_pct"] = r(max(15.0, 3 * atr / s.iloc[-1] * 100))
         tail = {}
         for suffix, bench, bs in (("", "SPY", spy), ("_smh", "SMH", smh)):
             for n, k in ((5, "rel1w"), (21, "rel1m"), (63, "rel3m"), (126, "rel6m")):
@@ -543,6 +552,9 @@ def build_rates():
     start = pd.Timestamp.today() - pd.DateOffset(years=3)
     rates = pd.DataFrame({k: fred(sid) for sid, k in RATE_SERIES.items()})
     rates = rates[rates.index >= start - pd.DateOffset(days=120)]
+    # the curve from the same day's 10-year and 2-year (T10Y2Y can print a day ahead of DGS10/DGS2 and then disagree
+    # with the yields shown beside it)
+    rates["curve"] = rates["nominal10"] - rates["nominal2"]
     filled = rates.ffill(limit=10)  # term premium and OAS publish on slightly different days
     out = filled[filled.index >= start].dropna(subset=["nominal10"])
     write("rates", [{"date": d.strftime("%Y-%m-%d"), **{k: r(v, 3) for k, v in x.items()}} for d, x in out.iterrows()])
