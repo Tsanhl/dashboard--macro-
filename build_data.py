@@ -70,6 +70,13 @@ AI_BASKETS = {
     "AI_NUC": ("鈾與核能", ["CCJ", "UEC", "LEU", "OKLO", "SMR", "BWXT"]),
 }
 # Extra single names to make searchable beyond the S&P 500 and the baskets
+# Typical dip after a quick pump (+30% in 20 sessions), by AI basket: (median, worst quarter) % from the peak.
+# From backtests/results/22_pump_dip.txt (2020-07..2026); the monthly review reruns it. Reference only.
+TYPICAL_DIP = {
+    "AI_HYPER": (-16.0, -18.3), "AI_CHIPS": (-14.8, -22.0), "AI_MEM": (-19.5, -25.9), "AI_NET": (-22.5, -30.1),
+    "AI_OPT": (-23.0, -40.0), "AI_PWR": (-16.5, -22.1), "AI_IPP": (-22.0, -35.3), "AI_NEO": (-40.8, -48.6),
+    "AI_CRYPTO": (-29.0, -37.0), "AI_NUC": (-30.2, -45.0),
+}
 WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR", "URA"]
 # Company names for tickers outside the S&P 500 member list
 EXTRA_NAMES = {
@@ -292,6 +299,11 @@ def main():
         def tag(i):
             c = ratio.iloc[i] - ratio.iloc[i - 1]
             return "confirmed" if c > 0 and w.iloc[i] > 0 and w.iloc[i - 1] > 0 else "early" if c > 0 and w.iloc[i] > 0 else "unconfirmed"
+        # consecutive completed weeks with the RS-ratio falling (rulebook §10a step 6: 1-2 pullback, 3+ rotation)
+        dr_ = ratio.diff().dropna().values
+        down = 0
+        while down < len(dr_) and dr_[-1 - down] < 0:
+            down += 1
         lead = 0
         while lead < len(qs) and qs[-1 - lead] == "leading":
             lead += 1
@@ -304,7 +316,7 @@ def main():
                 "chg_fw": r(ratio.iloc[-1] - ratio.iloc[-2]), "chg_prev_fw": r(ratio.iloc[-2] - ratio.iloc[-3]),
                 "relw_fw": r(w.iloc[-1]), "rel4w_fw": r((rs.iloc[-1] / rs.iloc[-5] - 1) * 100),
                 "rel26w_fw": r((rs.iloc[-1] / rs.iloc[-27] - 1) * 100) if len(rs) > 27 else None,
-                "lead_fw": lead, "gap_fw": gap}
+                "lead_fw": lead, "gap_fw": gap, "down_wks_fw": down}
 
     def rotation(t):
         """Return fields and relative rotation vs the S&P 500 and vs semis (SMH)."""
@@ -312,6 +324,17 @@ def main():
         row = {"r1w": r(pct(s, 5)), "r1m": r(pct(s, 21)), "r3m": r(pct(s, 63)), "r6m": r(pct(s, 126)), "rytd": r(ytd(s)),
                "vs_50d": r((s.iloc[-1] / s.rolling(50).mean().iloc[-1] - 1) * 100) if len(s) >= 50 else None,
                "off_high": r((s.iloc[-1] / s.iloc[-252:].max() - 1) * 100)}
+        # pullback stage (AI stage tab): distance from the 60-session closing high, sessions since it, and the latest
+        # quick pump (+30% in 20 sessions) within the last 120 sessions
+        if len(s) >= 60:
+            w60 = s.iloc[-60:]
+            row["off_hi60"] = r((s.iloc[-1] / w60.max() - 1) * 100)
+            row["hi60_days"] = int(len(w60) - 1 - int(np.argmax(w60.values)))
+            r20 = (s / s.shift(20) - 1).iloc[-120:]
+            hit = r20[r20 >= 0.30]
+            if len(hit):
+                row["pump_days"] = int(len(s.loc[hit.index[-1]:]) - 1)
+                row["vs_pump"] = r((s.iloc[-1] / s.loc[hit.index[-1]] - 1) * 100)
         # stop distance (rulebook §10a step 5): the wider of 15% and 3 x the 14-day ATR, as % of the close
         if t in high and t in low:
             h, l_ = high[t].reindex(s.index), low[t].reindex(s.index); pc = s.shift(1)
