@@ -449,7 +449,7 @@ def main():
             continue
         row, tl = rotation(t)
         stock_rows.append({"ticker": t, "name": names.get(t, t), "baskets": " ".join(in_basket.get(t, [])),
-                           "sector": GICS_TO_ETF.get(gics.get(t)), **row})
+                           "sector": GICS_TO_ETF.get(gics.get(t)), "price": r(close[t].dropna().iloc[-1]), **row})
         stock_tails += tl
     write("stocks", stock_rows)
     write("stock_tails", stock_tails)

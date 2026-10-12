@@ -2,7 +2,7 @@
 
 Run after build_data.py:  python3 build_site.py
 - Copies data/*.json to site/data/, leaving out what should not be republished:
-  raw Yahoo price levels (ETF prices, the "last" column of the macro table) and
+  raw Yahoo price levels (ETF and stock prices, the "last" column of the macro table) and
   ICE BofA credit-spread levels (replaced by changes in bp and a 3-year percentile).
 - Wraps index.html (written for the Claude Dashboard artifact) in a standalone page with
   a small stand-in for the artifact's `dash` API, d3 from cdnjs and the colour tokens.
@@ -25,7 +25,7 @@ def load(name):
 
 def public_data():
     out = {name: load(name) for name in DATASETS}
-    for row in out["sectors"]:
+    for row in out["sectors"] + out["stocks"]:
         row.pop("price", None)
     for row in out["macro"]:
         row.pop("last", None)
