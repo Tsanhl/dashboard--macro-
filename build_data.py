@@ -287,7 +287,11 @@ def main():
     for bid, (_, ms) in AI_BASKETS.items():
         rets = close[[m for m in ms if m in close]].pct_change(fill_method=None).mean(axis=1, skipna=True)
         close[bid] = (1 + rets.fillna(0)).cumprod() * 100
-    weekly = close.resample("W-FRI").last().loc[:asof]
+    weekly = close.resample("W-FRI").last()
+    # a midweek build labels the unfinished week with the coming Friday; stamp it with its last trading day instead
+    # (cutting at asof dropped it, and the line below then dropped the last completed week as well)
+    if weekly.index[-1] > asof:
+        weekly = weekly.rename(index={weekly.index[-1]: asof})
     smh = close["SMH"].dropna()
     # The playbook acts on the Friday close, so it also gets tags from completed weeks only: a midweek build drops the
     # unfinished week; a build on the weekend (or after a Friday close) keeps it.
