@@ -302,7 +302,7 @@
     <div class="rb-grid">
       <div class="rb-card" id="card-pctabove">
         <h2 class="rb-h2" data-en="Share of members above moving averages">高於均線的成分股比例</h2>
-        <p class="rb-sub" data-en="20-day is short term, 50-day medium, 200-day the long trend. Above 80% is hot, below 20% is washed out.">20天線反映短線，50天線反映中期，200天線反映長期趨勢。80%以上偏熱，20%以下偏冷。</p>
+        <p class="rb-sub" data-en="20-day is short term, 50-day medium, 200-day the long trend. Above 80% is hot, below 20% is washed out. Averages use dividend-adjusted prices, so levels run about 1–2 points above Barchart or Investing.com (200-day about 2–3).">20天線反映短線，50天線反映中期，200天線反映長期趨勢。80%以上偏熱，20%以下偏冷。均線按經調整股息的價格計算，水平一般比 Barchart、Investing.com 高約1至2個百分點（200天線約2至3個百分點）。</p>
         <div class="rb-legend" id="lg-pct"></div>
         <div class="rb-chart dash-skeleton" id="ch-pct" data-source="breadth" style="min-height: 15rem"></div>
       </div>
@@ -438,7 +438,7 @@
     <div class="rb-grid">
       <div class="rb-card" id="card-macro">
         <h2 class="rb-h2" data-en="Macro drivers">宏觀驅動</h2>
-        <p class="rb-sub" data-en="Yields change in basis points, everything else in percent. Most rotations are set off by these. Yields here are Yahoo market quotes and can differ by a few basis points from the FRED closing data on the Positioning &amp; rates tab.">收益率以基點計變化，其餘以百分比計。輪動多數由這些因素觸發。此處收益率為 Yahoo 市場報價，與「持倉與利率」分頁的 FRED 收市數據可能相差數個基點。</p>
+        <p class="rb-sub" data-en="Yields change in basis points, everything else in percent. Most rotations are set off by these.">收益率以基點計變化，其餘以百分比計。輪動多數由這些因素觸發。</p>
         <div class="rb-tablebox">
           <table class="rb-table" id="macro-table" data-source="macro" data-row-key="ticker">
             <thead><tr>
@@ -453,6 +453,7 @@
           </table>
         </div>
         <p class="rb-take-line" id="cny-note" hidden></p>
+        <p class="rb-sub" id="macro-note"></p>
       </div>
       <div class="rb-card" id="card-global">
         <h2 class="rb-h2" data-en="Global sweep: one month vs S&amp;P 500">環球掃描：一個月相對標普500</h2>
@@ -593,7 +594,7 @@
         <table class="rb-cases">
           <thead><tr><th scope="col" data-en="Chart">圖表</th><th scope="col" data-en="How to read it">讀法</th><th scope="col" data-en="Key signal">主要訊號</th></tr></thead>
           <tbody>
-            <tr><td data-en="Share above moving averages">高於均線的成分股比例</td><td data-en="20-day short term, 50-day medium, 200-day long trend">20天線看短期，50天線看中期，200天線看長期</td><td data-en="All three rising together is a strong market. The 20-day jumping while the 200-day stays flat is only a short bounce.">三條線同時向上，是強勁的升市；20天線急升而200天線不動，只是短期反彈。</td></tr>
+            <tr><td data-en="Share above moving averages">高於均線的成分股比例</td><td data-en="20-day short term, 50-day medium, 200-day long trend">20天線看短期，50天線看中期，200天線看長期</td><td data-en="All three rising together is a strong market. The 20-day jumping while the 200-day stays flat is only a short bounce. The averages use dividend-adjusted prices: the 50-day share usually runs 1–2 points above Barchart or Investing.com and the 200-day 2–3 points; advances and declines, new highs and lows and the McClellan match outside figures. The tests and the thrust thresholds use the same method, so they compare like for like.">三條線同時向上，是強勁的升市；20天線急升而200天線不動，只是短期反彈。本頁按經調整股息的價格計算均線：50天線比例一般比 Barchart、Investing.com 高約1至2個百分點，200天線約2至3個百分點；升跌家數、新高新低和麥克連則與外間一致。回測和 thrust 門檻用同一計法，所以可以直接比較。</td></tr>
             <tr><td data-en="Equal weight vs S&amp;P 500">等權與標普500</td><td data-en="Both start at 100 at the beginning of the range">兩條線於範圍起點同為100</td><td data-en="The index far ahead of equal weight means a few large caps are carrying it.">標普500遠遠拋離等權，代表升市靠少數大股撐住。</td></tr>
             <tr><td data-en="Advance-decline line">升跌線</td><td data-en="Running total of daily advancers minus decliners">每日上升家數減下跌家數的累計</td><td data-en="An index high without a matching high in this line is a negative divergence, a common warning before tops.">指數創新高而升跌線未創新高，屬負背離，是見頂的常見前兆。</td></tr>
             <tr><td data-en="McClellan oscillator">麥克連振盪指標</td><td data-en="Momentum of short-term participation">短期參與度的動量</td><td data-en="A rebound from a deep negative into positive often marks a short-term low; extreme positives often mark short-term highs.">由極端負值反彈並轉正，常見於短期底部；極端正值常見於短期頂部。</td></tr>
@@ -1443,7 +1444,7 @@
       .filter(([, v]) => v != null).sort((a, c) => Math.abs(c[1]) - Math.abs(a[1])).map(([n, v]) => `${n} ${signed(v, 0)}`).join(sep());
     const why = { quiet: L('變動不大', 'a quiet move'), real_supply: L('政策或供應推動，而非增長', 'policy or supply, not growth'), inflation_growth: L('通脹或增長推動', 'inflation or growth') }[g.yields];
     item(L('10年期收益率', '10-year yield'), lines([
-      ['', L(`${rt.nominal10.toFixed(2)}%：一週 ${bp(g.nominal10_1w)}；一個月 ${bp(g.nominal10_1m)}`, `${rt.nominal10.toFixed(2)}%: week ${bp(g.nominal10_1w)}; month ${bp(g.nominal10_1m)}`)],
+      ['', L(`${rt.nominal10.toFixed(2)}%${rt.date < b.asof ? `（FRED 截至 ${+rt.date.slice(5, 7)}月${+rt.date.slice(8)}日）` : ''}：一週 ${bp(g.nominal10_1w)}；一個月 ${bp(g.nominal10_1m)}`, `${rt.nominal10.toFixed(2)}%${rt.date < b.asof ? ` (FRED, as of ${rt.date})` : ''}: week ${bp(g.nominal10_1w)}; month ${bp(g.nominal10_1m)}`)],
       [L('一個月成因', 'Month drivers'), drivers + (rt.tp_date && rt.tp_date < rt.date ? L(`（期限溢價截至 ${+rt.tp_date.slice(5, 7)}月${+rt.tp_date.slice(8)}日）`, ` (term premium as of ${rt.tp_date})`) : '')],
       ['→', why],
     ]));
@@ -2228,11 +2229,27 @@
         cells.forEach((v, i) => { const td = document.createElement('td'); td.textContent = v; if (i === 0) td.className = 'rb-tk'; tr.append(td); });
         for (const f of ['chg1w', 'chg1m', 'chg3m']) {
           const td = document.createElement('td'); const v = m[f];
-          td.textContent = m.unit === 'bp' ? signed(v, 0) + 'bp' : signed(v, 1) + '%';
+          td.textContent = (m.unit === 'bp' ? signed(v, 0) + 'bp' : signed(v, 1) + '%') + (f === 'chg1w' && m.flat_1w >= 3 ? '*' : '');
           tr.append(td);
         }
         return tr;
       }));
+      // base days of each change, against FRED's calendar-day windows on the rates tab, plus the futures-roll and
+      // frozen-quote caveats (a 2026-10-12 audit found the 10-year month change at +30bp here and +42bp there)
+      const ms = dash.data('macro').data, m0 = ms.find((m) => m.ticker === '^TNX') ?? ms[0];
+      const rt = status(['rates_now']) === 'ok' ? dash.data('rates_now').data[0] : null;
+      const md = (s) => (s ? L(`${+s.slice(5, 7)}月${+s.slice(8)}日`, s) : '—');
+      const parts = [];
+      if (m0?.base1w) parts.push(L(`變化按交易日計：最新 ${md(m0.date)}，對比 ${md(m0.base1w)}（1週）、${md(m0.base1m)}（1個月）、${md(m0.base3m)}（3個月）。`,
+        `Changes over trading days: latest ${md(m0.date)}, against ${md(m0.base1w)} (1 week), ${md(m0.base1m)} (1 month) and ${md(m0.base3m)} (3 months).`));
+      if (rt?.base1w) parts.push(L(`總覽及「持倉與利率」分頁的收益率來自 FRED，截至 ${md(rt.date)}，對比 ${md(rt.base1w)}、${md(rt.base1m)}、${md(rt.base3m)}；基準日不同，收益率急變時兩邊可相差十多基點。`,
+        `Yields on the overview and the Positioning & rates tab come from FRED, as of ${md(rt.date)}, against ${md(rt.base1w)}, ${md(rt.base1m)} and ${md(rt.base3m)}; with different base days the two can differ by more than 10bp when yields move fast.`));
+      parts.push(L('原油、銅、黃金為連續近月期貨，跨越換月時的變化包含新舊合約的差價。3個月國庫券為貼現率報價，比財政部公佈的收益率低約0.2個百分點。',
+        'Crude, copper and gold are continuous front-month futures: across a contract roll the change includes the gap between the old and new contract. The 3-month bill is a discount-rate quote, about 0.2 points below the Treasury yield.'));
+      const stale = ms.filter((m) => m.flat_1w >= 3);
+      if (stale.length) parts.push(L(`* ${stale.map((m) => nm(m)).join('、')}：最近5個交易日中有 ${stale[0].flat_1w} 日報價不變（當地假期休市），一週變化參考價值低。`,
+        `* ${stale.map((m) => nm(m)).join(', ')}: the quote was unchanged on ${stale[0].flat_1w} of the last 5 sessions (a local holiday), so the week's change says little.`));
+      document.getElementById('macro-note').textContent = parts.join(' ');
       // CNY move over a month (rulebook §5 FX, R19): a same-time confirmation for the China-exposed basket, not a lead
       const cny = dash.data('macro').data.find((m) => m.ticker === 'CNY=X'), note = document.getElementById('cny-note');
       const c1m = cny?.chg1m;

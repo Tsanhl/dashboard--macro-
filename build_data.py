@@ -40,7 +40,7 @@ GLOBAL = {
 }
 MACRO = {
     "^TNX": ("美國10年期國債收益率", "%"), "^FVX": ("美國5年期國債收益率", "%"),
-    "^IRX": ("美國3個月國庫券收益率", "%"), "DX-Y.NYB": ("美元指數", ""),
+    "^IRX": ("美國3個月國庫券貼現率", "%"), "DX-Y.NYB": ("美元指數", ""),
     "CL=F": ("WTI原油", "$"), "HG=F": ("銅", "$"), "GC=F": ("黃金", "$"),
     "^VIX": ("VIX波動率", ""), "^MOVE": ("MOVE債市波動率", ""), "USDJPY=X": ("美元兌日圓", ""),
     "CNY=X": ("美元兌人民幣", ""),
@@ -101,7 +101,7 @@ EN = {
     "南韓": "South Korea", "印度": "India", "新興市場": "Emerging markets", "黃金": "Gold", "比特幣ETF": "Bitcoin ETF",
     "標普500": "S&P 500",
     "美國10年期國債收益率": "US 10-year Treasury yield", "美國5年期國債收益率": "US 5-year Treasury yield",
-    "美國3個月國庫券收益率": "US 3-month bill yield", "美元指數": "US dollar index", "WTI原油": "WTI crude",
+    "美國3個月國庫券貼現率": "US 3-month bill (discount rate)", "美元指數": "US dollar index", "WTI原油": "WTI crude",
     "銅": "Copper", "VIX波動率": "VIX", "MOVE債市波動率": "MOVE bond volatility", "美元兌日圓": "USD/JPY", "美元兌人民幣": "USD/CNY",
     "非必需／必需消費": "Discretionary / staples", "風險胃納上升": "risk appetite rising",
     "等權／市值加權": "Equal weight / cap weight", "市寬擴闊": "breadth widening",
@@ -146,10 +146,25 @@ def ytd(series):
     return None if prior.empty else (s.iloc[-1] / prior.iloc[-1] - 1) * 100
 
 
-def download(tickers):
-    df = yf.download(sorted(set(tickers)), period="2y", interval="1d", auto_adjust=True,
+def download(tickers, tries=3):
+    tickers = sorted(set(tickers))
+    df = yf.download(tickers, period="2y", interval="1d", auto_adjust=True,
                      progress=False, threads=True, group_by="column")
-    return df["Close"], df["High"], df["Low"]
+    close, high, low = df["Close"].copy(), df["High"].copy(), df["Low"].copy()
+    # A big batch can come back with a few empty columns (rate limits) and nothing says so: on 2026-10-12 VRT and LEN
+    # went missing and the power basket flipped to leading. Fetch the empty ones again, one at a time.
+    for attempt in range(tries):
+        missing = [t for t in tickers if t not in close or close[t].dropna().empty]
+        if not missing:
+            break
+        print(f"  retry {attempt + 1}: {len(missing)} empty: {' '.join(missing)}")
+        time.sleep(5 * (attempt + 1))
+        for t in missing:
+            one = yf.download([t], period="2y", interval="1d", auto_adjust=True,
+                              progress=False, threads=False, group_by="column")
+            if not one.empty and not one["Close"][t].dropna().empty:
+                close[t], high[t], low[t] = one["Close"][t], one["High"][t], one["Low"][t]
+    return close, high, low
 
 
 def members():
@@ -176,6 +191,14 @@ def main():
                + basket_members + WATCH_EXTRA)
     print(f"downloading {len(set(tickers))} tickers…")
     close, high, low = download(tickers)
+    empty = lambda ts: [t for t in ts if t not in close or close[t].dropna().empty]
+    # no build rather than a wrong one: a missing basket member or ETF changes the rotation reads
+    required = empty(list(ETFS) + list(GLOBAL) + list(MACRO) + ["SPY", "HYG", "IEF"] + basket_members)
+    if required:
+        sys.exit(f"still missing after retries: {' '.join(required)}")
+    for label, ts in (("S&P 500 members", list(mem["Symbol"])), ("watch list", WATCH_EXTRA)):
+        if empty(ts):
+            print(f"  WARNING {label} without data: {' '.join(empty(ts))}")
     close = close.dropna(how="all")
     asof = close["SPY"].dropna().index[-1]
     # US trading days only (futures and FX also print on US holidays)
@@ -461,9 +484,13 @@ def main():
             if len(s) <= n:
                 return None
             return (s.iloc[-1] - s.iloc[-1 - n]) * 100 if is_yield else pct(s, n)
+        base = lambda n: s.index[-1 - n].strftime("%Y-%m-%d") if len(s) > n else None
         macro.append({"ticker": t, "name": name, "unit": "bp" if is_yield else "%", "last": r(s.iloc[-1], 3 if is_yield else 2),
                       "chg1w": r(delta(5), 1), "chg1m": r(delta(21), 1), "chg3m": r(delta(63), 1),
-                      "date": s.index[-1].strftime("%Y-%m-%d")})
+                      "date": s.index[-1].strftime("%Y-%m-%d"), "base1w": base(5), "base1m": base(21), "base3m": base(63),
+                      # sessions in the last five with an unchanged quote: a local holiday (CNY over China's National
+                      # Day week) freezes the price and makes the week's change stale
+                      "flat_1w": int((s.diff().iloc[-5:] == 0).sum())})
     write("macro", macro)
 
     # ---- global sweep ----
@@ -579,7 +606,8 @@ def build_rates():
     # with the yields shown beside it)
     rates["curve"] = rates["nominal10"] - rates["nominal2"]
     filled = rates.ffill(limit=10)  # term premium and OAS publish on slightly different days
-    out = filled[filled.index >= start].dropna(subset=["nominal10"])
+    # only days the 10-year printed: a breakeven printing a day early used to add a filled-forward 10-year point
+    out = filled[(filled.index >= start) & rates["nominal10"].notna()]
     write("rates", [{"date": d.strftime("%Y-%m-%d"), **{k: r(v, 3) for k, v in x.items()}} for d, x in out.iterrows()])
 
     liq = pd.DataFrame({k: fred(sid) for sid, k in LIQ_SERIES.items()})
@@ -589,14 +617,25 @@ def build_rates():
     liq = liq[liq.index >= start].dropna(subset=["net_liq"])
     write("liquidity", [{"date": d.strftime("%Y-%m-%d"), **{k: r(v, 0) for k, v in x.items()}} for d, x in liq.iterrows()])
 
+    # every reading as of the 10-year's last print, so real yield + breakeven add up to the nominal shown beside them
+    last = rates["nominal10"].dropna().index[-1]
+    cut = rates.loc[:last]
+
+    def past(col, days):
+        s = cut[col].dropna()
+        return s, s[s.index <= s.index[-1] - pd.Timedelta(days=days)]
+
     def delta(col, days, bp=True):
-        s = rates[col].dropna()
-        past = s[s.index <= s.index[-1] - pd.Timedelta(days=days)]
-        return None if past.empty else r((s.iloc[-1] - past.iloc[-1]) * (100 if bp else 1), 0)
-    now = {"date": rates["nominal10"].dropna().index[-1].strftime("%Y-%m-%d"),
-           "tp_date": rates["tp10"].dropna().index[-1].strftime("%Y-%m-%d")}
+        s, p = past(col, days)
+        return None if p.empty else r((s.iloc[-1] - p.iloc[-1]) * (100 if bp else 1), 0)
+
+    def base(days):
+        p = past("nominal10", days)[1]
+        return None if p.empty else p.index[-1].strftime("%Y-%m-%d")
+    now = {"date": last.strftime("%Y-%m-%d"), "tp_date": cut["tp10"].dropna().index[-1].strftime("%Y-%m-%d"),
+           "base1w": base(7), "base1m": base(30), "base3m": base(91)}
     for col in RATE_SERIES.values():
-        now[col] = r(rates[col].dropna().iloc[-1], 3)
+        now[col] = r(cut[col].dropna().iloc[-1], 3)
         now[col + "_1w"] = delta(col, 7)
         now[col + "_1m"] = delta(col, 30)
         now[col + "_3m"] = delta(col, 91)
