@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import yfinance as yf
+from pandas.tseries.holiday import USFederalHolidayCalendar
 
 
 OUT = Path(__file__).resolve().parent / "data"
@@ -43,7 +44,7 @@ MACRO = {
     "^IRX": ("美國3個月國庫券貼現率", "%"), "DX-Y.NYB": ("美元指數", ""),
     "CL=F": ("WTI原油", "$"), "HG=F": ("銅", "$"), "GC=F": ("黃金", "$"),
     "^VIX": ("VIX波動率", ""), "^MOVE": ("MOVE債市波動率", ""), "USDJPY=X": ("美元兌日圓", ""),
-    "CNY=X": ("美元兌人民幣", ""),
+    "CNH=X": ("美元兌離岸人民幣", ""),  # offshore: onshore CNY is shut at the US close and over China's holidays
 }
 # pair id: (numerator, denominator, 繁體 label, what rising means)
 RATIOS = {
@@ -69,15 +70,16 @@ AI_BASKETS = {
     "AI_CRYPTO": ("加密相關", ["COIN", "MSTR", "HOOD"]),
     "AI_NUC": ("鈾與核能", ["CCJ", "UEC", "LEU", "OKLO", "SMR", "BWXT"]),
 }
-# Extra single names to make searchable beyond the S&P 500 and the baskets
 # Typical dip after a quick pump (+30% in 20 sessions), by AI basket: (median, worst quarter) % from the peak.
 # From backtests/results/22_pump_dip.txt (2020-07..2026); the monthly review reruns it. Reference only.
+# Written into the AI basket rows of sectors.json (typ_dip, typ_worst) for the AI stages tab.
 TYPICAL_DIP = {
     "AI_HYPER": (-16.0, -18.3), "AI_CHIPS": (-14.8, -22.0), "AI_MEM": (-19.5, -25.9), "AI_NET": (-22.5, -30.1),
     "AI_OPT": (-23.0, -40.0), "AI_PWR": (-16.5, -22.1), "AI_IPP": (-22.0, -35.3), "AI_NEO": (-40.8, -48.6),
     "AI_CRYPTO": (-29.0, -37.0), "AI_NUC": (-30.2, -45.0),
 }
-WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR", "URA"]
+# Extra single names to make searchable beyond the S&P 500 and the baskets
+WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR", "URA", "SPCX"]
 # Company names for tickers outside the S&P 500 member list
 EXTRA_NAMES = {
     "TSM": "Taiwan Semiconductor", "CRWV": "CoreWeave", "NBIS": "Nebius", "IREN": "IREN", "APLD": "Applied Digital",
@@ -85,7 +87,7 @@ EXTRA_NAMES = {
     "FN": "Fabrinet", "AAOI": "Applied Optoelectronics", "SNDK": "SanDisk", "TLN": "Talen Energy", "BE": "Bloom Energy",
     "MSTR": "Strategy", "HOOD": "Robinhood", "COIN": "Coinbase", "CBRS": "Cerebras", "MRVL": "Marvell",
     "CCJ": "Cameco", "UEC": "Uranium Energy", "LEU": "Centrus Energy", "OKLO": "Oklo", "SMR": "NuScale Power",
-    "BWXT": "BWX Technologies", "URA": "Global X Uranium ETF",
+    "BWXT": "BWX Technologies", "URA": "Global X Uranium ETF", "SPCX": "SpaceX",
 }
 
 # English for every Chinese name, label and meaning written to the data files (繁體/English switch)
@@ -102,7 +104,7 @@ EN = {
     "標普500": "S&P 500",
     "美國10年期國債收益率": "US 10-year Treasury yield", "美國5年期國債收益率": "US 5-year Treasury yield",
     "美國3個月國庫券貼現率": "US 3-month bill (discount rate)", "美元指數": "US dollar index", "WTI原油": "WTI crude",
-    "銅": "Copper", "VIX波動率": "VIX", "MOVE債市波動率": "MOVE bond volatility", "美元兌日圓": "USD/JPY", "美元兌人民幣": "USD/CNY",
+    "銅": "Copper", "VIX波動率": "VIX", "MOVE債市波動率": "MOVE bond volatility", "美元兌日圓": "USD/JPY", "美元兌離岸人民幣": "USD/CNH (offshore)",
     "非必需／必需消費": "Discretionary / staples", "風險胃納上升": "risk appetite rising",
     "等權／市值加權": "Equal weight / cap weight", "市寬擴闊": "breadth widening",
     "小型股／納指100": "Small caps / Nasdaq-100", "資金由龍頭擴散": "money spreading from leaders",
@@ -120,6 +122,13 @@ EN = {
     "光通訊": "Optical", "電力與散熱": "Power & cooling", "獨立發電與現場供電": "IPPs & on-site power", "新雲": "Neoclouds",
     "加密相關": "Crypto-linked", "鈾與核能": "Uranium & nuclear",
     "股票指數": "Equity index", "美債": "Treasuries", "波動率": "Volatility", "外匯": "FX", "商品": "Commodities",
+    "MSCI新興市場期貨": "MSCI EM futures", "MSCI EAFE期貨": "MSCI EAFE futures", "5年期美債期貨": "5-year T-note futures",
+    "超長10年期美債期貨": "Ultra 10-year T-note futures", "長期美債期貨": "T-bond futures",
+    "3個月SOFR期貨": "3-month SOFR futures", "聯邦基金利率期貨": "Fed funds futures", "歐元期貨": "Euro futures",
+    "英鎊期貨": "British pound futures", "澳元期貨": "Australian dollar futures", "加元期貨": "Canadian dollar futures",
+    "瑞士法郎期貨": "Swiss franc futures", "比特幣期貨": "Bitcoin futures", "天然氣期貨": "Natural gas futures",
+    "汽油期貨": "Gasoline futures", "白銀期貨": "Silver futures", "大豆期貨": "Soybean futures", "粟米期貨": "Corn futures",
+    "小麥期貨": "Wheat futures", "短期利率": "Short rates", "加密貨幣": "Crypto",
 }
 
 GICS_TO_ETF = {
@@ -146,18 +155,28 @@ def ytd(series):
     return None if prior.empty else (s.iloc[-1] / prior.iloc[-1] - 1) * 100
 
 
+# Tickers whose Yahoo daily bar is normally a session behind the rest (^MOVE: on 2026-10-12 its last bar was 10-09): a
+# lagging last bar is normal for them, so the stale re-fetch in download() skips them rather than waiting ~30s for nothing.
+LAGGING = {"^MOVE"}
+
+
 def download(tickers, tries=3):
     tickers = sorted(set(tickers))
     df = yf.download(tickers, period="2y", interval="1d", auto_adjust=True,
                      progress=False, threads=True, group_by="column")
     close, high, low = df["Close"].copy(), df["High"].copy(), df["Low"].copy()
     # A big batch can come back with a few empty columns (rate limits) and nothing says so: on 2026-10-12 VRT and LEN
-    # went missing and the power basket flipped to leading. Fetch the empty ones again, one at a time.
+    # went missing and the power basket flipped to leading. A column can also stop a day short (HUBB kept a stale last
+    # bar). Fetch those again, one at a time: empty columns, and non-FX tickers whose last bar is before SPY's (spot FX
+    # comes from hourly quotes in main(); LAGGING tickers are always a day behind).
     for attempt in range(tries):
-        missing = [t for t in tickers if t not in close or close[t].dropna().empty]
+        spy_last = close["SPY"].last_valid_index() if "SPY" in close else None
+        stale = lambda t: (spy_last is not None and not t.endswith("=X") and t not in LAGGING
+                           and close[t].last_valid_index() < spy_last)
+        missing = [t for t in tickers if t not in close or close[t].dropna().empty or stale(t)]
         if not missing:
             break
-        print(f"  retry {attempt + 1}: {len(missing)} empty: {' '.join(missing)}")
+        print(f"  retry {attempt + 1}: {len(missing)} empty or stale: {' '.join(missing)}")
         time.sleep(5 * (attempt + 1))
         for t in missing:
             one = yf.download([t], period="2y", interval="1d", auto_adjust=True,
@@ -165,6 +184,24 @@ def download(tickers, tries=3):
             if not one.empty and not one["Close"][t].dropna().empty:
                 close[t], high[t], low[t] = one["Close"][t], one["High"][t], one["Low"][t]
     return close, high, low
+
+
+def at_us_close(tickers, period="6mo"):
+    """Last hourly quote before 16:00 ET on each day, for markets that trade round the clock. Yahoo's daily bars for
+    spot FX and bitcoin skip days (USD/JPY had no bar for 2026-10-12) and close at midnight London, not at the US close.
+    Returns a frame indexed by date (naive), one column per ticker; empty if the download fails."""
+    try:
+        h = yf.download(sorted(set(tickers)), period=period, interval="1h", auto_adjust=False, progress=False)["Close"]
+    except Exception as e:  # keep the daily bars rather than fail the build
+        print(f"  WARNING hourly quotes failed: {e}")
+        return pd.DataFrame()
+    if isinstance(h, pd.Series):
+        h = h.to_frame(tickers[0])
+    h.index = h.index.tz_convert("America/New_York")
+    h = h[h.index.hour < 16]
+    out = h.groupby(h.index.date).last()
+    out.index = pd.to_datetime(out.index)
+    return out
 
 
 def members():
@@ -193,16 +230,30 @@ def main():
     close, high, low = download(tickers)
     empty = lambda ts: [t for t in ts if t not in close or close[t].dropna().empty]
     # no build rather than a wrong one: a missing basket member or ETF changes the rotation reads
-    required = empty(list(ETFS) + list(GLOBAL) + list(MACRO) + ["SPY", "HYG", "IEF"] + basket_members)
+    # spot FX comes from hourly quotes below (Yahoo's daily FX history is patchy, CNH's nearly empty), so don't require it here
+    fx = [t for t in MACRO if t.endswith("=X")]
+    required = empty(list(ETFS) + list(GLOBAL) + [t for t in MACRO if t not in fx] + ["SPY", "HYG", "IEF"] + basket_members)
     if required:
         sys.exit(f"still missing after retries: {' '.join(required)}")
     for label, ts in (("S&P 500 members", list(mem["Symbol"])), ("watch list", WATCH_EXTRA)):
         if empty(ts):
             print(f"  WARNING {label} without data: {' '.join(empty(ts))}")
     close = close.dropna(how="all")
+    # a build while US markets are open gets today's unfinished bar from Yahoo; leave it out until the close
+    now_et = pd.Timestamp.now(tz="America/New_York")
+    if close.index[-1].date() == now_et.date() and (now_et.hour, now_et.minute) < (16, 30):
+        print(f"  leaving out {now_et.date()}: the US session isn't closed yet")
+        close = close.iloc[:-1]
     asof = close["SPY"].dropna().index[-1]
     # US trading days only (futures and FX also print on US holidays)
     close = close.loc[close["SPY"].notna()].loc[:asof]
+    # spot FX at the US close instead of Yahoo's daily bars (see at_us_close); older rows keep the daily bars
+    hourly = at_us_close(fx)
+    for t in fx:
+        if t in hourly:
+            s = hourly[t].dropna()
+            s = s[s.index.isin(close.index)]
+            close.loc[s.index, t] = s.values
     stamp = {"asof": asof.strftime("%Y-%m-%d"),
              "built": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")}
     spy = close["SPY"].dropna()
@@ -252,6 +303,7 @@ def main():
         "pct20": r(pct20.iloc[-1], 1), "pct50": r(pct50.iloc[-1], 1), "pct200": r(pct200.iloc[-1], 1),
         "pct20_1w": r(ago(pct20, 5), 1), "pct50_1w": r(ago(pct50, 5), 1), "pct200_1w": r(ago(pct200, 5), 1),
         "pct50_1m": r(ago(pct50, 21), 1),
+        "pct50_1d": r(ago(pct50, 1), 1), "pct200_1d": r(ago(pct200, 1), 1), "mcclellan_1d": r(ago(mcclellan, 1), 1),
         "adv": int(adv.iloc[-1]), "dec": int(dec.iloc[-1]),
         "adv_5d": int(adv.iloc[-5:].sum()), "dec_5d": int(dec.iloc[-5:].sum()),
         "new_highs": int(nh.iloc[-1]), "new_lows": int(nl.iloc[-1]),
@@ -310,10 +362,13 @@ def main():
         ratio = 100 * rs / rs.rolling(10).mean()
         return ratio, 100 * ratio / ratio.shift(4), rs
 
-    def week_fields(t):
+    def week_fields(t, wk=None, sfx="_fw"):
         """Rotation tags vs the S&P 500 on completed weeks (suffix _fw): this week's and last week's quadrant and tag,
-        RS-ratio changes, 1-, 4- and 26-week relative returns, and the leading spell."""
-        rs = (weekly_fw[t] / weekly_fw["SPY"]).dropna()
+        RS-ratio changes, 1-, 4- and 26-week relative returns, and the leading spell. With wk=weekly and sfx="_lv" the
+        same fields count the unfinished week as this week (the leaders list updates daily; equal to _fw once the
+        week is done)."""
+        wk = weekly_fw if wk is None else wk
+        rs = (wk[t] / wk["SPY"]).dropna()
         if len(rs) < 16:
             return {}
         ratio = 100 * rs / rs.rolling(10).mean()
@@ -339,11 +394,12 @@ def main():
             start = len(qs) - lead
             prev = [i for i in range(start - 1, -1, -1) if qs[i] == "leading"]
             gap = (start - 1 - prev[0]) if prev else None
-        return {"q_fw": qs[-1], "q1_fw": qs[-2], "turn_fw": tag(-1), "turn1_fw": tag(-2),
-                "chg_fw": r(ratio.iloc[-1] - ratio.iloc[-2]), "chg_prev_fw": r(ratio.iloc[-2] - ratio.iloc[-3]),
-                "relw_fw": r(w.iloc[-1]), "rel4w_fw": r((rs.iloc[-1] / rs.iloc[-5] - 1) * 100),
-                "rel26w_fw": r((rs.iloc[-1] / rs.iloc[-27] - 1) * 100) if len(rs) > 27 else None,
-                "lead_fw": lead, "gap_fw": gap, "down_wks_fw": down}
+        out = {"q": qs[-1], "q1": qs[-2], "turn": tag(-1), "turn1": tag(-2),
+               "chg": r(ratio.iloc[-1] - ratio.iloc[-2]), "chg_prev": r(ratio.iloc[-2] - ratio.iloc[-3]),
+               "relw": r(w.iloc[-1]), "rel4w": r((rs.iloc[-1] / rs.iloc[-5] - 1) * 100),
+               "rel26w": r((rs.iloc[-1] / rs.iloc[-27] - 1) * 100) if len(rs) > 27 else None,
+               "lead": lead, "gap": gap, "down_wks": down}
+        return {k + sfx: v for k, v in out.items()}
 
     def rotation(t):
         """Return fields and relative rotation vs the S&P 500 and vs semis (SMH)."""
@@ -418,6 +474,7 @@ def main():
                 tail.setdefault(d, {})["rs_ratio" + suffix] = r(ratio[d])
                 tail[d]["rs_mom" + suffix] = r(mom[d])
         row.update(week_fields(t))
+        row.update(week_fields(t, weekly, "_lv"))
         tails_out = [{"ticker": t, "week": d.strftime("%Y-%m-%d"), **v} for d, v in tail.items()]
         return row, tails_out
 
@@ -431,6 +488,7 @@ def main():
                "week_fw": week_fw, "week_done": week_done}
         if group == "ai":
             row["members_list"] = " ".join(AI_BASKETS[t][1])
+            row["typ_dip"], row["typ_worst"] = TYPICAL_DIP.get(t, (None, None))
         p = participation.get(t, {})
         row.update({"members": p.get("members"), "m_pct50": p.get("pct50"), "m_pct50_1w": p.get("pct50_1w"), "m_pct50_1m": p.get("pct50_1m"),
                     "m_pct200": p.get("pct200"), "m_pct_up_1m": p.get("pct_up_1m"),
@@ -472,25 +530,50 @@ def main():
         slope = sma50_l.iloc[-1] > sma50_l.iloc[-11]
         trend = "up" if above and slope else "down" if not above and not slope else "turning_up" if above else "turning_down"
         ratio_summary.append({"pair": pid, "num": a, "den": b, "label": label, "meaning": meaning,
-                              "chg5d": r(c5), "chg20d": r(c20), "chg60d": r(pct(line, 60)),
+                              "chg1d": r(pct(line, 1)), "chg5d": r(c5), "chg20d": r(c20), "chg60d": r(pct(line, 60)),
                               "vs_50d": r((line.iloc[-1] / sma50_l.iloc[-1] - 1) * 100), "trend": trend})
     write("ratios", ratio_rows)
     write("ratio_summary", ratio_summary)
+
+    # rates first: their print dates are the bond-market calendar for the Yahoo yields below
+    build_positioning()
+    prints, treasury_ok = build_rates()
+    fed_holidays = USFederalHolidayCalendar().holidays(close.index[0], close.index[-1])
+
+    def bond_days(s):
+        """Yahoo prints yields on days the Treasury market is shut (Columbus Day, Veterans Day). Keep the days the 10-year
+        printed (FRED and Treasury). After its latest print, drop federal holidays at once, and other days only once
+        Treasury has had time to post them (usually by 18:00 ET; FRED alone lags), so an early-evening build keeps
+        today's yields."""
+        if not len(prints):
+            return s
+        printed, last = set(prints), prints[-1]
+        posted = treasury_ok and (now_et.hour >= 18)
+
+        def keep(d):
+            if d <= last:
+                return d < prints[0] or d in printed
+            if d in fed_holidays:
+                return False
+            return not (treasury_ok and (d.date() < now_et.date() or posted))
+        return s[[keep(d) for d in s.index]]
 
     # ---- macro ----
     macro = []
     for t, (name, unit) in MACRO.items():
         s = close[t].dropna()
+        is_yield = unit == "%"
+        if is_yield:
+            s = bond_days(s)
         if s.empty:
             continue
-        is_yield = unit == "%"
         def delta(n):
             if len(s) <= n:
                 return None
             return (s.iloc[-1] - s.iloc[-1 - n]) * 100 if is_yield else pct(s, n)
         base = lambda n: s.index[-1 - n].strftime("%Y-%m-%d") if len(s) > n else None
         macro.append({"ticker": t, "name": name, "unit": "bp" if is_yield else "%", "last": r(s.iloc[-1], 3 if is_yield else 2),
-                      "chg1w": r(delta(5), 1), "chg1m": r(delta(21), 1), "chg3m": r(delta(63), 1),
+                      "chg1d": r(delta(1), 1), "chg1w": r(delta(5), 1), "chg1m": r(delta(21), 1), "chg3m": r(delta(63), 1),
                       "date": s.index[-1].strftime("%Y-%m-%d"), "base1w": base(5), "base1m": base(21), "base3m": base(63),
                       # sessions in the last five with an unchanged quote: a local holiday (CNY over China's National
                       # Day week) freezes the price and makes the week's change stale
@@ -509,8 +592,11 @@ def main():
     glob.append({"ticker": "SPY", "name": "標普500", "r1w": r(pct(spy, 5)), "r1m": r(pct(spy, 21)), "r3m": r(pct(spy, 63)),
                  "rel1m": 0.0, "rel3m": 0.0, "vs_50d": r((spy.iloc[-1] / spy.rolling(50).mean().iloc[-1] - 1) * 100)})
     write("global", glob)
-    build_positioning()
-    build_rates()
+    try:
+        from flows import build_flows  # imports this module, so loaded here rather than at the top
+        build_flows(asof)
+    except Exception as e:  # the flow models are a trial; never lose the rest of the build to them
+        print(f"  WARNING flow models failed: {e}")
     print("as of", stamp["asof"])
 
 
@@ -524,6 +610,15 @@ POSITIONS = {
     "1170E1": ("VIX期貨", "波動率", "tff"), "098662": ("美元指數期貨", "外匯", "tff"),
     "097741": ("日圓期貨", "外匯", "tff"), "067651": ("WTI原油期貨", "商品", "dis"),
     "085692": ("銅期貨", "商品", "dis"), "088691": ("黃金期貨", "商品", "dis"),
+    # added 2026-10-13: the rest of the weekly COT sweep (global equity, the curve, short rates, FX, crypto, energy, grains)
+    "244042": ("MSCI新興市場期貨", "股票指數", "tff"), "244041": ("MSCI EAFE期貨", "股票指數", "tff"),
+    "044601": ("5年期美債期貨", "美債", "tff"), "043607": ("超長10年期美債期貨", "美債", "tff"),
+    "020601": ("長期美債期貨", "美債", "tff"), "134741": ("3個月SOFR期貨", "短期利率", "tff"),
+    "045601": ("聯邦基金利率期貨", "短期利率", "tff"), "099741": ("歐元期貨", "外匯", "tff"),
+    "096742": ("英鎊期貨", "外匯", "tff"), "232741": ("澳元期貨", "外匯", "tff"), "090741": ("加元期貨", "外匯", "tff"),
+    "092741": ("瑞士法郎期貨", "外匯", "tff"), "133741": ("比特幣期貨", "加密貨幣", "tff"),
+    "023651": ("天然氣期貨", "商品", "dis"), "111659": ("汽油期貨", "商品", "dis"), "084691": ("白銀期貨", "商品", "dis"),
+    "005602": ("大豆期貨", "商品", "dis"), "002602": ("粟米期貨", "商品", "dis"), "001602": ("小麥期貨", "商品", "dis"),
 }
 
 
@@ -564,6 +659,10 @@ def build_positioning():
         def chg(col, weeks=1):
             s = df[col].dropna()
             return None if len(s) <= weeks else r(s.iloc[-1] - s.iloc[-1 - weeks], 1)
+        def zscore(col):
+            # 52-week z-score of net contracts, the way the weekly COT tables quote it
+            s = df[col].dropna().iloc[-52:]
+            return None if len(s) < 20 or s.std() == 0 else r((s.iloc[-1] - s.mean()) / s.std(), 1)
         lev_p, am_p = pctile("lev_pct"), pctile("am_pct")
         # 3-year extreme of a holder's net position: "high" = most long / least short, "low" = the reverse
         extreme = lambda p: None if p is None else "high" if p >= 90 else "low" if p <= 10 else None
@@ -573,6 +672,7 @@ def build_positioning():
                     "lev_chg_4w": chg("lev_pct", 4), "lev_pctile": lev_p,
                     "lev_net": int(df["lev_net"].iloc[-1]), "oi": int(df["oi"].iloc[-1]),
                     "am_extreme": extreme(am_p), "lev_extreme": extreme(lev_p),
+                    "am_z": zscore("am_net"), "lev_z": zscore("lev_net"),
                     "has_am": ds == "tff"})
     write("positioning", rows)
     write("positioning_now", now)
@@ -581,8 +681,11 @@ def build_positioning():
 # ---- FRED: yield decomposition, credit, curve, liquidity ----
 FRED = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={}&cosd=2022-01-01"
 RATE_SERIES = {"DGS10": "nominal10", "DGS2": "nominal2", "DFII10": "real10", "T10YIE": "be10", "THREEFYTP10": "tp10",
-               "T10Y2Y": "curve", "BAMLH0A0HYM2": "hy_oas", "BAMLC0A0CM": "ig_oas"}
-LIQ_SERIES = {"WALCL": "fed_bs", "WTREGEN": "tga", "RRPONTSYD": "rrp", "WRESBAL": "reserves"}
+               "T10Y2Y": "curve", "BAMLH0A0HYM2": "hy_oas", "BAMLC0A0CM": "ig_oas",
+               "BAMLC0A0CMEY": "ig_yield"}
+# all Wednesday levels, like WALCL (WTREGEN and WRESBAL are week averages: mixing them put the 2026-10-07 weekly change
+# in net liquidity at +$82bn instead of +$112bn)
+LIQ_SERIES = {"WALCL": "fed_bs", "WDTGAL": "tga", "RRPONTSYD": "rrp", "WRBWFRBL": "reserves"}
 
 
 def fred(series_id, tries=4):
@@ -602,9 +705,93 @@ def fred(series_id, tries=4):
     return pd.to_numeric(df.set_index("date")["v"], errors="coerce").dropna()
 
 
+TREASURY = ("https://home.treasury.gov/resource-center/data-chart-center/interest-rates/daily-treasury-rates.csv/"
+            "{y}/all?type={t}&field_tdr_date_value={y}&page&_format=csv")
+
+
+def treasury(kind, year):
+    """Treasury's daily par yields, published the same evening (FRED's DGS10/DGS2/DFII10 copy them a day or more
+    later)."""
+    req = urllib.request.Request(TREASURY.format(y=year, t=kind), headers={"User-Agent": "curl/8.7.1"})
+    df = pd.read_csv(io.StringIO(urllib.request.urlopen(req, timeout=60).read().decode()))
+    df["Date"] = pd.to_datetime(df["Date"])
+    return df.set_index("Date").sort_index()
+
+
+def treasury_latest():
+    """nominal10, nominal2, real10 and be10 from Treasury for this year (and last year in January)."""
+    today = pd.Timestamp.today()
+    frames = []
+    for y in sorted({today.year, (today - pd.Timedelta(days=40)).year}):
+        nom = treasury("daily_treasury_yield_curve", y)
+        real = treasury("daily_treasury_real_yield_curve", y)
+        frames.append(pd.DataFrame({"nominal10": nom["10 Yr"], "nominal2": nom["2 Yr"], "real10": real["10 YR"]}))
+    t = pd.concat(frames).sort_index()
+    t["be10"] = t["nominal10"] - t["real10"]
+    return t
+
+
+# ---- investment-grade spread watch: is a widening a supply jam (passes) or buyers stepping back (serious)? ----
+# An episode opens when the IG spread is 10bp above its one-month low. High yield joining (25bp above its level at the
+# episode's start, held until it gives back to 15bp) means buyers stepping back; IG alone means new-issue supply. A
+# supply widening that hasn't retraced after 15 sessions is "stuck", the step before buyers step back. Half the rise
+# given back is "recovered", shown for 5 sessions before the episode closes. First set 2026-10-13, untested (rulebook §13).
+IGW_OPEN, IGW_HY_ON, IGW_HY_OFF, IGW_STUCK_DAYS, IGW_STUCK_GAP, IGW_SHOW_RECOVERED = 0.10, 0.25, 0.15, 15, 0.03, 5
+
+
+def ig_watch(df):
+    """One row per day: state (quiet / supply / stuck / demand / recovered) and the open episode's numbers."""
+    d = df[["ig_oas", "hy_oas"]].ffill().dropna()
+    ig, hy = d["ig_oas"], d["hy_oas"]
+    widen = (ig - ig.rolling(22).min()) >= IGW_OPEN - 1e-9
+    rows, ep = [], None
+    for i, (t, on) in enumerate(widen.items()):
+        if ep is None and on:
+            j = ig.iloc[max(0, i - 21):i + 1].idxmin()
+            ep = {"start": t, "i0": i, "base": ig[j], "hy_base": hy.loc[j:t].min(), "peak": ig[t], "hy_on": False,
+                  "was_supply": False, "rec_i": None}
+        state = "quiet"
+        if ep:
+            ep["peak"] = max(ep["peak"], ig[t])
+            hy_up = hy[t] - ep["hy_base"]
+            ep["hy_on"] = hy_up >= IGW_HY_ON - 1e-9 or (ep["hy_on"] and hy_up >= IGW_HY_OFF - 1e-9)
+            if ep["hy_on"]:
+                state = "demand"
+            elif ig[t] <= ep["base"] + (ep["peak"] - ep["base"]) / 2:
+                state = "recovered"
+            elif i - ep["i0"] >= IGW_STUCK_DAYS and ig[t] >= ep["peak"] - IGW_STUCK_GAP:
+                state = "stuck"
+            else:
+                state = "supply"
+            ep["was_supply"] |= state in ("supply", "stuck")
+            row = {"state": state, "start": ep["start"], "days": i - ep["i0"],
+                   "rise": (ep["peak"] - ep["base"]) * 100, "off_peak": (ep["peak"] - ig[t]) * 100,
+                   "hy_rise": hy_up * 100, "from_supply": ep["was_supply"] and state == "demand"}
+            if state == "recovered":
+                ep["rec_i"] = i if ep["rec_i"] is None else ep["rec_i"]
+                if i - ep["rec_i"] >= IGW_SHOW_RECOVERED:
+                    ep, row = None, {"state": "quiet"}
+            else:
+                ep["rec_i"] = None
+        else:
+            row = {"state": "quiet"}
+        rows.append({"date": t, **row})
+    return pd.DataFrame(rows).set_index("date")
+
+
 def build_rates():
     start = pd.Timestamp.today() - pd.DateOffset(years=3)
     rates = pd.DataFrame({k: fred(sid) for sid, k in RATE_SERIES.items()})
+    # FRED's Treasury yields lag a day or more; fill the days it hasn't caught up on from Treasury itself (same series)
+    fred_last = rates["nominal10"].dropna().index[-1]
+    try:
+        t = treasury_latest()
+        t = t[t.index > fred_last]
+        rates = rates.combine_first(t)
+        src, treasury_ok = ("treasury" if len(t) else "fred"), True
+    except Exception as e:  # keep FRED alone if Treasury is down
+        print(f"  Treasury yields unavailable ({e}); FRED only")
+        src, treasury_ok = "fred", False
     rates = rates[rates.index >= start - pd.DateOffset(days=120)]
     # the curve from the same day's 10-year and 2-year (T10Y2Y can print a day ahead of DGS10/DGS2 and then disagree
     # with the yields shown beside it)
@@ -637,17 +824,33 @@ def build_rates():
         p = past("nominal10", days)[1]
         return None if p.empty else p.index[-1].strftime("%Y-%m-%d")
     now = {"date": last.strftime("%Y-%m-%d"), "tp_date": cut["tp10"].dropna().index[-1].strftime("%Y-%m-%d"),
+           "hy_date": cut["hy_oas"].dropna().index[-1].strftime("%Y-%m-%d"), "yield_src": src,
            "base1w": base(7), "base1m": base(30), "base3m": base(91)}
     for col in RATE_SERIES.values():
         now[col] = r(cut[col].dropna().iloc[-1], 3)
+        s1 = cut[col].dropna()
+        now[col + "_1d"] = r((s1.iloc[-1] - s1.iloc[-2]) * 100, 0) if len(s1) > 1 else None  # since the last print
         now[col + "_1w"] = delta(col, 7)
         now[col + "_1m"] = delta(col, 30)
         now[col + "_3m"] = delta(col, 91)
+        now[col + "_1y"] = delta(col, 365)
+    ys = cut["ig_yield"].dropna()
+    ys = ys[ys.index >= ys.index[-1] - pd.DateOffset(years=3)]
+    now["ig_yield_pctile"] = r((ys.iloc[:-1] < ys.iloc[-1]).mean() * 100, 0)
+    w = ig_watch(cut).iloc[-1]
+    now["igw_state"] = w["state"]
+    if w["state"] != "quiet":
+        now.update({"igw_start": w["start"].strftime("%Y-%m-%d"), "igw_days": int(w["days"]), "igw_rise": r(w["rise"], 0),
+                    "igw_off_peak": r(w["off_peak"], 0), "igw_hy_rise": r(w["hy_rise"], 0),
+                    "igw_from_supply": bool(w["from_supply"])})
     nl = liq["net_liq"]
     now.update({"net_liq": r(nl.iloc[-1], 0), "net_liq_1w": r(nl.iloc[-1] - nl.iloc[-2], 0),
                 "net_liq_4w": r(nl.iloc[-1] - nl.iloc[-5], 0),
                 "net_liq_13w": r(nl.iloc[-1] - nl.iloc[-14], 0), "liq_date": nl.index[-1].strftime("%Y-%m-%d")})
     write("rates_now", [now])
+    # the days the 10-year printed (FRED and Treasury), and whether Treasury answered: the bond-market calendar that
+    # main() applies to the Yahoo yields in the macro table
+    return rates["nominal10"].dropna().index, treasury_ok
 
 
 if __name__ == "__main__":

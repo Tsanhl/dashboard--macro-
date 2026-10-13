@@ -7,6 +7,10 @@ Run after build_data.py:  python3 build_site.py
 - Wraps index.html (written for the Claude Dashboard artifact) in a standalone page with
   a small stand-in for the artifact's `dash` API, d3 from cdnjs and the colour tokens.
 The full data stays local and in the Claude dashboard.
+With --private, the newest ../daily_summaries/<date>.md is added as the "summary" dataset and ../holdings.json (positions
+held and the user's picks) as the "holdings" dataset (local board only; neither ever goes into site/ or the dashboard
+repo).
+A missing data file is left out with a warning; the page then shows 未能載入 for that dataset.
 """
 import json
 import shutil
@@ -14,23 +18,65 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
 DATA, SITE = ROOT / "data", ROOT / "site"
+SUMMARIES = ROOT.parent / "daily_summaries"  # the evening facts summaries, <session date>.md; local board only
+HOLDINGS = ROOT.parent / "holdings.json"  # {"updated": ..., "held": [tickers], "picks": [tickers]}; local board only
 DATASETS = ["sectors", "rrg_tails", "ratios", "ratio_summary", "breadth", "breadth_now", "macro", "global",
-            "positioning", "positioning_now", "rates", "rates_now", "liquidity", "stocks", "stock_tails"]
-CREDIT = ["hy_oas", "ig_oas"]
+            "positioning", "positioning_now", "rates", "rates_now", "liquidity", "stocks", "stock_tails",
+            "flowmodel", "flowmodel_now", "gamma"]
+CREDIT = ["hy_oas", "ig_oas", "ig_yield"]  # ICE BofA levels: percentiles and changes only on the public site
 
 
 def load(name):
-    return json.loads((DATA / f"{name}.json").read_text())
+    """A data file's rows, or None when the file is missing (it is then left out, not fatal)."""
+    path = DATA / f"{name}.json"
+    if not path.exists():
+        print(f"  WARNING {path.name} missing; left out")
+        return None
+    return json.loads(path.read_text())
+
+
+def load_all():
+    return {name: rows for name in DATASETS if (rows := load(name)) is not None}
+
+
+def latest_summary():
+    """The newest daily summary as one row, or None when there is none (the board then keeps its own reading)."""
+    files = sorted(SUMMARIES.glob("20??-??-??.md")) if SUMMARIES.is_dir() else []
+    return [{"session": files[-1].stem, "text": files[-1].read_text()}] if files else None
+
+
+def holdings():
+    """Positions held and the user's watch list, as rows [{"ticker", "kind": "held" | "pick"}], or None when there is no
+    holdings file (local board only; the public page and the repo carry neither)."""
+    if not HOLDINGS.is_file():
+        return None
+    h = json.loads(HOLDINGS.read_text())
+    return ([{"ticker": t, "kind": "held"} for t in h.get("held", [])]
+            + [{"ticker": t, "kind": "pick"} for t in h.get("picks", [])])
 
 
 def public_data():
-    out = {name: load(name) for name in DATASETS}
-    for row in out["sectors"] + out["stocks"]:
+    out = load_all()
+    for row in out.get("sectors", []) + out.get("stocks", []):
         row.pop("price", None)
-    for row in out["macro"]:
+    for row in out.get("macro", []):
         row.pop("last", None)
-    rates = out["rates"]
-    now = out["rates_now"][0]
+    # flow models: keep the model readings and distances, drop the Yahoo and Cboe index and VIX levels behind them.
+    # Gamma by strike becomes gamma by distance from spot (% of the SPX level), so no index level is shown.
+    spot = (out.get("flowmodel_now") or [{}])[0].get("spot")
+    if "gamma" in out:
+        out["gamma"] = [{"dist": round((g["strike"] / spot - 1) * 100, 1), "gex": g.get("gex"), "front": g.get("front")}
+                        for g in out["gamma"] if g.get("strike") is not None] if spot else []
+    for row in out.get("flowmodel", []):
+        for k in ("spx", "vix", "vix3m", "skew", "flip"):
+            row.pop(k, None)
+    for f in out.get("flowmodel_now", []):
+        for k in ("spx", "vix", "vix9d", "vix3m", "skew", "spot", "flip", "strikes_above", "strikes_below"):
+            f.pop(k, None)
+        for x in f.get("cta_flips", []) + f.get("scenarios", []) + [f.get("cta_flat") or {}]:
+            x.pop("level", None)
+    rates = out.get("rates", [])
+    now = (out.get("rates_now") or [{}])[0]
     for k in CREDIT:
         series = [r[k] for r in rates if r.get(k) is not None]
         latest = now.get(k)
@@ -135,8 +181,8 @@ PAGE = """<!doctype html>
 __BODY__
 </main>
 <footer class="site-foot">
-  僅供參考，不構成投資建議。數據來自 Yahoo Finance、CFTC 及 FRED，逢星期二至星期六更新；此公開版本不顯示原始價格水平及 ICE BofA 信貸息差數值。<br>
-  For information only, not investment advice. Data from Yahoo Finance, the CFTC and FRED, refreshed Tuesday to Saturday; this public version omits raw price levels and ICE BofA spread levels.
+  僅供參考，不構成投資建議。數據來自 Yahoo Finance、CFTC、FRED、美國財政部、Cboe、歐洲央行、英倫銀行及日本財務省，逢星期二至星期六更新；此公開版本不顯示原始價格及指數水平，亦不顯示 ICE BofA 信貸息差數值。<br>
+  For information only, not investment advice. Data from Yahoo Finance, the CFTC, FRED, the US Treasury, Cboe, the ECB, the Bank of England and Japan's MoF, refreshed Tuesday to Saturday; this public version omits raw price and index levels and ICE BofA spread levels.
 </footer>
 </body>
 </html>
@@ -151,16 +197,25 @@ def main(private=False):
     if SITE.exists():
         shutil.rmtree(SITE)
     (SITE / "data").mkdir(parents=True)
-    data = {name: load(name) for name in DATASETS} if private else public_data()
+    data = load_all() if private else public_data()
+    summary = latest_summary() if private else None
+    held = holdings() if private else None
+    if summary:
+        data["summary"] = summary
+    if held is not None:
+        data["holdings"] = held
     for name, rows in data.items():
         (SITE / "data" / f"{name}.json").write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")))
+    # the page asks for every dataset, so a missing file shows as 未能載入 rather than loading forever
+    ids = list(dict.fromkeys(DATASETS + list(data)))
     body = (ROOT / "index.html").read_text()
     page = (PAGE.replace("__TOKENS__", TOKENS)
-                .replace("__SHIM__", SHIM.replace("__DATASETS__", json.dumps(DATASETS)).replace("__PUBLIC__", "false" if private else "true"))
+                .replace("__SHIM__", SHIM.replace("__DATASETS__", json.dumps(ids)).replace("__PUBLIC__", "false" if private else "true"))
                 .replace("__BODY__", body))
     (SITE / "index.html").write_text(page)
     (SITE / ".nojekyll").write_text("")
-    print(f"{SITE.name}/ built:", len(DATASETS), "data files")
+    print(f"{SITE.name}/ built:", len(data), "data files" + (f", summary {summary[0]['session']}" if summary else "")
+          + (f", holdings {len(held)}" if held is not None else ""))
 
 
 if __name__ == "__main__":

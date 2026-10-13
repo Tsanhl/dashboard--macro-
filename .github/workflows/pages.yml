@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["index.html", "build_data.py", "build_site.py", ".github/workflows/pages.yml"]
+    paths: ["index.html", "build_data.py", "build_site.py", "flows.py", ".github/workflows/pages.yml"]
 
 permissions:
   contents: read
