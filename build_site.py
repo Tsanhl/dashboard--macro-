@@ -10,6 +10,8 @@ The full data stays local and in the Claude dashboard.
 With --private, the newest ../daily_summaries/<date>.md is added as the "summary" dataset and ../holdings.json (positions
 held and the user's picks) as the "holdings" dataset (local board only; neither ever goes into site/ or the dashboard
 repo).
+With --summary, writes summary.md (committed, so the public site can show it): the newest daily summary without the
+private 大環境 line and without the user's held and picked tickers in the 業績 lines. The public build shows summary.md.
 A missing data file is left out with a warning; the page then shows 未能載入 for that dataset.
 """
 import json
@@ -20,6 +22,7 @@ ROOT = Path(__file__).resolve().parent
 DATA, SITE = ROOT / "data", ROOT / "site"
 SUMMARIES = ROOT.parent / "daily_summaries"  # the evening facts summaries, <session date>.md; local board only
 HOLDINGS = ROOT.parent / "holdings.json"  # {"updated": ..., "held": [tickers], "picks": [tickers]}; local board only
+PUBLIC_SUMMARY = ROOT / "summary.md"  # the cleaned public copy; first line "session: <date>", then the summary
 DATASETS = ["sectors", "rrg_tails", "ratios", "ratio_summary", "breadth", "breadth_now", "macro", "global",
             "positioning", "positioning_now", "rates", "rates_now", "liquidity", "stocks", "stock_tails",
             "flowmodel", "flowmodel_now"]
@@ -43,6 +46,38 @@ def latest_summary():
     """The newest daily summary as one row, or None when there is none (the board then keeps its own reading)."""
     files = sorted(SUMMARIES.glob("20??-??-??.md")) if SUMMARIES.is_dir() else []
     return [{"session": files[-1].stem, "text": files[-1].read_text()}] if files else None
+
+
+def write_public_summary():
+    """The newest daily summary, cleaned for the public site, into summary.md. Drops the 大環境 bullet (the board's
+    backdrop call is private) and the user's own tickers from the 業績 lines (they would give the holdings away)."""
+    rows = latest_summary()
+    if not rows:
+        print("no daily summary to publish")
+        return
+    h = json.loads(HOLDINGS.read_text()) if HOLDINGS.is_file() else {}
+    own = {t.upper() for t in h.get("held", []) + h.get("picks", [])}
+    out = []
+    for line in rows[0]["text"].split("\n"):
+        body = line.lstrip(" *•-")
+        if body.startswith("大環境："):
+            continue
+        if body.startswith("業績："):
+            names = [n for n in body[len("業績："):].rstrip("。").split("、") if n.strip().upper() not in own]
+            if not names:
+                continue
+            line = line[: len(line) - len(body)] + "業績：" + "、".join(names) + ("。" if body.endswith("。") else "")
+        out.append(line)
+    PUBLIC_SUMMARY.write_text(f"session: {rows[0]['session']}\n" + "\n".join(out))
+    print(f"summary.md written for {rows[0]['session']}")
+
+
+def public_summary():
+    """summary.md as the "summary" dataset for the public site, or None."""
+    if not PUBLIC_SUMMARY.is_file():
+        return None
+    first, _, text = PUBLIC_SUMMARY.read_text().partition("\n")
+    return [{"session": first.removeprefix("session: ").strip(), "text": text}]
 
 
 def holdings():
@@ -193,7 +228,7 @@ def main(private=False):
         shutil.rmtree(SITE)
     (SITE / "data").mkdir(parents=True)
     data = load_all() if private else public_data()
-    summary = latest_summary() if private else None
+    summary = latest_summary() if private else public_summary()
     held = holdings() if private else None
     if summary:
         data["summary"] = summary
@@ -215,4 +250,7 @@ def main(private=False):
 
 if __name__ == "__main__":
     import sys
-    main(private="--private" in sys.argv)
+    if "--summary" in sys.argv:
+        write_public_summary()
+    else:
+        main(private="--private" in sys.argv)

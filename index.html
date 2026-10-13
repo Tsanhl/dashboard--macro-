@@ -1539,10 +1539,11 @@
     if (tog) { tog.textContent = showAll ? L('每階段只顯示5隻', 'Show five per stage') : L('顯示全部', 'Show all'); tog.onclick = () => { state.stageAll = !showAll; drawStage(); }; }
   }
 
-  // local board only: the evening facts summary (daily_summaries/<date>.md), shown as written
+  // the evening facts summary, shown as written: daily_summaries/<date>.md on the local board, the cleaned summary.md on
+  // the public site (no 大環境 line, no own tickers); the Claude artifact has no summary dataset and keeps its own reading
   function summaryBlock(asof) {
     let row;
-    try { if (window.RB_PUBLIC || status(['summary']) !== 'ok') return null; row = dash.data('summary').data[0]; } catch (e) { return null; }
+    try { if (status(['summary']) !== 'ok') return null; row = dash.data('summary').data[0]; } catch (e) { return null; }
     if (!row || !row.text) return null;
     // older than the board's data (tonight's summary not saved yet): show the board's own reading instead, which the
     // evening task reads (its 大環境 line) before it saves tonight's summary
@@ -1741,7 +1742,7 @@
       [L('四週', '4 weeks'), movers('c4')],
     ]));
 
-    // local board: the daily summary replaces the board's own reading
+    // local board and public site: the daily summary replaces the board's own reading
     box.replaceChildren(summaryBlock(b.asof) || list);
   }
 
