@@ -22,7 +22,7 @@ SUMMARIES = ROOT.parent / "daily_summaries"  # the evening facts summaries, <ses
 HOLDINGS = ROOT.parent / "holdings.json"  # {"updated": ..., "held": [tickers], "picks": [tickers]}; local board only
 DATASETS = ["sectors", "rrg_tails", "ratios", "ratio_summary", "breadth", "breadth_now", "macro", "global",
             "positioning", "positioning_now", "rates", "rates_now", "liquidity", "stocks", "stock_tails",
-            "flowmodel", "flowmodel_now", "gamma"]
+            "flowmodel", "flowmodel_now"]
 CREDIT = ["hy_oas", "ig_oas", "ig_yield"]  # ICE BofA levels: percentiles and changes only on the public site
 
 
@@ -61,19 +61,14 @@ def public_data():
         row.pop("price", None)
     for row in out.get("macro", []):
         row.pop("last", None)
-    # flow models: keep the model readings and distances, drop the Yahoo and Cboe index and VIX levels behind them.
-    # Gamma by strike becomes gamma by distance from spot (% of the SPX level), so no index level is shown.
-    spot = (out.get("flowmodel_now") or [{}])[0].get("spot")
-    if "gamma" in out:
-        out["gamma"] = [{"dist": round((g["strike"] / spot - 1) * 100, 1), "gex": g.get("gex"), "front": g.get("front")}
-                        for g in out["gamma"] if g.get("strike") is not None] if spot else []
+    # flow models: keep the model readings and distances, drop the Yahoo index and VIX levels behind them
     for row in out.get("flowmodel", []):
-        for k in ("spx", "vix", "vix3m", "skew", "flip"):
+        for k in ("spx", "vix", "vix3m", "skew"):
             row.pop(k, None)
     for f in out.get("flowmodel_now", []):
-        for k in ("spx", "vix", "vix9d", "vix3m", "skew", "spot", "flip", "strikes_above", "strikes_below"):
+        for k in ("spx", "vix", "vix9d", "vix3m", "skew"):
             f.pop(k, None)
-        for x in f.get("cta_flips", []) + f.get("scenarios", []) + [f.get("cta_flat") or {}]:
+        for x in f.get("cta_flips", []) + [f.get("cta_flat") or {}]:
             x.pop("level", None)
     rates = out.get("rates", [])
     now = (out.get("rates_now") or [{}])[0]

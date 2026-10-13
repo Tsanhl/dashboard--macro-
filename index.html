@@ -157,7 +157,6 @@
       <button type="button" role="tab" id="tab-stage" data-page="stage" aria-selected="false" data-en="AI stages">AI 階段</button>
       <button type="button" role="tab" id="tab-breadth" data-page="breadth" aria-selected="false" data-en="Breadth">市寬</button>
       <button type="button" role="tab" id="tab-positioning" data-page="positioning" aria-selected="false" data-en="Positioning &amp; rates">持倉與利率</button>
-      <button type="button" role="tab" id="tab-flows" data-page="flows" aria-selected="false" data-en="Flows">資金流向</button>
       <button type="button" role="tab" id="tab-macro" data-page="macro" aria-selected="false" data-en="Macro &amp; global">宏觀與環球</button>
       <button type="button" role="tab" id="tab-guide" data-page="guide" aria-selected="false" data-en="How to read">讀法</button>
     </nav>
@@ -445,67 +444,33 @@
         <div class="rb-chart dash-skeleton" id="ch-liq" data-source="liquidity" style="min-height: 13rem"></div>
       </div>
     </div>
-  </section>
-
-  <section class="rb-page" id="flows" role="tabpanel" aria-labelledby="tab-flows" hidden>
-    <div class="rb-controls">
-      <div class="rb-seg" role="group" aria-label="時間範圍" data-en-aria="Time range">
-        <button type="button" class="rb-range" data-tab="flows" data-range="3m" aria-pressed="false" data-en="3 months">3個月</button>
-        <button type="button" class="rb-range" data-tab="flows" data-range="6m" aria-pressed="false" data-en="6 months">6個月</button>
-        <button type="button" class="rb-range" data-tab="flows" data-range="1y" aria-pressed="true" data-en="1 year">1年</button>
-        <button type="button" class="rb-range" data-tab="flows" data-range="3y" aria-pressed="false" data-en="3 years">3年</button>
-      </div>
-    </div>
-    <div class="rb-card" id="card-flowsum">
-      <h2 class="rb-h2" data-en="Who may be forced to trade">誰會被迫買賣</h2>
-      <p class="rb-sub" data-en="Four model estimates: dealer gamma, trend funds (CTAs), vol-control funds and the VIX term structure. Each assumes these players trade by fixed rules; none is an actual order. Read direction, turns and trigger levels, not dollar amounts. They show where a move would be amplified or absorbed, not which way the market goes. Updated every night after the US close.">四組模型估算：做市商 gamma、趨勢跟隨基金（CTA）、波動率目標基金（vol control）及 VIX 期限結構。全部假設這些資金按固定規則交易，並非實際買賣單；應讀方向、轉向及觸發水平，不要讀金額。它們說明一旦出現波動會被放大還是被吸收，不預測方向。每晚美股收市後更新。</p>
-      <div class="rb-take-line" id="flow-summary" data-source="flowmodel_now"></div>
-    </div>
-    <div class="rb-grid">
-      <div class="rb-card" id="card-gamma">
-        <h2 class="rb-h2" data-en="SPX dealer gamma by strike">SPX 做市商 gamma（按行使價）</h2>
-        <p class="rb-sub" data-en="Options expiring within 30 days, strikes within 5% of spot, 25-point buckets; $bn of hedging per 1% move. Green (positive gamma): dealers sell rallies and buy dips, so moves shrink and big strikes pull the price. Red (negative gamma): dealers chase, so moves grow. The flip is the level where net gamma changes sign: above it the market tends to be calm, below it falls can speed up. Assumes dealers are long the calls and short the puts customers trade; open interest is the previous session's.">30日內到期、現價上下5%以內的行使價，每25點一組；單位為 SPX 每郁1%做市商需要對沖的金額（十億美元）。綠色（正 gamma）：做市商升時沽、跌時買，波幅收窄，大額行使價有磁吸作用。紅色（負 gamma）：做市商追買追沽，波幅放大。Flip 是淨 gamma 由正轉負的水平：現價在其上偏平靜，跌穿後跌勢容易加快。假設做市商 long 客戶買入的 call、short 客戶買入的 put；未平倉合約為上一交易日數據。</p>
-        <div class="rb-chips" id="chips-gamma"></div>
-        <div class="rb-chart dash-skeleton" id="ch-gamma" data-source="gamma flowmodel_now" style="min-height: 20rem"></div>
-      </div>
-      <div class="rb-card rb-private" id="card-gexhist">
-        <h2 class="rb-h2" data-en="Net gamma night by night">淨 gamma 每晚走勢</h2>
-        <p class="rb-sub" data-en="Net dealer gamma ($bn per 1% move) recorded once a night from October 2026. A shrinking cushion (often after the monthly expiry) leaves the market easier to move.">每晚記錄一次淨 gamma（每郁1%的十億美元），由2026年10月開始累積。緩衝收窄（常見於月度期權結算之後）時，市場較容易大幅波動。</p>
-        <div class="rb-take-line" id="gexhist-note"></div>
-        <div class="rb-chart dash-skeleton" id="ch-gexhist" data-source="flowmodel" style="min-height: 12rem"></div>
-      </div>
-    </div>
+    <h2 class="rb-h2" data-en="Systematic flows (model estimates, updated nightly)" style="margin-top: var(--cds-gap-lg)">系統化資金（模型估算，每晚更新）</h2>
     <div class="rb-grid">
       <div class="rb-card" id="card-cta">
         <h2 class="rb-h2" data-en="CTA model: S&amp;P 500">CTA 模型：標普500</h2>
         <p class="rb-sub" data-en="Trend funds go long when prices trend up and cut, then go short, when trends break. Our model averages the 1-, 3-, 6- and 12-month trends and sizes down when realised vol is above 15%; −100 is full short, +100 full long. Near +100 there is little buying left and a lot that could be sold. The levels are where each trend window turns negative on tomorrow's close.">趨勢跟隨基金在價格向上時 long，趨勢破壞時減倉，甚至反手 short。本模型平均1、3、6、12個月四個趨勢，實現波幅高於15%時減倉；−100為全 short，+100為全 long。接近 +100 時，可再買的空間很少，可沽的空間很大。下表水平為明日收市跌穿後，該趨勢轉負的位置。</p>
-        <div class="rb-chart dash-skeleton" id="ch-cta" data-source="flowmodel" style="min-height: 13rem"></div>
+        <div class="rb-chart dash-skeleton" id="ch-cta" data-source="flowmodel flowmodel_now" style="min-height: 13rem"></div>
         <table class="rb-mini" id="cta-levels"></table>
       </div>
       <div class="rb-card" id="card-vc">
         <h2 class="rb-h2" data-en="Vol-control model">Vol control 模型</h2>
         <p class="rb-sub" data-en="Vol-control funds hold stocks in inverse proportion to realised volatility: calm markets mean more stock, a jump in volatility means mechanical selling, spread over several days because the vol windows look back 1 and 3 months. Shown as a share of the 1.5x cap (10% target vol, the higher of 1- and 3-month realised vol).">波動率目標基金的持股量與實現波幅成反比：市況平靜時加倉，波幅急升時機械式沽貨，而且因為計算回看1個月及3個月，沽盤會分幾日進行。以上限（1.5倍槓桿）的百分比表示（目標波幅10%，取1個月及3個月實現波幅的較高者）。</p>
-        <div class="rb-chart dash-skeleton" id="ch-vc" data-source="flowmodel" style="min-height: 13rem"></div>
+        <div class="rb-chart dash-skeleton" id="ch-vc" data-source="flowmodel flowmodel_now" style="min-height: 13rem"></div>
         <div class="rb-chips" id="chips-vc"></div>
       </div>
-    </div>
-    <div class="rb-card" id="card-scen">
-      <h2 class="rb-h2" data-en="If the S&amp;P moves tomorrow">如果明日標普500這樣走</h2>
-      <p class="rb-sub" data-en="Model readings after tomorrow's close for each move. A big gap between the rows on the down side means systematic selling would add to a fall.">按明日收市的不同變動推算的模型讀數。下跌一方各行相差越大，代表系統化沽盤越會放大跌勢。</p>
-      <div class="rb-tablebox" style="max-height: none"><table class="rb-mini" id="scen-table"></table></div>
     </div>
     <div class="rb-grid">
       <div class="rb-card" id="card-bondcta">
         <h2 class="rb-h2" data-en="CTA signals on 10-year government bonds">CTA 國債信號（10年期）</h2>
-        <p class="rb-sub" data-en="Trend signal in standard deviations, from the 10-year yield (a falling yield is a rising bond). Negative: trend funds short bonds, betting on higher yields. Below −1 is a strong short; a turn back toward zero means short covering that can add to a bond rally. Germany uses the ECB's euro-area AAA curve.">以標準差表示的趨勢信號，由10年期收益率計算（收益率下跌即債價上升）。負數：趨勢基金 short 債券，押注收益率上升。低於 −1 屬強烈 short；回升向零代表 short 回補，可能加快債市升勢。德國以歐洲央行歐元區AAA收益率曲線代替。</p>
+        <p class="rb-sub" data-en="Trend signal in standard deviations, from the 10-year yield (a falling yield is a rising bond). Negative: trend funds short bonds, betting on higher yields. Below −1 is a strong short; a turn back toward zero means short covering that can add to a bond rally. Germany uses the ECB's euro-area AAA curve. The UK yield comes from the Bank of England a session late; the date of each yield is shown below the chart.">以標準差表示的趨勢信號，由10年期收益率計算（收益率下跌即債價上升）。負數：趨勢基金 short 債券，押注收益率上升。低於 −1 屬強烈 short；回升向零代表 short 回補，可能加快債市升勢。德國以歐洲央行歐元區AAA收益率曲線代替。英國收益率來自英倫銀行，遲一個交易日公佈；各收益率的日期列於圖下。</p>
         <div class="rb-legend" id="lg-bondcta"></div>
-        <div class="rb-chart dash-skeleton" id="ch-bondcta" data-source="flowmodel" style="min-height: 13rem"></div>
+        <div class="rb-chart dash-skeleton" id="ch-bondcta" data-source="flowmodel flowmodel_now" style="min-height: 13rem"></div>
         <div class="rb-chips" id="chips-bond"></div>
       </div>
       <div class="rb-card" id="card-vixts">
         <h2 class="rb-h2" data-en="VIX term structure">VIX 期限結構</h2>
         <p class="rb-sub" data-en="VIX (30 days) over VIX3M (3 months). Below 1 is the normal upward slope; at or above 1 (inverted) the market is paying up for near-term protection, which comes with stress and forced selling. SKEW is the price of deep out-of-the-money puts: high means tail hedges are in demand.">VIX（30日）除以 VIX3M（3個月）。低於1屬正常的向上傾斜；達到或高於1（倒掛）代表市場為短期保護付出溢價，通常伴隨受壓及被迫沽貨。SKEW 反映深度價外 put 的價格：越高代表尾部對沖需求越大。</p>
-        <div class="rb-chart dash-skeleton" id="ch-vixts" data-source="flowmodel" style="min-height: 13rem"></div>
+        <div class="rb-chart dash-skeleton" id="ch-vixts" data-source="flowmodel flowmodel_now" style="min-height: 13rem"></div>
         <div class="rb-chips" id="chips-vix"></div>
       </div>
     </div>
@@ -778,7 +743,7 @@
         <li data-en="Relative strength = ETF weekly close ÷ S&amp;P 500 (SPY). RS-ratio = 100 × relative strength ÷ its 10-week average; momentum = 100 × RS-ratio ÷ RS-ratio four weeks earlier. A public approximation, not the commercial indicator.">相對強度 = 交易所買賣基金週收市價 ÷ 標普500（SPY）。強度比率 = 100 × 相對強度 ÷ 其10週平均；動量 = 100 × 強度比率 ÷ 4週前的強度比率。這是公開近似算法，並非原版商業指標。</li>
         <li data-en="Breadth uses today's S&amp;P 500 members; stocks removed during the window are missing, a small survivorship bias. McClellan uses the net advance ratio times 1000.">市寬以標普500現有成分股計算，回看期內曾被剔除的股票不計，存在輕微倖存者偏差。麥克連振盪指標使用淨上升比率乘以1000。</li>
         <li data-en="Futures positioning is futures only, reported each Friday for the Tuesday before. Asset-manager longs partly replicate index exposure.">期貨持倉只計期貨，每週五公佈該週二的數據；資產管理機構的 long 倉位部分屬指數複製。</li>
-        <li data-en="Sources: prices from Yahoo Finance (dividend-adjusted); members from github.com/datasets/s-and-p-500-companies; positioning from the CFTC; Treasury yields and real yields from the US Treasury (FRED for older days, or when the Treasury is unavailable); credit spreads, term premium (Kim-Wright) and the Fed balance sheet from FRED; SPX dealer gamma from Cboe (delayed option quotes); German, UK and Japanese 10-year yields from the ECB, the Bank of England and Japan's MoF. Public site refreshed Tuesday to Saturday about 06:30 UK time (05:30 UTC).">來源：價格來自 Yahoo Finance（經調整股息）；成分股名單來自 github.com/datasets/s-and-p-500-companies；期貨持倉來自 CFTC；美債收益率及實際收益率來自美國財政部（較早日子或財政部未能提供時取自 FRED）；信貸息差、期限溢價（Kim-Wright）及美聯儲資產負債表來自 FRED；SPX 做市商 gamma 來自 Cboe（延遲期權報價）；德國、英國及日本10年期收益率分別來自歐洲央行、英倫銀行及日本財務省。公開網站逢星期二至星期六英國時間約早上6時30分（05:30 UTC）更新。</li>
+        <li data-en="Sources: prices from Yahoo Finance (dividend-adjusted); members from github.com/datasets/s-and-p-500-companies; positioning from the CFTC; Treasury yields and real yields from the US Treasury (FRED for older days, or when the Treasury is unavailable); credit spreads, term premium (Kim-Wright) and the Fed balance sheet from FRED; German, UK and Japanese 10-year yields from the ECB, the Bank of England and Japan's MoF. Public site refreshed Tuesday to Saturday about 06:30 UK time (05:30 UTC).">來源：價格來自 Yahoo Finance（經調整股息）；成分股名單來自 github.com/datasets/s-and-p-500-companies；期貨持倉來自 CFTC；美債收益率及實際收益率來自美國財政部（較早日子或財政部未能提供時取自 FRED）；信貸息差、期限溢價（Kim-Wright）及美聯儲資產負債表來自 FRED；德國、英國及日本10年期收益率分別來自歐洲央行、英倫銀行及日本財務省。公開網站逢星期二至星期六英國時間約早上6時30分（05:30 UTC）更新。</li>
       </ul>
     </div>
   </section>
@@ -898,7 +863,7 @@
   // dataset (rows of kind "pick"), which only the local board has; see privatePicks below
   const DEFAULT_PICKS = ['NVDA', 'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'AVGO', 'TSM', 'ORCL', 'AMD', 'MU', 'ANET', 'VRT', 'CEG', 'PLTR', 'NFLX'];
   const MAX_PICKS = 16;
-  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', withSectors: false, rrgPin: null, bench: 'spy', picks: [...DEFAULT_PICKS], picksEdited: false, range: { breadth: '3m', positioning: '3m', flows: '1y' } };
+  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', withSectors: false, rrgPin: null, bench: 'spy', picks: [...DEFAULT_PICKS], picksEdited: false, range: { breadth: '3m', positioning: '3m' } };
   const DAYS = { '1w': 8, '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
   // rows (with .d Date) inside the tab's chosen range, counted back from the last row
   const windowed = (rows, tab) => { if (!rows.length) return rows; const cut = +rows.at(-1).d - DAYS[state.range[tab]] * 864e5; return rows.filter((r) => +r.d >= cut); };
@@ -2235,78 +2200,21 @@
     }));
   }
 
-  // ---------- flows: dealer gamma, CTA, vol control, VIX term structure (model estimates) ----------
+  // ---------- systematic flows on the positioning tab: CTA, vol control, VIX term structure (model estimates) ----------
   const lvl = (v) => (v == null ? '—' : d3.format(',')(v));
   const LOOKBACK = () => ({ 20: L('1個月', '1 month'), 60: L('3個月', '3 months'), 125: L('6個月', '6 months'), 250: L('12個月', '12 months') });
   const chip = (text, c) => mk('span', c || null, text);
-  function flowSummary(f) {
-    const out = [];
-    const line = (head, text, c) => { const e = mk('span'); e.style.display = 'block'; e.append(mk('b', null, head + L('：', ': ')), mk('span', c || '', text)); out.push(e); };
-    if (f.gex != null) {
-      const above = f.flip_dist == null ? null : f.flip_dist <= 0;
-      // the public site has no index levels: the flip then reads as a distance from spot only
-      const where = f.flip != null
-        ? L(`flip ${lvl(f.flip)}，現價${above ? '在其上' : '在其下'}（相距 ${signed(-f.flip_dist, 2)}%）`, `flip ${lvl(f.flip)}, spot ${above ? 'above' : 'below'} it (${signed(-f.flip_dist, 2)}%)`)
-        : f.flip_dist != null
-          ? L(`現價在 flip ${above ? '之上' : '之下'}（相距 ${signed(-f.flip_dist, 2)}%）`, `spot ${above ? 'above' : 'below'} the flip (${signed(-f.flip_dist, 2)}%)`)
-          : L('範圍內未見 flip', 'no flip within range');
-      line(L('做市商 gamma', 'Dealer gamma'), L(`淨 ${signed(f.gex)}B（每郁1%），其中本週到期 ${signed(f.gex_front)}B；${where}；下次月度結算 ${f.opex}（截至 ${f.gex_date}）`,
-        `net ${signed(f.gex)}B per 1%, ${signed(f.gex_front)}B of it expiring this week; ${where}; next monthly expiry ${f.opex} (as of ${f.gex_date})`), above === false ? 'rb-ext' : '');
-    }
-    if (f.cta != null) {
-      const first = (f.cta_flips || [])[0];
-      line(L('CTA 模型', 'CTA model'), L(`倉位 ${signed(f.cta, 0)}（−100 至 +100，三年第${f.cta_pctile}百分位）；一日 ${signed(f.cta_1d)}、五日 ${signed(f.cta_5d)}`, `position ${signed(f.cta, 0)} (−100 to +100, ${f.cta_pctile}th 3-yr percentile); 1 day ${signed(f.cta_1d)}, 5 days ${signed(f.cta_5d)}`)
-        + (first ? L(`；明日跌 ${signed(first.dist)}%，1個月趨勢轉負`, `; a ${signed(first.dist)}% fall tomorrow turns the 1-month trend negative`) : '')
-        + (f.cta_flat ? L(`；跌 ${signed(f.cta_flat.dist)}%，整體轉平`, `; ${signed(f.cta_flat.dist)}% takes the model flat`) : ''));
-    }
-    if (f.vc != null) line(L('Vol control', 'Vol control'), L(`倉位為上限的 ${f.vc}%（三年第${f.vc_pctile}百分位）；五日 ${signed(f.vc_5d)}、一個月 ${signed(f.vc_21d)}；實現波幅1個月 ${f.rv1}%、3個月 ${f.rv3}%`,
-      `${f.vc}% of the cap (${f.vc_pctile}th 3-yr percentile); 5 days ${signed(f.vc_5d)}, 1 month ${signed(f.vc_21d)}; realised vol 1 month ${f.rv1}%, 3 months ${f.rv3}%`));
-    if (f.bonds?.length) line(L('CTA 國債信號', 'CTA bond signals'), f.bonds.map((b) => `${nm(b)} ${signed(b.signal, 2)}（${L('五日', '5d')} ${signed(b.chg_5d, 2)}）`).join(sep()));
-    if (f.vix_ratio != null) line(L('VIX 期限結構', 'VIX term structure'), L(`VIX/VIX3M ${f.vix_ratio.toFixed(2)}（${f.vix_ratio >= 1 ? '倒掛，屬受壓' : '正常向上傾斜'}）`, `VIX/VIX3M ${f.vix_ratio.toFixed(2)} (${f.vix_ratio >= 1 ? 'inverted: stress' : 'normal upward slope'})`)
-      + (f.skew != null ? `；SKEW ${f.skew}` : ''), f.vix_ratio >= 1 ? 'rb-ext' : '');
-    const note = mk('span', 'rb-sub', L('模型估算，非實際倉位；數字為本看板自己的計法，與外間報告只宜比較方向及轉折。', 'Model estimates, not actual positions; our own method, so compare direction and turns with outside reports, not levels.'));
-    note.style.display = 'block'; out.push(note);
-    return out;
-  }
-
-  function drawFlows() {
-    const sum = document.getElementById('flow-summary');
+  function drawFlowModels() {
     const f = status(['flowmodel_now']) === 'ok' ? dash.data('flowmodel_now').data[0] : null;
-    if (f) sum.replaceChildren(...flowSummary(f)); else if (status(['flowmodel_now']) === 'error') fail(sum);
-    const c = colors(), up = 'var(--color-ok)', down = 'var(--color-bad)';
+    const c = colors();
 
-    // gamma by strike, highest strike on top
-    const gch = document.getElementById('ch-gamma');
-    if (ready(gch, ['gamma', 'flowmodel_now'])) {
-      // the public site gets each strike as a distance from spot (dist, %) instead of the index level
-      const at = (r) => (r.strike != null ? r.strike : r.dist);
-      const rows = [...dash.data('gamma').data].filter((r) => at(r) != null).sort((a, b) => at(b) - at(a));
-      document.getElementById('chips-gamma').replaceChildren(...(f.spot != null ? [
-        chip(L(`現價 ${lvl(f.spot)}`, `Spot ${lvl(f.spot)}`)), chip(L(`Flip ${lvl(f.flip)}`, `Flip ${lvl(f.flip)}`), f.flip_dist > 0 ? 'rb-ext' : ''),
-        chip(L(`上方主要行使價 ${(f.strikes_above || []).join(' / ') || '—'}`, `Key strikes above ${(f.strikes_above || []).join(' / ') || '—'}`)),
-        chip(L(`下方 ${(f.strikes_below || []).join(' / ') || '—'}`, `below ${(f.strikes_below || []).join(' / ') || '—'}`))] : []),
-        chip(L(`截至 ${f.gex_date ?? '—'} ${f.gex_time ?? ''}`, `As of ${f.gex_date ?? '—'} ${f.gex_time ?? ''}`)));
-      if (!rows.length) gch.replaceChildren(mk('div', 'rb-fail', L('暫無數據', 'No data yet')));
-      else hbars(gch, rows.map((r) => ({ key: String(at(r)),
-        label: (r.strike != null ? d3.format(',')(r.strike) : signed(r.dist, 1) + '%')
-          + (f.spot != null && r.strike != null && f.spot >= r.strike && f.spot < r.strike + 25 ? L(' ◀ 現價', ' ◀ spot') : ''),
-        v: r.gex, front: r.front })),
-        { fmt: (v) => signed(v, 1), color: (r) => (r.v >= 0 ? up : down), rowH: 16,
-          tipLines: (r) => [{ text: L(`淨 gamma ${signed(r.v, 2)}B`, `Net gamma ${signed(r.v, 2)}B`) }, { text: L(`本週到期 ${signed(r.front, 2)}B`, `Expiring this week ${signed(r.front, 2)}B`) }] });
-    }
-
-    const fch = ['ch-gexhist', 'ch-cta', 'ch-vc', 'ch-bondcta', 'ch-vixts'].map((id) => document.getElementById(id));
-    if (!fch.map((el) => ready(el, ['flowmodel'])).every(Boolean)) return;
+    const fch = ['ch-cta', 'ch-vc', 'ch-bondcta', 'ch-vixts'].map((id) => document.getElementById(id));
+    if (!fch.map((el) => ready(el, ['flowmodel', 'flowmodel_now'])).every(Boolean)) return;
     const all = dash.data('flowmodel').data.map((r) => ({ ...r, d: day(r.date) }));
-    const rows = windowed(all, 'flows');
+    const rows = windowed(all, 'positioning');
     const pts = (k) => rows.map((r) => ({ d: r.d, v: r[k] }));
 
-    const gh = all.filter((r) => r.gex != null);
-    document.getElementById('gexhist-note').textContent = gh.length < 5 ? L(`已記錄 ${gh.length} 晚；約一週後才看得出走勢。`, `${gh.length} night(s) recorded; a trend needs about a week.`) : '';
-    if (gh.length >= 2) lineChart(fch[0], { series: [{ name: L('淨 gamma', 'Net gamma'), color: c[0], values: gh.map((r) => ({ d: r.d, v: r.gex })) }], height: 190, ref: 0, yFmt: (v) => v + 'B', tipFmt: (v) => signed(v, 1) + 'B' });
-    else fch[0].replaceChildren();
-
-    lineChart(fch[1], { series: [{ name: L('CTA 模型倉位', 'CTA model position'), color: c[0], values: pts('cta') }], height: 210, ref: 0, yDomain: [-100, 100], yFmt: d3.format('d'), tipFmt: (v) => signed(v, 0) });
+    lineChart(fch[0], { series: [{ name: L('CTA 模型倉位', 'CTA model position'), color: c[0], values: pts('cta') }], height: 210, ref: 0, yDomain: [-100, 100], yFmt: d3.format('d'), tipFmt: (v) => signed(v, 0) });
     const lv = document.getElementById('cta-levels');
     lv.replaceChildren();
     if (f?.cta_flips) {
@@ -2317,31 +2225,17 @@
       if (f.cta_flat) { const tr = body.insertRow(); [L('整體模型轉平', 'Whole model flat'), lvl(f.cta_flat.level), signed(f.cta_flat.dist) + '%'].forEach((t) => { tr.insertCell().textContent = t; }); }
     }
 
-    lineChart(fch[2], { series: [{ name: L('Vol control 倉位（上限 %）', 'Vol-control exposure (% of cap)'), color: c[1], values: pts('vc') }], height: 210, yDomain: [0, 100], yFmt: (v) => v + '%', tipFmt: (v) => v.toFixed(0) + '%' });
+    lineChart(fch[1], { series: [{ name: L('Vol control 倉位（上限 %）', 'Vol-control exposure (% of cap)'), color: c[1], values: pts('vc') }], height: 210, yDomain: [0, 100], yFmt: (v) => v + '%', tipFmt: (v) => v.toFixed(0) + '%' });
     document.getElementById('chips-vc').replaceChildren(...(f ? [chip(L(`現時 ${f.vc}%`, `Now ${f.vc}%`)), chip(L(`五日 ${signed(f.vc_5d)}`, `5 days ${signed(f.vc_5d)}`)), chip(L(`一個月 ${signed(f.vc_21d)}`, `1 month ${signed(f.vc_21d)}`)),
       chip(L(`實現波幅 1個月 ${f.rv1}%｜3個月 ${f.rv3}%`, `Realised vol 1m ${f.rv1}% | 3m ${f.rv3}%`))] : []));
-
-    const sc = document.getElementById('scen-table');
-    sc.replaceChildren();
-    if (f?.scenarios) {
-      const head = sc.createTHead().insertRow();
-      [L('明日標普變動', 'S&P move tomorrow'), L('收市水平', 'Close'), L('CTA 倉位', 'CTA position'), L('較今日', 'vs today'), L('Vol control', 'Vol control'), L('較今日', 'vs today')]
-        .forEach((t) => head.append(Object.assign(document.createElement('th'), { textContent: t })));
-      const body = sc.createTBody();
-      for (const x of f.scenarios) {
-        const tr = body.insertRow();
-        const cells = [x.move === 0 ? L('持平', 'Flat') : signed(x.move, 0) + '%', lvl(x.level), signed(x.cta, 0), signed(x.cta - f.cta, 0), x.vc + '%', signed(x.vc - f.vc, 0)];
-        cells.forEach((t, i) => { const td = tr.insertCell(); td.textContent = t; if (i === 3) td.className = cls(x.cta - f.cta); if (i === 5) td.className = cls(x.vc - f.vc); });
-      }
-    }
 
     const bonds = [['b_us', L('美國', 'US')], ['b_de', L('德國', 'Germany')], ['b_uk', L('英國', 'UK')], ['b_jp', L('日本', 'Japan')]]
       .filter(([k]) => rows.some((r) => r[k] != null)).map(([k, name], i) => ({ name, color: c[i], values: pts(k) }));
     legend(document.getElementById('lg-bondcta'), bonds);
-    if (bonds.length) lineChart(fch[3], { series: bonds, height: 210, ref: 0, yFmt: (v) => v.toFixed(1), tipFmt: (v) => signed(v, 2) });
+    if (bonds.length) lineChart(fch[2], { series: bonds, height: 210, ref: 0, yFmt: (v) => v.toFixed(1), tipFmt: (v) => signed(v, 2) });
     document.getElementById('chips-bond').replaceChildren(...(f?.bonds || []).map((b) => chip(L(`${nm(b)} 10年 ${b.yield?.toFixed(2) ?? '—'}%（${b.date}）`, `${nm(b)} 10y ${b.yield?.toFixed(2) ?? '—'}% (${b.date})`))));
 
-    lineChart(fch[4], { series: [{ name: 'VIX / VIX3M', color: c[2], values: pts('vix_ratio') }], height: 210, ref: 1, yFmt: (v) => v.toFixed(2), tipFmt: (v) => v.toFixed(3) });
+    lineChart(fch[3], { series: [{ name: 'VIX / VIX3M', color: c[2], values: pts('vix_ratio') }], height: 210, ref: 1, yFmt: (v) => v.toFixed(2), tipFmt: (v) => v.toFixed(3) });
     document.getElementById('chips-vix').replaceChildren(...(f ? [chip(`VIX9D ${f.vix9d ?? '—'}`), chip(`VIX ${f.vix ?? '—'}`), chip(`VIX3M ${f.vix3m ?? '—'}`), chip(`SKEW ${f.skew ?? '—'}`)] : []));
   }
 
@@ -2780,7 +2674,7 @@
   document.querySelectorAll('.rb-poswin').forEach((b) => b.addEventListener('click', () => { state.posWin = b.dataset.win; drawAll(); }));
   document.querySelectorAll('.rb-range').forEach((b) => b.addEventListener('click', () => { state.range[b.dataset.tab] = b.dataset.range; drawAll(); }));
   document.getElementById('pos-market').addEventListener('change', (e) => { state.market = e.target.value; drawAll(); });
-  const PAGES = ['overview', 'rotation', 'stage', 'breadth', 'positioning', 'flows', 'macro', 'guide'];
+  const PAGES = ['overview', 'rotation', 'stage', 'breadth', 'positioning', 'macro', 'guide'];
   const showPage = (page, link = true) => {
     state.page = page;
     document.querySelectorAll('.rb-tabs button').forEach((b) => b.setAttribute('aria-selected', String(b.dataset.page === page)));
@@ -2824,8 +2718,7 @@
     }
     if (state.page === 'stage') drawStage();
     if (state.page === 'breadth') drawBreadth();
-    if (state.page === 'positioning') drawPositioning();
-    if (state.page === 'flows') drawFlows();
+    if (state.page === 'positioning') { drawPositioning(); drawFlowModels(); }
     if (state.page === 'macro') drawMacro();
   }
 

@@ -193,20 +193,15 @@ def main():
     except (OSError, KeyError, IndexError):
         gaps.append("投資級債息差觀察讀取失敗")
 
-    # flow models (資金流向 tab) and COT extremes: model estimates and weekly filings, numbers only
+    # systematic-flow models (持倉與利率 tab) and COT extremes: model estimates and weekly filings, numbers only
     lv = lambda v: "—" if v is None else f"{v:,.0f}"  # an index level, or a dash when the model has none
     try:
         f = json.load(open(DATA / "flowmodel_now.json"))[0]
         if f["date"] != str(d.date()):
             gaps.append(f"資金流向模型是 {f['date']} 的數據")
+        if f.get("vix_date") and f["vix_date"] != str(d.date()):
+            gaps.append(f"VIX 期限結構是 {f['vix_date']} 的數據")
         out += ["", "持倉與流向（模型估算）："]
-        if f.get("gex") is not None:
-            if f.get("gex_date") != str(d.date()):
-                gaps.append(f"做市商 gamma 是 {f.get('gex_date')} 的舊讀數（Cboe 下載失敗）")
-            side = "之下" if (f.get("flip_dist") or 0) < 0 else "之上"
-            flip = f"flip {f['flip']:,.0f}（在現價{side} {abs(f['flip_dist']):.2f}%）" if f.get("flip") else "範圍內未見 flip"
-            out.append(f"* 做市商 gamma：淨 {sg(f['gex'])}B（每郁1%），本週到期 {sg(f['gex_front'])}B；{flip}；"
-                       f"下次月度結算 {md(f['opex'])}。")
         fl = (f.get("cta_flips") or [{}])[0]
         flat = f.get("cta_flat") or {}
         out.append(f"* CTA 模型 {sg(f['cta'], 0)}（一日 {sg(f['cta_1d'])}、五日 {sg(f['cta_5d'])}）；1個月趨勢轉負位 "
