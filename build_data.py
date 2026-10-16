@@ -30,6 +30,7 @@ ETFS = {
     "XLF": ("金融", "sector"), "XLI": ("工業", "sector"), "XLE": ("能源", "sector"),
     "XLB": ("原材料", "sector"), "XLU": ("公用事業", "sector"), "XLP": ("必需消費", "sector"),
     "XLV": ("醫療保健", "sector"), "XLRE": ("房地產", "sector"),
+    "GDX": ("貴金屬", "sector"),  # gold miners, shown with the 11 sectors (user, 2026-10-15); no S&P members of its own
     "SMH": ("半導體", "theme"), "IGV": ("軟件", "theme"), "KRE": ("地區銀行", "theme"),
     "XBI": ("生物科技", "theme"), "XHB": ("住宅建築", "theme"), "ITA": ("航天國防", "theme"),
     "RSP": ("標普等權", "style"), "IWM": ("羅素2000小型股", "style"), "QQQ": ("納指100", "style"),
@@ -78,6 +79,11 @@ TYPICAL_DIP = {
     "AI_OPT": (-23.0, -40.0), "AI_PWR": (-16.5, -22.1), "AI_IPP": (-22.0, -35.3), "AI_NEO": (-40.8, -48.6),
     "AI_CRYPTO": (-29.0, -37.0), "AI_NUC": (-30.2, -45.0),
 }
+# PHLX Semiconductor Index (SOX) members for the semis-breadth gauge: the SOXQ holdings filed for 2026-05-31 (30
+# names; SOX reconstitutes each September and the newer list was not public). Refresh after each reconstitution.
+SOX_MEMBERS = ["MU", "NVDA", "AVGO", "AMD", "INTC", "MRVL", "QCOM", "TXN", "LRCX", "KLAC", "AMAT", "NXPI", "ADI", "MPWR",
+               "TSM", "ASML", "COHR", "TER", "ALAB", "MCHP", "ARM", "ON", "GFS", "CRDO", "MTSI", "ENTG", "NVMI", "RMBS",
+               "SWKS", "QRVO"]
 # Extra single names to make searchable beyond the S&P 500 and the baskets
 WATCH_EXTRA = ["CBRS", "INTC", "TSLA", "AAPL", "PLTR", "URA", "SPCX"]
 # Company names for tickers outside the S&P 500 member list
@@ -94,7 +100,7 @@ EXTRA_NAMES = {
 EN = {
     "科技": "Technology", "通訊服務": "Communication services", "非必需消費": "Consumer discretionary",
     "金融": "Financials", "工業": "Industrials", "能源": "Energy", "原材料": "Materials",
-    "公用事業": "Utilities", "必需消費": "Consumer staples", "醫療保健": "Health care", "房地產": "Real estate",
+    "公用事業": "Utilities", "貴金屬": "Precious metals", "必需消費": "Consumer staples", "醫療保健": "Health care", "房地產": "Real estate",
     "半導體": "Semiconductors", "軟件": "Software", "地區銀行": "Regional banks", "生物科技": "Biotech",
     "住宅建築": "Homebuilders", "航天國防": "Aerospace & defense", "標普等權": "S&P 500 equal weight",
     "羅素2000小型股": "Russell 2000 small caps", "納指100": "Nasdaq-100", "動量因子": "Momentum factor",
@@ -224,7 +230,7 @@ def write(name, rows):
 def main():
     mem = members()
     basket_members = sorted({m for _, ms in AI_BASKETS.values() for m in ms})
-    tickers = (list(ETFS) + list(GLOBAL) + list(MACRO) + ["SPY", "HYG", "IEF"] + list(mem["Symbol"])
+    tickers = (list(ETFS) + list(GLOBAL) + list(MACRO) + ["SPY", "HYG", "IEF"] + list(mem["Symbol"]) + SOX_MEMBERS
                + basket_members + WATCH_EXTRA)
     print(f"downloading {len(set(tickers))} tickers…")
     close, high, low = download(tickers)
@@ -281,6 +287,12 @@ def main():
     ew_index = (1 + chg.mean(axis=1).fillna(0)).loc[one_year].cumprod() * 100
     spy_index = spy.loc[one_year] / spy.loc[one_year].iloc[0] * 100
 
+    # semis breadth (user, 2026-10-15): SOX members below their 50-day line. 24 of 30 (80%+) is the "flush" level
+    # quoted in the trading chat; tested 2010–2026 in rulebook §5b (a mild 20-day edge, not a bottom signal)
+    sx = close[[t for t in SOX_MEMBERS if t in close]].ffill(limit=3)
+    sx50 = sx.rolling(50).mean()
+    sx_ok = sx.notna() & sx50.notna()
+    sox_below, sox_n = ((sx < sx50) & sx_ok).sum(axis=1), sx_ok.sum(axis=1)
     breadth = []
     for d in one_year:
         breadth.append({
@@ -288,6 +300,7 @@ def main():
             "pct200": r(pct200[d], 1), "adv": int(adv[d]), "dec": int(dec[d]),
             "ad_line": int(ad_line[d]), "new_highs": int(nh[d]), "new_lows": int(nl[d]),
             "mcclellan": r(mcclellan[d], 1), "ew_index": r(ew_index[d]), "spy_index": r(spy_index.get(d)),
+            "sox_below50": int(sox_below[d]), "sox_n": int(sox_n[d]),
         })
     write("breadth", breadth)
 
@@ -406,6 +419,7 @@ def main():
         s = close[t].dropna()
         row = {"r1w": r(pct(s, 5)), "r1m": r(pct(s, 21)), "r3m": r(pct(s, 63)), "r6m": r(pct(s, 126)), "rytd": r(ytd(s)),
                "vs_50d": r((s.iloc[-1] / s.rolling(50).mean().iloc[-1] - 1) * 100) if len(s) >= 50 else None,
+               "vs_200d": r((s.iloc[-1] / s.rolling(200).mean().iloc[-1] - 1) * 100) if len(s) >= 200 else None,
                "off_high": r((s.iloc[-1] / s.iloc[-252:].max() - 1) * 100)}
         # pullback stage (AI stage tab): distance from the 60-session closing high, sessions since it, and the latest
         # quick pump (+30% in 20 sessions) within the last 120 sessions
@@ -413,6 +427,20 @@ def main():
             w60 = s.iloc[-60:]
             row["off_hi60"] = r((s.iloc[-1] / w60.max() - 1) * 100)
             row["hi60_days"] = int(len(w60) - 1 - int(np.argmax(w60.values)))
+            row["hi60_date"] = w60.idxmax().strftime("%Y-%m-%d")
+        # daily state (AI stage tab, user 2026-10-15): yesterday's readings so "today crossed" is only said when it did,
+        # the 52-week high and its date (a fixed reference; a 60-day high can roll out of its window without any
+        # recovery), and sessions since the last 20-day low of the price relative to the S&P 500
+        if len(s) >= 61:
+            sma50 = s.rolling(50).mean()
+            row["vs_50d_prev"] = r((s.iloc[-2] / sma50.iloc[-2] - 1) * 100)
+            row["off_hi60_prev"] = r((s.iloc[-2] / s.iloc[-61:-1].max() - 1) * 100)
+            row["hi52_date"] = s.iloc[-252:].idxmax().strftime("%Y-%m-%d")
+            row["r1d"] = r(pct(s, 1))
+            rel_ = (s / spy.reindex(s.index)).dropna()
+            new_low = rel_ <= rel_.rolling(20).min() + 1e-12
+            lows = np.flatnonzero(new_low.values)
+            row["rel_low_days"] = int(len(rel_) - 1 - lows[-1]) if len(lows) else None
             r20 = (s / s.shift(20) - 1).iloc[-120:]
             hit = r20[r20 >= 0.30]
             if len(hit):
@@ -478,7 +506,27 @@ def main():
         tails_out = [{"ticker": t, "week": d.strftime("%Y-%m-%d"), **v} for d, v in tail.items()]
         return row, tails_out
 
-    sectors, tails = [], []
+    def daily_rrg(t):
+        """Daily rotation (user, 2026-10-15; beside the weekly graph): RS-ratio against its 20-session average
+        and momentum against 5 sessions earlier, vs the S&P 500 and vs semis; the last 20 sessions as a tail. Noisier
+        than the weekly graph; the rotation rules (§10a) stay weekly."""
+        fields, pts = {}, {}
+        for suffix, bench in (("", "SPY"), ("_smh", "SMH")):
+            rs_d = (close[t] / close[bench]).dropna()
+            ratio_d = 100 * rs_d / rs_d.rolling(20).mean()
+            mom_d = 100 * ratio_d / ratio_d.shift(5)
+            ok = mom_d.dropna()
+            if len(ok) < 6:
+                continue
+            fields["quadrant_d" + suffix] = quadrant(ratio_d.iloc[-1], mom_d.iloc[-1])
+            fields["quadrant_d5" + suffix] = quadrant(ratio_d.iloc[-6], mom_d.iloc[-6])
+            fields["rs_ratio_d" + suffix], fields["rs_mom_d" + suffix] = r(ratio_d.iloc[-1]), r(mom_d.iloc[-1])
+            for d in ratio_d.index[-20:]:
+                pts.setdefault(d, {})["rs_ratio" + suffix] = r(ratio_d[d])
+                pts[d]["rs_mom" + suffix] = r(mom_d[d])
+        return fields, [{"ticker": t, "date": d.strftime("%Y-%m-%d"), **v} for d, v in pts.items()]
+
+    sectors, tails, dtails = [], [], []
     universe = [(t, name, group) for t, (name, group) in ETFS.items()] + [(b, n, "ai") for b, (n, _) in AI_BASKETS.items()]
     for t, name, group in universe:
         s = close[t].dropna()
@@ -489,6 +537,9 @@ def main():
         if group == "ai":
             row["members_list"] = " ".join(AI_BASKETS[t][1])
             row["typ_dip"], row["typ_worst"] = TYPICAL_DIP.get(t, (None, None))
+        dfields, dtl = daily_rrg(t)
+        row.update(dfields)
+        dtails += dtl
         p = participation.get(t, {})
         row.update({"members": p.get("members"), "m_pct50": p.get("pct50"), "m_pct50_1w": p.get("pct50_1w"), "m_pct50_1m": p.get("pct50_1m"),
                     "m_pct200": p.get("pct200"), "m_pct_up_1m": p.get("pct_up_1m"),
@@ -497,6 +548,9 @@ def main():
         tails += tl
     write("sectors", sectors)
     write("rrg_tails", tails)
+    write("rrg_daily", dtails)
+    from summary_checks import check_prices
+    write("check_prices", check_prices(close, AI_BASKETS["AI_NEO"][1], asof))
 
     # ---- single stocks: S&P 500 members, basket members and the watch list ----
     names = dict(zip(mem["Symbol"], mem["Security"])) | EXTRA_NAMES
@@ -592,6 +646,11 @@ def main():
     glob.append({"ticker": "SPY", "name": "標普500", "r1w": r(pct(spy, 5)), "r1m": r(pct(spy, 21)), "r3m": r(pct(spy, 63)),
                  "rel1m": 0.0, "rel3m": 0.0, "vs_50d": r((spy.iloc[-1] / spy.rolling(50).mean().iloc[-1] - 1) * 100)})
     write("global", glob)
+    try:  # alert lamps (警報燈, rulebook §3): a trial; never lose the rest of the build to them
+        from alerts import build_alerts
+        build_alerts(close, px, pct50, pct200, AI_BASKETS)
+    except Exception as e:
+        print(f"  WARNING alert lamps failed: {e}")
     try:
         from flows import build_flows  # imports this module, so loaded here rather than at the top
         build_flows(asof)
@@ -674,14 +733,53 @@ def build_positioning():
                     "am_extreme": extreme(am_p), "lev_extreme": extreme(lev_p),
                     "am_z": zscore("am_net"), "lev_z": zscore("lev_net"),
                     "has_am": ds == "tff"})
+    positioning_reads(rows, now)
     write("positioning", rows)
     write("positioning_now", now)
+
+
+NON_CORE_COT = {"天然氣期貨", "汽油期貨", "大豆期貨", "粟米期貨", "小麥期貨"}  # left out of the one-line weekly read
+
+
+def positioning_reads(rows, now):
+    """Adds to each positioning_now row, per holder ('am', 'lev'): the 1- and 4-week change scaled by that series' own
+    weekly swing (z1, z4: comparable across markets), and a turn from a deep extreme only when it is clear (user,
+    2026-10-15: show 「開始轉向」 only when really spotted). A turn needs all four: 2–4 weeks ago at or beyond the
+    3-year 5th/95th percentile; two straight weekly moves against it; the 2-week move at least 1.5 times the
+    series' typical weekly change (52 weeks); the percentile now 20+ points off that extreme. Over the year to
+    2026-10 this marked about 40 turns across 62 series (under one a year per series); the old rule (any one-week
+    move against a 10th/90th extreme) marked 242."""
+    hist = pd.DataFrame(rows)
+    hist["date"] = pd.to_datetime(hist["date"])
+    for x in now:
+        x["core"] = x["name"] not in NON_CORE_COT
+        g = hist[hist["market"] == x["market"]].set_index("date").sort_index()
+        for w in ("am", "lev"):
+            x[w + "_z1"] = x[w + "_z4"] = x[w + "_turn"] = None
+            s_ = g[w + "_pct"].dropna()
+            if len(s_) < 60:
+                continue
+            ch = s_.diff()
+            sd = ch.iloc[-52:].std()
+            if sd and not np.isnan(sd):
+                x[w + "_z1"] = round(float(ch.iloc[-1] / sd), 1)
+                x[w + "_z4"] = round(float((s_.iloc[-1] - s_.iloc[-5]) / (2 * sd)), 1)
+            pct = lambda i: (s_.iloc[: i + 1].iloc[-156:] < s_.iloc[i]).mean() * 100  # 3-year percentile as of week i
+            n = len(s_) - 1
+            past = [pct(i) for i in (n - 4, n - 3, n - 2)]
+            c1, c2, now_p = ch.iloc[-1], ch.iloc[-2], pct(n)
+            big = abs(c1 + c2) >= 1.5 * sd
+            if max(past) >= 95 and c1 < 0 and c2 < 0 and big and now_p <= max(past) - 20:
+                x[w + "_turn"] = {"from": "high", "peak": round(max(past)), "now": round(now_p), "move_2w": round(float(c1 + c2), 1)}
+            elif min(past) <= 5 and c1 > 0 and c2 > 0 and big and now_p >= min(past) + 20:
+                x[w + "_turn"] = {"from": "low", "peak": round(min(past)), "now": round(now_p), "move_2w": round(float(c1 + c2), 1)}
 
 
 # ---- FRED: yield decomposition, credit, curve, liquidity ----
 FRED = "https://fred.stlouisfed.org/graph/fredgraph.csv?id={}&cosd=2022-01-01"
 RATE_SERIES = {"DGS10": "nominal10", "DGS2": "nominal2", "DFII10": "real10", "T10YIE": "be10", "THREEFYTP10": "tp10",
                "T10Y2Y": "curve", "BAMLH0A0HYM2": "hy_oas", "BAMLC0A0CM": "ig_oas",
+               "BAMLH0A3HYC": "ccc_oas", "BAMLH0A1HYBB": "bb_oas",  # credit-quality split for the alert lamps
                "BAMLC0A0CMEY": "ig_yield"}
 # all Wednesday levels, like WALCL (WTREGEN and WRESBAL are week averages: mixing them put the 2026-10-07 weekly change
 # in net liquidity at +$82bn instead of +$112bn)
@@ -829,6 +927,8 @@ def build_rates():
     for col in RATE_SERIES.values():
         now[col] = r(cut[col].dropna().iloc[-1], 3)
         s1 = cut[col].dropna()
+        now[col + "_date"] = s1.index[-1].strftime("%Y-%m-%d")
+        now[col + "_prev_date"] = s1.index[-2].strftime("%Y-%m-%d") if len(s1) > 1 else None
         now[col + "_1d"] = r((s1.iloc[-1] - s1.iloc[-2]) * 100, 0) if len(s1) > 1 else None  # since the last print
         now[col + "_1w"] = delta(col, 7)
         now[col + "_1m"] = delta(col, 30)

@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
   push:
     branches: [main]
-    paths: ["index.html", "build_data.py", "build_site.py", "flows.py", "summary.md", ".github/workflows/pages.yml"]
+    paths: ["index.html", "build_data.py", "build_site.py", "flows.py", "alerts.py", "summary_checks.py", "daily_summary.py", "daily_facts.py", "summary.md", "tests/**", ".github/workflows/pages.yml"]
 
 permissions:
   contents: read
@@ -27,6 +27,8 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -r requirements.txt
+      - name: Check dated comparisons and public data boundary
+        run: python -m unittest discover -s tests -v
       - name: Build data (one retry if a source times out)
         run: python build_data.py || (sleep 60 && python build_data.py)
       - run: python build_site.py

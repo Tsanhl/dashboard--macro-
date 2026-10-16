@@ -20,7 +20,8 @@ DATA = Path(__file__).resolve().parent / "data"
 
 INDEXES = [("^GSPC", "標普500", True), ("^NDX", "納指100", False), ("^DJI", "道指", False), ("^RUT", "羅素2000", False)]
 SECTORS = {"XLE": "能源", "XLP": "必需消費", "XLC": "通訊服務", "XLRE": "房地產", "XLV": "醫療保健", "XLF": "金融",
-           "XLU": "公用事業", "XLB": "原材料", "XLI": "工業", "XLY": "非必需消費", "XLK": "科技"}
+           "XLU": "公用事業", "XLB": "原材料", "XLI": "工業", "XLY": "非必需消費", "XLK": "科技",
+           "GDX": "貴金屬"}  # gold miners, listed with the sectors (user, 2026-10-15)
 THEMES = [("SMH", "半導體"), ("IGV", "軟件"), ("MTUM", "動量因子"), ("KRE", "地區銀行"), ("IWM", "小型股")]
 AI_NAMES = {"AI_HYPER": "超大型雲端", "AI_CHIPS": "運算晶片", "AI_MEM": "記憶體", "AI_NET": "網絡與互連", "AI_OPT": "光通訊",
             "AI_PWR": "電力與散熱", "AI_IPP": "獨立發電", "AI_NEO": "新雲", "AI_CRYPTO": "加密相關", "AI_NUC": "鈾與核能"}
@@ -73,158 +74,134 @@ def ig_watch_line(rt):
     return f"投資級債息差觀察：{text}。"
 
 
+LAYER_SHORT = {"L5_MEM": "記憶體", "L4_ASIC": "互連與定制晶片", "L3_OPT": "光模組與網絡", "L2_IP": "晶片 IP", "L1_PWR": "電力",
+               "NEO": "新雲", "SPEND": "付款方（超大型雲端）", "ALT": "私募信貸管理人", "BDC": "BDC"}
+
+
+# Daily summary implementation; weekly/CFTC helpers below are no longer emitted on the homepage.
+from daily_summary import overview
+
+
+def cot_line(pos):
+    """期貨持倉 in one sentence: this week's and four weeks' biggest changes (scaled by each series' own weekly swing,
+    core macro markets only) and any clear turn from a deep extreme (build_data.positioning_reads)."""
+    hold = lambda p, w: "資產管理機構" if w == "am" else ("槓桿基金" if p["has_am"] else "管理資金")
+    legs = [(p, w) for p in pos for w in ("lev", "am") if p.get("core", True) and p.get(w + "_z1") is not None]
+    wk = sorted(legs, key=lambda t: -abs(t[0][t[1] + "_z1"]))[:2]
+    m4 = [t for t in sorted(legs, key=lambda t: -abs(t[0][t[1] + "_z4"] or 0)) if t not in wk][:2]
+    nm = lambda t: f"{t[0]['name'].removesuffix('期貨')}（{hold(*t)}）"
+    side = lambda v: "long" if v > 0 else "short"
+    line = (f"* 期貨持倉｜每週，截至 {md(pos[0]['date'])}：本週淨持倉變化最大是"
+            + "及".join(f"{nm(t)} {sg(t[0][t[1] + '_chg_1w'])} 點" for t in wk) + "；四週累計，"
+            + "、".join(f"{nm(t)}偏向 {side(t[0][t[1] + '_chg_4w'])}（{sg(t[0][t[1] + '_chg_4w'])} 點）" for t in m4) + "。")
+    turns = [(p, w) for p in pos for w in ("lev", "am") if p.get(w + "_turn")]
+    if turns:
+        line += "持倉開始轉向：" + "、".join(
+            f"{nm(t)}由三年{'高' if t[0][t[1] + '_turn']['from'] == 'high' else '低'}位{'回落' if t[0][t[1] + '_turn']['from'] == 'high' else '回升'}"
+            for t in turns) + "。"
+    return line
+
+
+QNAME = {"leading": "領先", "improving": "改善", "weakening": "轉弱", "lagging": "落後"}
+TURN = {"confirmed": "確認", "early": "初步", "unconfirmed": "未確認"}
+
+
+def fw_state(r, leader):
+    """The board's weekly state (index.html fwState) on the last completed week's fields (_fw): entry, watch, hold,
+    noadd, warn, exit, weak or lag. Exit signals (rulebook §10a step 6): weakening with the RS-ratio down two weeks, or
+    a drop into lagging; for a leader only a one-week drop from leading into lagging at −8% or worse vs the S&P 500."""
+    q, q1, chg = r["q_fw"], r.get("q1_fw"), r.get("chg_fw") or 0
+    if (q == "weakening" and chg < 0 and (r.get("chg_prev_fw") or 0) < 0) or (q == "lagging" and q1 in ("weakening", "leading")):
+        if not leader:
+            return "exit"
+        return "exit" if q == "lagging" and q1 == "leading" and (r.get("relw_fw") or 0) <= -8 else "warn"
+    if q == "leading":
+        return "hold" if chg > 0 else "noadd"
+    if q == "improving":
+        return "entry" if r.get("turn_fw") == "confirmed" else "watch"
+    return "weak" if q == "weakening" else "lag"
+
+
+def rotation_weekly():
+    """板塊輪動 and 股票 lines from the last completed week only (user, 2026-10-15: weekly, updated on the Friday close;
+    rulebook §10a: weekday readings are previews, not signals). Same leaders and states as the board's leaders card
+    (index.html leaderPool / fwState): AI baskets top three by 26-week strength plus new entrants, S&P sectors top two."""
+    groups = json.load(open(DATA / "sectors.json"))
+    stocks = json.load(open(DATA / "stocks.json"))
+    week = groups[0]["week_fw"]
+
+    def glabel(g):
+        st = fw_state(g, False)
+        if st in ("entry", "watch"):
+            return f"改善（{TURN.get(g.get('turn_fw'), '未確認')}）"
+        return {"hold": "領先", "noadd": "領先（強度回落）", "exit": "出場", "warn": "轉弱", "weak": "轉弱", "lag": "落後"}[st]
+
+    order = ["領先", "領先（強度回落）", "改善（確認）", "改善（初步）", "改善（未確認）", "轉弱", "落後", "出場"]
+
+    def by_state(gs):
+        b = {}
+        for g in gs:
+            b.setdefault(glabel(g), []).append(g["name"])
+        return "；".join(f"{k} {'、'.join(b[k])}" for k in order if k in b)
+
+    sec = [g for g in groups if g["group"] == "sector"]
+    ai = [g for g in groups if g["group"] == "ai"]
+    moved = [f"{g['name']} {QNAME[g['q1_fw']]} → {QNAME[g['q_fw']]}" for g in sec + ai
+             if g.get("q1_fw") and g["q1_fw"] != g["q_fw"]]
+    out = ["", f"板塊輪動（週線；週結 {md(week)}收市，只在週五收市後更新）：", "",
+           f"* 標普板塊：{by_state(sec)}。",
+           f"* 比上週：{'；'.join(moved) if moved else '象限沒有變化'}。",
+           f"* AI 子板塊：{by_state(ai)}。"]
+
+    # leaders, as index.html leaderPool(): a name in two groups is kept once (AI first)
+    strength = lambda r: r.get("rel26w_fw") if r.get("rel26w_fw") is not None else r.get("rel6m")
+    pool, seen = [], set()
+    for g in ai + sec:
+        if g["group"] == "ai":
+            ms = [x for x in stocks if g["ticker"] in (x.get("baskets") or "").split()]
+        else:
+            ms = [x for x in stocks if x.get("sector") == g["ticker"]]
+        ms = sorted([x for x in ms if strength(x) is not None], key=lambda x: -strength(x))
+        top = ms[:3] if g["group"] == "ai" else ms[:2]
+        new = [x for x in ms[3:] if (x.get("rel4w_fw") or 0) >= 15 and (x.get("chg_fw") or 0) > 0] if g["group"] == "ai" else []
+        for x, leader in [(x, True) for x in top] + [(x, False) for x in new]:
+            if x["ticker"] not in seen:
+                seen.add(x["ticker"])
+                pool.append((x, fw_state(x, leader)))
+
+    def names(state):
+        xs = []
+        for x, st in pool:
+            if st != state:
+                continue
+            notes = []
+            if state == "watch":
+                notes.append(TURN.get(x.get("turn_fw"), "未確認"))
+            if (x.get("chg_fw") or 0) >= 5 and (x.get("relw_fw") or 0) >= 8:
+                notes.append("急升")
+            if x["q_fw"] == "leading" and x.get("gap_fw") is not None and x["gap_fw"] < 8:
+                notes.append("重返，新注碼減半")
+            xs.append(x["ticker"] + (f"（{'，'.join(notes)}）" if notes else ""))
+        return "、".join(xs) or "無"
+
+    out += ["", "股票（龍頭名單；規則讀數，不是建議）：", "",
+            f"* 入場候選（改善＋確認）：{names('entry')}。",
+            f"* 觀察（改善但未確認）：{names('watch')}。",
+            f"* 持有（領先、強度上升）：{names('hold')}。",
+            f"* 不加注（領先、強度回落）：{names('noadd')}。",
+            f"* 轉弱守止蝕：{names('warn')}。",
+            f"* 出場訊號：{names('exit')}。"]
+    return out
+
+
 def main():
-    gaps = []
-    members = sorted({m for _, ms in AI_BASKETS.values() for m in ms})
-    us = closes(["SPY", "RSP", "^SOX", "^VIX", *[t for t, _, _ in INDEXES], *SECTORS, *[t for t, _ in THEMES], *members, *CROSS])
-    spy = us["SPY"].dropna()
-    now_et = pd.Timestamp.now(tz="America/New_York")
-    if spy.index[-1].date() == now_et.date() and (now_et.hour, now_et.minute) < (16, 30):
-        spy = spy.iloc[:-1]  # the session isn't closed yet
-    d, d0 = spy.index[-1], spy.index[-2]
-    pct = lambda t: (us[t][d] / us[t][d0] - 1) * 100 if t in us and pd.notna(us[t].get(d)) and pd.notna(us[t].get(d0)) else None
-    spy_r = pct("SPY")
-    rel = lambda t: None if pct(t) is None else pct(t) - spy_r
-    out = [f"（美股收市 {d.date()}，對比 {d0.date()}）", "", "指數："]
-
-    idx = []
-    for t, name, level in INDEXES:
-        idx.append(f"{name} {us[t][d]:,.0f}（{sg(pct(t), 2)}%）" if level else f"{name} {sg(pct(t), 2)}%")
-    out.append("* " + "、".join(idx) + "。")
-    vix, vix0 = us["^VIX"][d], us["^VIX"][d0]
-    out.append(f"* 等權 RSP {sg(pct('RSP'), 2)}%，費城半導體指數 {sg(pct('^SOX'), 2)}%，VIX {vix:.2f}（{sg(vix - vix0, 2)}）。")
-
-    out += ["", "板塊相對標普（百分點）："]
-    sec = sorted(SECTORS.items(), key=lambda kv: -(rel(kv[0]) or -99))
-    out.append("* " + "、".join(f"{n} {sg(rel(t))}" for t, n in sec) + "。")
-    out.append("* 主題和風格：" + "、".join(f"{n} {sg(rel(t))}" for t, n in THEMES) + "。")
-
-    out += ["", "AI 籃子相對標普（百分點）："]
-    ai = []
-    for b, (_, ms) in AI_BASKETS.items():
-        rs = [pct(m) for m in ms if pct(m) is not None]
-        missing = [m for m in ms if pct(m) is None]
-        if missing:
-            gaps.append(f"{AI_NAMES[b]} 缺 {' '.join(missing)}")
-        ai.append((AI_NAMES[b], sum(rs) / len(rs) - spy_r if rs else None))
-    ai.sort(key=lambda x: -(x[1] if x[1] is not None else -99))
-    out.append("* " + "、".join(f"{n} {sg(v)}" for n, v in ai[:6]) + "。")
-    out.append("* " + "、".join(f"{n} {sg(v)}" for n, v in ai[6:]) + "。")
-
-    # cross-asset: futures, FX and bitcoin trade on other calendars; take the last bar on or before each session date
-    def at(t):
-        s = us[t].dropna() if t in us else pd.Series(dtype=float)
-        a, b = s.loc[:d], s.loc[:d0]
-        if a.empty or b.empty:
-            gaps.append(f"{t} 無數據")
-            return None, None, ""
-        note = "" if (a.index[-1] == d and b.index[-1] == d0) else f"（{a.index[-1].date()} 對比 {b.index[-1].date()}）"
-        return a.iloc[-1], (a.iloc[-1] / b.iloc[-1] - 1) * 100, note
-    x = {t: at(t) for t in CROSS}
-    same_day = datetime.now().date() == d.date()
-    h = at_us_close(AT_CLOSE, period="1mo")
-    for t in AT_CLOSE:
-        s = h[t].dropna() if t in h else pd.Series(dtype=float)
-        if d in s.index and d0 in s.index:
-            x[t] = (s[d], (s[d] / s[d0] - 1) * 100, "")
-        else:
-            x[t] = (None, None, "")
-            gaps.append(f"{t} 無 {d.date()} 美股收市時的報價")
-    v = lambda t, f: "—" if x[t][0] is None else f.format(x[t][0])
-    c = lambda t: sg(x[t][1])
-    out += ["", "跨資產："]
-    out.append(f"* 油：Brent {v('BZ=F', '${:.2f}')}（{c('BZ=F')}%），WTI {v('CL=F', '${:.2f}')}（{c('CL=F')}%）。")
-    out.append(f"* 金 {c('GC=F')}%，銅 {c('HG=F')}%，比特幣 {c('BTC-USD')}%。")
-    out.append(f"* 美匯指數 {v('DX-Y.NYB', '{:.2f}')}（{sg(x['DX-Y.NYB'][1], 2)}%），美元兌日圓 {v('JPY=X', '{:.2f}')}，"
-               f"歐元兌美元 {v('EURUSD=X', '{:.4f}')}，美元兌離岸人民幣 {v('CNH=X', '{:.2f}')}。")
-    for t in CROSS:
-        if x[t][2]:
-            gaps.append(f"{t} 日期不同步 {x[t][2]}")
-    try:
-        rt = json.load(open(DATA / "rates_now.json"))[0]
-        when = "" if rt["date"] == str(d.date()) else f"（{md(rt['date'])}數字）"
-        out.append(f"* 美債：10年期 {rt['nominal10']:.2f}%（{sg(rt.get('nominal10_1d'), 0)} 基點）、2年期 {rt['nominal2']:.2f}%"
-                   f"（{sg(rt.get('nominal2_1d'), 0)} 基點）{when}；高收益債息差 {rt['hy_oas']:.2f}%（{md(rt['hy_date'])}）；"
-                   f"投資級債息差 {rt['ig_oas']:.2f}%（一年 {sg(rt.get('ig_oas_1y'), 0)} 基點），"
-                   f"投資級債收益率 {rt['ig_yield']:.2f}%（三年第 {rt['ig_yield_pctile']:.0f} 百分位）。")
-    except (OSError, KeyError, IndexError):
-        gaps.append("rates_now.json 讀取失敗")
-
-    # global: a market with no bar on the US session date was shut (holiday) or Yahoo has a gap; the task checks which
-    gl = closes([t for t, _ in GLOBAL])
-    g = {}
-    for t, name in GLOBAL:
-        s = gl[t].dropna() if t in gl else pd.Series(dtype=float)
-        s = s.loc[:d]
-        if s.empty or s.index[-1] != d or len(s) < 2:
-            g[t] = None
-            gaps.append(f"{name} 無 {d.date()} 數據（最後 {s.index[-1].date() if not s.empty else '—'}）：假期或 Yahoo 缺數")
-        else:
-            g[t] = (s.iloc[-1] / s.iloc[-2] - 1) * 100
-    for t, name, follow in QUOTE_ONLY:
-        g[t] = None
-        if g.get(follow) is None:
-            continue
-        if not same_day:
-            gaps.append(f"{name}：只有即時報價，非收市當晚執行，需核實")
-            continue
-        try:
-            fi = yf.Ticker(t).fast_info
-            g[t] = (fi["lastPrice"] / fi["previousClose"] - 1) * 100
-        except Exception:
-            gaps.append(f"{name} 報價失敗")
-    p = lambda t: "休市或缺數" if g.get(t) is None else f"{sg(g[t], 2)}%"
-    out += ["", "環球："]
-    out.append(f"* 日經 {p('^N225')}，KOSPI {p('^KS11')}，Kosdaq {p('^KQ11')}；台股 {p('^TWII')}。")
-    out.append(f"* 恒指 {p('^HSI')}，恒生科技 {p('HSTECH.HK')}；CSI 300 {p('000300.SS')}。")
-    out.append(f"* Stoxx 600 {p('^STOXX')}，ASML {p('ASML.AS')}。")
-
-    try:
-        b = json.load(open(DATA / "breadth_now.json"))[0]
-        when = "" if b["asof"] == str(d.date()) else f"（看板數據 {b['asof']}）"
-        out += ["", "看板讀數（另加頁首的「大環境」及 thrust 行）：",
-                f"* 高於 50 天線的成分股 {b['pct50']:.1f}%（{sg(b['pct50'] - b['pct50_1d'])}）；麥克連 {sg(b['mcclellan'], 0)}{when}。"]
-    except (OSError, KeyError, IndexError):
-        gaps.append("breadth_now.json 讀取失敗")
-    try:
-        line = ig_watch_line(json.load(open(DATA / "rates_now.json"))[0])
-        if line:
-            out.append(f"* {line}")
-    except (OSError, KeyError, IndexError):
-        gaps.append("投資級債息差觀察讀取失敗")
-
-    # systematic-flow models (持倉與利率 tab) and COT extremes: model estimates and weekly filings, numbers only
-    lv = lambda v: "—" if v is None else f"{v:,.0f}"  # an index level, or a dash when the model has none
-    try:
-        f = json.load(open(DATA / "flowmodel_now.json"))[0]
-        if f["date"] != str(d.date()):
-            gaps.append(f"資金流向模型是 {f['date']} 的數據")
-        if f.get("vix_date") and f["vix_date"] != str(d.date()):
-            gaps.append(f"VIX 期限結構是 {f['vix_date']} 的數據")
-        out += ["", "持倉與流向（模型估算）："]
-        fl = (f.get("cta_flips") or [{}])[0]
-        flat = f.get("cta_flat") or {}
-        out.append(f"* CTA 模型 {sg(f['cta'], 0)}（一日 {sg(f['cta_1d'])}、五日 {sg(f['cta_5d'])}）；1個月趨勢轉負位 "
-                   f"{lv(fl.get('level'))}（{sg(fl.get('dist'))}%）"
-                   + (f"，整體轉平 {lv(flat.get('level'))}（{sg(flat.get('dist'))}%）" if flat else "") + "。")
-        out.append(f"* Vol control 為上限的 {f['vc']:.0f}%（五日 {sg(f['vc_5d'])}、一個月 {sg(f['vc_21d'])}）；"
-                   f"實現波幅 1個月 {f['rv1']:.1f}%、3個月 {f['rv3']:.1f}%。")
-        short = {"us": "美", "de": "德", "uk": "英", "jp": "日"}
-        out.append("* CTA 國債信號：" + "、".join(f"{short[b['key']]} {sg(b['signal'], 2)}" for b in f["bonds"])
-                   + f"；VIX/VIX3M {f['vix_ratio']:.2f}，SKEW {f['skew']:.1f}。")
-    except (OSError, KeyError, IndexError, TypeError, ValueError):
-        gaps.append("flowmodel_now.json 讀取失敗")
-    try:
-        pos = json.load(open(DATA / "positioning_now.json"))
-        ext = [f"{p['name']}{'資產管理' if w == 'am' else ('槓桿基金' if p['has_am'] else '管理資金')} {sg(p[w + '_z'])}"
-               for p in pos for w in ("am", "lev") if p.get(w + "_z") is not None and abs(p[w + "_z"]) >= 2]
-        out.append(f"* COT 52週 z 達 ±2（截至 {md(pos[0]['date'])}）：" + ("、".join(ext) if ext else "無") + "。")
-    except (OSError, KeyError, IndexError):
-        gaps.append("positioning_now.json 讀取失敗")
-
-    if gaps:
-        out += ["", "缺數或要核實（不要放入摘要，先處理）："] + [f"- {s}" for s in gaps]
-    print("\n".join(out))
+    from daily_summary import build
+    print(build())
+    print("\n缺數或要核實（不要放入摘要，先處理）：")
+    print("- 大市取態須使用同一收市快照的既有風險模型；不可把單日改善稱為已確認轉強。")
+    print("- 檢查AI融資壓力資料；只有新的可核對CDS／指定債券息差才更新結論及圖表，缺報價仍未確認。")
+    print("- 保留三個圖表標記；每日重寫市場含意，移除環球、EWY/EWT、CFTC、週線清單及個股交易標籤。")
+    print("- 日期須逐項核對；未完成交易日不能當收市，舊報價不能當連續改善。")
 
 
 if __name__ == "__main__":

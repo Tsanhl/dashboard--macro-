@@ -15,6 +15,7 @@ private 大環境 line and without the user's held and picked tickers in the 業
 A missing data file is left out with a warning; the page then shows 未能載入 for that dataset.
 """
 import json
+import re
 import shutil
 from pathlib import Path
 
@@ -25,8 +26,14 @@ HOLDINGS = ROOT.parent / "holdings.json"  # {"updated": ..., "held": [tickers], 
 PUBLIC_SUMMARY = ROOT / "summary.md"  # the cleaned public copy; first line "session: <date>", then the summary
 DATASETS = ["sectors", "rrg_tails", "ratios", "ratio_summary", "breadth", "breadth_now", "macro", "global",
             "positioning", "positioning_now", "rates", "rates_now", "liquidity", "stocks", "stock_tails",
-            "flowmodel", "flowmodel_now"]
-CREDIT = ["hy_oas", "ig_oas", "ig_yield"]  # ICE BofA levels: percentiles and changes only on the public site
+            "flowmodel", "flowmodel_now", "alerts", "steps", "rrg_daily", "check_prices"]
+# summary sections the public copy leaves out (local only, user 2026-10-15): the 總結 overview, the lamps, the AI layers,
+# the weekly rotation and leader lists (trading lines are private, like the board's 輪動操作)
+LOCAL_SECTIONS = ("總結", "警報燈：", "五步讀盤：", "AI 周期分層（價格）：", "板塊輪動（", "股票（龍頭名單")
+LOCAL_ONLY = {"steps", "ai_layers", "check_prices", "borrower_credit"}
+BORROWER_CREDIT = ROOT.parent / "board_evidence" / "borrower_credit.json"
+AI_LAYERS = ROOT.parent / "ai_cycle_watch" / "data"  # track.py's latest.json and history.json (local board only)
+CREDIT = ["hy_oas", "ig_oas", "ig_yield", "ccc_oas", "bb_oas"]  # ICE BofA levels: percentiles and changes only on the public site
 
 
 def load(name):
@@ -57,17 +64,34 @@ def write_public_summary():
         return
     h = json.loads(HOLDINGS.read_text()) if HOLDINGS.is_file() else {}
     own = {t.upper() for t in h.get("held", []) + h.get("picks", [])}
-    out = []
-    for line in rows[0]["text"].split("\n"):
+    text = rows[0]["text"]
+    # the 總結 has its own sub-headings (取態：, 推手：, ...), so drop everything above its 「---」 divider in one go
+    if text.lstrip().startswith("總結") and "\n---\n" in text:
+        text = text.split("\n---\n", 1)[1].lstrip("\n")
+    out, skip = [], False
+    for line in text.split("\n"):
         body = line.lstrip(" *•-")
-        if body.startswith("大環境："):
+        # a heading or one-line label (「警報燈：」, 「假期：…」) opens a section; the local ones are left out, and so is
+        # the divider under the 總結
+        if line and not line.startswith((" ", "*", "•", "-")):
+            skip = line.startswith(LOCAL_SECTIONS)
+        if skip or line.strip() == "---" or body.startswith(("大環境：", "警報燈轉變：")):
             continue
         if body.startswith("業績："):
-            names = [n for n in body[len("業績："):].rstrip("。").split("、") if n.strip().upper() not in own]
+            # A ticker followed by a date/comment is still private, not just an exact bare-token match.
+            names = [n for n in body[len("業績："):].rstrip("。").split("、")
+                     if not any(re.search(r"(?<![A-Z0-9])" + re.escape(t) + r"(?![A-Z0-9])", n.upper()) for t in own)]
             if not names:
                 continue
             line = line[: len(line) - len(body)] + "業績：" + "、".join(names) + ("。" if body.endswith("。") else "")
-        out.append(line)
+        # The daily detail now includes raw CTA trigger prices and SKEW. The public copy retains
+        # changes/ratios, consistent with public_data(), never the raw index levels.
+        if body.startswith("CTA 今日"):
+            line = line.split("；一個月趨勢轉負參考", 1)[0].rstrip("。") + "。"
+        if body.startswith("VIX／VIX3M"):
+            line = re.sub(r"、SKEW [^（\n]+", "", line)
+        if line.strip() or (out and out[-1].strip()):  # one blank line where a dropped section was
+            out.append(line)
     PUBLIC_SUMMARY.write_text(f"session: {rows[0]['session']}\n" + "\n".join(out))
     print(f"summary.md written for {rows[0]['session']}")
 
@@ -86,7 +110,14 @@ def holdings():
     if not HOLDINGS.is_file():
         return None
     h = json.loads(HOLDINGS.read_text())
-    return ([{"ticker": t, "kind": "held"} for t in h.get("held", [])]
+    # long-term core = a name in the long-term tracker (company_tracking/active_registry.json): the AI stage tab shows
+    # it a price-risk note and leaves exits to the company card instead of weekly trading labels (user, 2026-10-15)
+    reg = ROOT.parent / "company_tracking" / "active_registry.json"
+    core = set()
+    if reg.is_file():
+        for c in json.loads(reg.read_text()).get("companies", []):
+            core |= {str(a).upper() for a in [c.get("id", "")] + c.get("aliases", [])}
+    return ([{"ticker": t, "kind": "held", "core": t.upper() in core} for t in h.get("held", [])]
             + [{"ticker": t, "kind": "pick"} for t in h.get("picks", [])])
 
 
@@ -105,6 +136,13 @@ def public_data():
             f.pop(k, None)
         for x in f.get("cta_flips", []) + [f.get("cta_flat") or {}]:
             x.pop("level", None)
+    for k in LOCAL_ONLY:
+        out.pop(k, None)
+    # alert lamps: the public site shows the lamps only (no readings, no ICE BofA levels)
+    for row in out.get("alerts", []):
+        for k in list(row):
+            if k not in ("id", "name", "name_en", "kind", "on", "change", "since", "asof"):
+                row.pop(k)
     rates = out.get("rates", [])
     now = (out.get("rates_now") or [{}])[0]
     for k in CREDIT:
@@ -228,6 +266,17 @@ def main(private=False):
         shutil.rmtree(SITE)
     (SITE / "data").mkdir(parents=True)
     data = load_all() if private else public_data()
+    if private:
+        data["borrower_credit"] = [json.loads(BORROWER_CREDIT.read_text())] if BORROWER_CREDIT.is_file() else [{"issuers": []}]
+        from daily_summary import reference_reading
+        asof = (data.get("breadth") or [{}])[-1].get("date", "")
+        for issuer in data["borrower_credit"][0].get("issuers", []):
+            issuer["reference_display"] = reference_reading(issuer, asof)
+    if private and (AI_LAYERS / "latest.json").is_file():
+        lt = json.loads((AI_LAYERS / "latest.json").read_text())
+        hist = json.loads((AI_LAYERS / "history.json").read_text()) if (AI_LAYERS / "history.json").is_file() else []
+        lt["history_start"] = hist[0]["asof"] if hist else None
+        data["ai_layers"] = [lt]
     summary = latest_summary() if private else public_summary()
     held = holdings() if private else None
     if summary:
@@ -237,11 +286,16 @@ def main(private=False):
     for name, rows in data.items():
         (SITE / "data" / f"{name}.json").write_text(json.dumps(rows, ensure_ascii=False, separators=(",", ":")))
     # the page asks for every dataset, so a missing file shows as 未能載入 rather than loading forever
-    ids = list(dict.fromkeys(DATASETS + list(data)))
+    ids = [i for i in dict.fromkeys(DATASETS + list(data)) if private or i not in LOCAL_ONLY]
     body = (ROOT / "index.html").read_text()
     page = (PAGE.replace("__TOKENS__", TOKENS)
                 .replace("__SHIM__", SHIM.replace("__DATASETS__", json.dumps(ids)).replace("__PUBLIC__", "false" if private else "true"))
                 .replace("__BODY__", body))
+    if private:
+        page = page.replace("逢星期二至星期六更新；此公開版本不顯示原始價格及指數水平，亦不顯示 ICE BofA 信貸息差數值。",
+                            "按已完成交易日更新；此為本地完整資料版本，各來源實際觀察日期見摘要及圖表。")
+        page = page.replace("refreshed Tuesday to Saturday; this public version omits raw price and index levels and ICE BofA spread levels.",
+                            "updated after completed sessions; this is the full local version. Source observation dates are shown in the summary and charts.")
     (SITE / "index.html").write_text(page)
     (SITE / ".nojekyll").write_text("")
     print(f"{SITE.name}/ built:", len(data), "data files" + (f", summary {summary[0]['session']}" if summary else "")

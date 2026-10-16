@@ -4,6 +4,25 @@
 .rb-titlerow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--cds-gap-md); }
 .rb-title { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); margin: 0; text-wrap: balance; }
 .rb-take { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.65; max-width: 90ch; min-height: 8rem; color: var(--color-fg); }
+.rb-alerts { margin: 12px 0 0; padding: 10px 12px; border: 1px solid var(--cds-border-subtle, rgba(128,128,128,.35)); border-radius: 8px; max-width: 90ch; font-size: var(--cds-font-size-body); line-height: 1.6; }
+.rb-alerts .rb-alhead { font-weight: var(--cds-font-weight-medium); margin-bottom: 4px; }
+.rb-alerts .rb-alline { margin: 2px 0; }
+.rb-alerts .rb-alnew { font-weight: var(--cds-font-weight-medium); margin-left: 6px; }
+.rb-alerts .rb-alicon { display: inline-block; margin-right: 6px; }
+.rb-alerts details { margin-top: 6px; color: var(--cds-text-secondary); font-size: 0.92em; }
+.rb-simple > .rb-stline { margin-top: 3px; line-height: 1.6; }
+.rb-stchg .rb-out, .rb-stage .rb-out { color: var(--color-bad); } .rb-stchg .rb-in, .rb-stage .rb-in, #stage-table .rb-in { color: var(--color-ok); } #stage-table .rb-out { color: var(--color-bad); }
+.rb-stchg { margin: 6px 0 10px; padding: 8px 10px; border: 1px solid var(--color-border-line); border-radius: 8px; display: grid; gap: 4px; }
+.rb-sumrule { border: 0; border-top: 1px solid var(--color-border-line); margin: 10px 0; }
+.rb-steps details.rb-step { margin: 3px 0; color: var(--color-fg); font-size: 1em; }
+.rb-steps details.rb-step > summary { cursor: pointer; list-style: none; }
+.rb-steps details.rb-step > summary::-webkit-details-marker { display: none; }
+.rb-steps .rb-stq { font-weight: var(--cds-font-weight-medium); }
+.rb-steps .rb-sttag { display: inline-block; margin: 0 6px; padding: 0 6px; border-radius: 4px; border: 1px solid currentColor; font-size: 0.9em; }
+.rb-steps .t-bad { color: var(--color-bad); } .rb-steps .t-good { color: var(--color-ok); } .rb-steps .t-mix { color: var(--color-warn); }
+.rb-steps .rb-stfacts { margin: 2px 0 0 1.6em; }
+.rb-steps .rb-stlook { white-space: pre-line; }
+.rb-steps .rb-stlook { margin: 2px 0 6px 1.6em; color: var(--color-fg-muted); font-size: 0.92em; }
 .rb-bullets { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
 .rb-bullets > li > b { display: block; font-weight: var(--cds-font-weight-medium); color: var(--color-fg); }
 .rb-bullets .rb-in { color: var(--color-ok); } .rb-bullets .rb-out { color: var(--color-bad); }
@@ -13,6 +32,17 @@
 .rb-sum b { font-weight: var(--cds-font-weight-medium); }
 .rb-sum ul { margin: 2px 0 0; padding-inline-start: 1.3em; list-style: disc; }
 .rb-sum ul ul { margin: 0; list-style: circle; }
+.rb-sum details { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--color-border-line); border-radius: 8px; background: var(--color-panel); }
+.rb-sum details > summary { cursor: pointer; font-weight: 600; }
+.rb-sum .rb-daily-detail:not(details) { margin-top: 16px; }
+.rb-check-body { display: grid; gap: 12px; padding-top: 10px; }
+.rb-check-body:empty { padding: 0; }
+.rb-check-note { color: var(--color-fg-muted); font-size: .88em; }
+.rb-check-chart { min-width: 0; width: 100%; }
+.rb-check-chart svg { display: block; }
+.rb-check-empty { border-left: 3px solid var(--color-warn); padding: 8px 12px; }
+.rb-check-legend { display: flex; flex-wrap: wrap; gap: 14px; font-size: .88em; margin-bottom: 6px; }
+.rb-check-legend span::before { content: ''; display: inline-block; width: 16px; height: 3px; background: var(--line-color); vertical-align: middle; margin-right: 6px; }
 .rb-take-line { margin: 0; font-size: var(--cds-font-size-body); line-height: 1.5; }
 .rb-take-line b { font-weight: var(--cds-font-weight-medium); }
 .rb-mini { border-collapse: collapse; font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; width: auto; max-width: 100%; }
@@ -46,7 +76,7 @@
 .rb-tval { font-family: var(--font-anthropic-serif); font-weight: 400; font-size: var(--cds-font-size-title); font-variant-numeric: tabular-nums; line-height: 1.15; min-height: 1.15em; }
 .rb-tunit { font-size: var(--cds-font-size-body); color: var(--color-fg-muted); margin-inline-start: 2px; }
 .rb-tchg { font-size: var(--cds-font-size-caption); font-variant-numeric: tabular-nums; color: var(--color-fg-muted); }
-.rb-up { color: var(--color-ok); } .rb-down { color: var(--color-bad); }
+.rb-up { color: var(--color-ok); } .rb-down { color: var(--color-bad); } .rb-warn { color: var(--color-warn); }
 .rb-chip { display: inline-flex; align-items: center; gap: 4px; font-size: var(--cds-font-size-caption); border-radius: 999px; padding: 1px 8px; border: 1px solid currentColor; white-space: nowrap; }
 .rb-chip.up { color: var(--color-ok); } .rb-chip.down { color: var(--color-bad); } .rb-chip.turn_up { color: var(--color-ok); border-style: dashed; } .rb-chip.turn_down { color: var(--color-warn); border-style: dashed; }
 .rb-q { font-size: var(--cds-font-size-caption); white-space: nowrap; }
@@ -150,7 +180,8 @@
       </div>
     </div>
     <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows ai_flows positioning_now rates_now breadth_now sectors global stocks"></div>
-    <p class="rb-asof"><span data-en="Data: prices">數據：股價</span> <span data-source="breadth_now" data-field="asof" data-row="0">—</span> <span id="asof-yield-src">· 美債</span> <span data-source="rates_now" data-field="date" data-row="0">—</span> <span data-en="· credit spreads (FRED, a day behind)">· 信貸息差（FRED，遲一日）</span> <span data-source="rates_now" data-field="hy_date" data-row="0">—</span> <span data-en="· futures positioning (weekly)">· 期貨持倉（每週）</span> <span data-source="positioning_now" data-field="date" data-row="0">—</span> <span data-en="· breadth from">· 市寬按</span> <span data-source="breadth_now" data-field="members" data-row="0">—</span> <span data-en="S&amp;P 500 members">隻標普500成分股</span></p>
+    <div class="rb-alerts dash-skeleton" id="alerts" data-source="alerts"></div>
+    <p class="rb-asof"><span data-en="Data: prices">數據：股價</span> <span data-source="breadth_now" data-field="asof" data-row="0">—</span> <span id="asof-yield-src">· 美債</span> <span data-source="rates_now" data-field="date" data-row="0">—</span> <span data-en="· credit spreads (FRED)">· 信貸息差（FRED）</span> <span data-source="rates_now" data-field="hy_date" data-row="0">—</span> <span id="asof-weekly"><span data-en="· futures positioning (weekly)">· 期貨持倉（每週）</span> <span data-source="positioning_now" data-field="date" data-row="0">—</span></span> <span data-en="· breadth from">· 市寬按</span> <span data-source="breadth_now" data-field="members" data-row="0">—</span> <span data-en="S&amp;P 500 members">隻標普500成分股</span></p>
     <nav class="rb-tabs" role="tablist" aria-label="頁面" data-en-aria="Pages">
       <button type="button" role="tab" id="tab-overview" data-page="overview" aria-selected="true" data-en="Overview">總覽</button>
       <button type="button" role="tab" id="tab-rotation" data-page="rotation" aria-selected="false" data-en="Rotation">板塊輪動</button>
@@ -196,6 +227,12 @@
       </div>
     </div>
 
+    <div class="rb-card" id="card-soxb" style="margin-bottom: 14px">
+      <h2 class="rb-h2" data-en="Semis breadth: SOX members below the 50-day line">半導體市寬：費城半導體成分股低於 50 天線</h2>
+      <p class="rb-sub" data-en="Members of the Philadelphia Semiconductor Index below their 50-day average. 24 of 30 (80%) is often called a flush. Since 2010 (35 times): SOX median +4.6% over the next 20 sessions (up 66%, against +2.2% and 62% on any day), but a further fall of 4.4% at the median first, worst −29% (2020). A mild edge, not a bottom signal; members are today's list, so the test flatters survivors.">費城半導體指數成分股中，收市低於 50 天線的數目。30 隻中 24 隻（80%）常被視為「出清」。2010 年起 35 次：其後 20 日 SOX 中位數 +4.6%（上升 66%，一般日子 +2.2%、62%），但期間先再跌，中位數 −4.4%，最差 −29%（2020 年）。屬輕微優勢，不是見底訊號；成分股用現時名單，回測偏向倖存者。</p>
+      <p class="rb-take-line" id="soxb-line" data-source="breadth"></p>
+      <div class="rb-chart dash-skeleton" id="ch-soxb" data-source="breadth" style="min-height: 12rem"></div>
+    </div>
     <div class="rb-section" id="ratio-section">
       <div>
         <h2 class="rb-h2" data-en="Rotation ratio lines">輪動訊號比率線</h2>
@@ -208,7 +245,7 @@
   <section class="rb-page" id="rotation" role="tabpanel" aria-labelledby="tab-rotation" hidden>
     <div class="rb-controls">
       <div class="rb-seg" role="group" aria-label="範圍" data-en-aria="Universe">
-        <button type="button" class="rb-grp" data-grp="sector" aria-pressed="true" data-en="11 sectors">11個板塊</button>
+        <button type="button" class="rb-grp" data-grp="sector" aria-pressed="true" data-en="11 sectors + precious metals">11個板塊＋貴金屬</button>
         <button type="button" class="rb-grp" data-grp="theme" aria-pressed="false" data-en="Themes">主題</button>
         <button type="button" class="rb-grp" data-grp="style" aria-pressed="false" data-en="Styles &amp; factors">風格與因子</button>
         <button type="button" class="rb-grp" data-grp="ai" aria-pressed="false" data-en="AI chain">AI產業鏈</button>
@@ -217,6 +254,10 @@
       <div class="rb-seg" role="group" aria-label="基準" data-en-aria="Benchmark">
         <button type="button" class="rb-bench" data-bench="spy" aria-pressed="true" data-en="vs S&amp;P 500">對標普500</button>
         <button type="button" class="rb-bench" data-bench="smh" aria-pressed="false" data-en="vs semis">對半導體</button>
+      </div>
+      <div class="rb-seg" role="group" aria-label="頻率" data-en-aria="Frequency">
+        <button type="button" class="rb-freq" data-freq="w" aria-pressed="true" data-en="Weekly">週線</button>
+        <button type="button" class="rb-freq" data-freq="d" aria-pressed="false" data-en="Daily">日線</button>
       </div>
       <span class="rb-sub" data-en="Tail">軌跡</span>
       <div class="rb-seg" role="group" aria-label="軌跡長度" data-en-aria="Tail length">
@@ -242,7 +283,8 @@
         <h2 class="rb-h2" id="rrg-title" data-en="Relative rotation graph">相對輪動圖</h2>
         <p class="rb-sub" data-en="Across: relative strength (above 100 = outperforming). Up: momentum of that strength (above 100 = accelerating). Sectors usually turn clockwise: improving → leading → weakening → lagging. The dot is the latest week; the line is its path.">橫軸為相對強度（高於100代表跑贏），縱軸為相對強度的動量（高於100代表正在加速）。板塊通常順時針移動：改善 → 領先 → 轉弱 → 落後。圓點為最新一週，線為過去軌跡。</p>
       </div>
-      <div class="rb-chart dash-skeleton" id="rrg" data-source="sectors rrg_tails stocks stock_tails" style="min-height: 24rem"></div>
+      <p class="rb-take-line" id="rrg-freq-note" hidden data-en="Daily rotation: RS-ratio against its 20-session average, momentum against 5 sessions earlier. It turns earlier and more often than the weekly graph; the rotation rules (entries, exits) still use the completed week.">日線輪動：強度比率對 20 日平均，動量對 5 日前。比週線早轉向，亦較多假訊號；入場及出場規則仍按已完成的一週。</p>
+      <div class="rb-chart dash-skeleton" id="rrg" data-source="sectors rrg_tails rrg_daily stocks stock_tails" style="min-height: 24rem"></div>
       <p class="rb-sub" data-en="Each line is the item's path over the chosen weeks: small dots are past weeks, the hollow dot is where the path starts, the large dot is this week, and the arrow shows this week's direction. Hover a dot to bring its path forward and label each point with how many weeks ago it was; click to keep it highlighted, click again to clear. The scale fits every point shown; only a lone far-out point is cut at the frame.">每條線是該項在所選週數內的路線：小點是過去每週的位置，空心點是起點，大圓點是本週，箭頭是本週的移動方向。滑鼠移到圓點上，會突出該項的軌跡，並標出每一點是幾週前；點擊可固定突出，再點一次取消。圖的範圍會自動包含所有點，只有個別極端點才會在邊緣截斷。</p>
     </div>
     <div class="rb-card" id="ai-inside-card" hidden>
@@ -288,10 +330,18 @@
 
   <section class="rb-page" id="stage" role="tabpanel" aria-labelledby="tab-stage" hidden>
     <div class="rb-grid">
+      <div class="rb-card rb-wide rb-private" id="layers-card" hidden>
+        <div>
+          <h2 class="rb-h2" data-en="AI cycle layers (prices)">AI 周期分層（價格）</h2>
+          <p class="rb-sub" data-en="Equal-weight layers, listed from layer 1 to layer 5; the expected compression order is layer 5 (memory) first and layer 1 (power) last. 正常 shallower than −10% from the 52-week high; 回調 −10% to −20%; 壓縮 −20% or deeper and behind the S&amp;P over 13 weeks. Three states in all (today marks only the day's switch). Trial thresholds, untested. The ten fundamental signals are updated on Saturdays.">等權分層，由第一層到第五層排列；預期壓縮次序是第五層記憶體最先、第一層電力最後。正常＝距 52 週高位不足 −10%；回調＝−10% 至 −20%；壓縮＝−20% 或更深，而且 13 週跑輸標普。狀態共三種：正常、回調、壓縮（「今日轉」只標示當日轉變）。試用門檻，未回測。十項基本面訊號逢週六更新。</p>
+        </div>
+        <p class="rb-take-line" id="layers-line"></p>
+        <div class="rb-tablebox" style="max-height: none"><table class="rb-table" id="layers-table"></table></div>
+      </div>
       <div class="rb-card rb-wide" id="stage-card">
         <div>
           <h2 class="rb-h2" data-en="AI chain: how far each sub-sector has pulled back">AI產業鏈：各子板塊回調到哪裏</h2>
-          <p class="rb-sub"><span id="stage-asof"></span><span data-en=". Brackets: the sub-sector's rotation (↑ rising, ↓ falling, → flat). Numbers: % below the 60-day high. Definitions are on the How to read tab.">。括號＝子板塊輪動位置（↑ 強度上升、↓ 回落、→ 持平）；數字＝距60日高位。定義見「讀法」。</span></p>
+          <p class="rb-sub"><span id="stage-asof"></span><span data-en=". Daily columns use the latest close; weekly tags change only when a week completes.">。日線按最新收市；週線只在一週完成後才改。</span></p>
         </div>
         <div class="rb-simple" id="stage-simple"></div>
         <div class="rb-tablebox" style="max-height: none"><table class="rb-table rb-stage" id="stage-table"></table></div>
@@ -384,7 +434,12 @@
     <div class="rb-card" id="card-crowding">
       <div>
         <h2 class="rb-h2" data-en="Futures positioning: who is crowded">期貨持倉擁擠度</h2>
-        <p class="rb-sub" data-en="Net position (long minus short) as a share of open interest, from the CFTC weekly report. Percentile ranks this week against the past three years; 90 or above and 10 or below are marked as extremes. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs. For commodities the fund column is managed money. The 52-week z is how many standard deviations this week's net contracts sit from their one-year average; |z| of 2 or more is marked. Leveraged funds' big shorts in S&amp;P and Treasury futures are mostly basis trades (long cash, short futures), not bearish bets. Updated once a week (Friday release).">淨持倉（long 減 short）佔未平倉合約的百分比，來自美國商品期貨交易委員會（CFTC）每週報告。百分位為本週在過去三年的排位，90或以上、10或以下標記為極端。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問。商品一欄的基金為管理資金。52週 z 為本週淨合約數與過去一年平均相差多少個標準差，|z| 達2或以上會標示。槓桿基金在標普及美債期貨的大額 short 多屬基差交易（long 現貨、short 期貨），不代表看淡。每週更新一次（逢星期五公佈）。</p>
+        <p class="rb-sub" data-en="CFTC weekly report: Tuesday positions, published Friday, so this part changes once a week (the rest of the board updates daily). Figures are net position (long minus short) as a share of open interest.">CFTC 每週報告：週二持倉，週五公佈，所以這部分一週只變一次（看板其他部分每日更新）。數字為淨持倉（long 減 short）佔未平倉合約的百分比。</p>
+        <details class="rb-sub rb-posnote">
+          <summary data-en="Definitions and the turn rule">定義及轉向規則</summary>
+          <p data-en="Percentile: this week's rank over the past three years; 90+ or 10− is marked in the table. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs; for commodities the fund column is managed money. The 52-week z is how many standard deviations net contracts sit from their one-year average. Leveraged funds' big shorts in S&amp;P and Treasury futures are mostly basis trades (long cash, short futures), not bearish bets.">百分位：本週在過去三年的排位，表中 90 以上或 10 以下會標示。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問；商品一欄為管理資金。52週 z 為淨合約數與過去一年平均相差多少個標準差。槓桿基金在標普及美債期貨的大額 short 多屬基差交易（long 現貨、short 期貨），不代表看淡。</p>
+          <p data-en="The weekly line ranks moves against each series' own typical weekly change, so markets are comparable. A turn is shown only when all four hold: 2–4 weeks ago beyond the 3-year 5th/95th percentile; two straight weekly moves against it; the 2-week move at least 1.5 times the typical weekly change; the percentile now 20+ points off. Over the past year that marked about 40 turns across 62 series, under one a year per series.">每週一句按各自平日每週變化比較，所以不同市場可以相比。「開始轉向」只在四項同時成立時才顯示：2 至 4 週前處三年第 5 或第 95 百分位以外；連續兩週反向；兩週變化至少是平日每週變化的 1.5 倍；百分位已離開極端 20 點以上。過去一年 62 條序列共約 40 次，即每條序列不到一年一次。</p>
+        </details>
       </div>
       <div class="rb-take-line" id="crowd-summary" data-source="positioning_now"></div>
       <div class="rb-tablebox" style="max-height: none">
@@ -430,6 +485,12 @@
         <div class="rb-tablebox" style="max-height: none; border: 0"><table class="rb-mini" id="mini-credit"></table></div>
         <p class="rb-sub" id="credit-public-note" hidden data-en="This version shows the change in basis points since the start of the chosen range, and the latest reading as a three-year percentile.">此版本顯示自所選範圍起點以來的變化（基點），最新讀數以三年百分位表示。</p>
         <div class="rb-chart dash-skeleton" id="ch-credit" data-source="rates" style="min-height: 15rem"></div>
+      </div>
+      <div class="rb-card" id="card-cccbb">
+        <h2 class="rb-h2" data-en="Low-quality credit split: CCC minus BB">低質信用分化：CCC 減 BB</h2>
+        <p class="rb-sub" data-en="CCC is the lowest-rated, most leveraged high yield; BB is the best grade within high yield. When the gap between their spreads widens, lenders are pulling back from the weakest borrowers first; stress usually shows here before it reaches the high-yield index. Read how far it has widened from its low, not the level. FRED data, a day behind stocks.">CCC 是評級最低、槓桿最高的高收益債，BB 是高收益債中最好的一級。兩者息差的差距擴闊，代表債主先撤走最弱的借款人；壓力通常先在這裏出現，然後才到高收益債指數。看距低位擴闊多少，不看水平。FRED 數據，比股價遲一日。</p>
+        <p class="rb-take-line" id="cccbb-line" data-source="rates_now alerts"></p>
+        <div class="rb-chart dash-skeleton" id="ch-cccbb" data-source="rates" style="min-height: 13rem"></div>
       </div>
       <div class="rb-card" id="card-curve">
         <h2 class="rb-h2" data-en="10-year minus 2-year curve">10年減2年期收益率曲線</h2>
@@ -656,7 +717,7 @@
         <li data-en="Long means bought, making money if the price rises; short means sold, making money if it falls. Net long or net short is longs minus shorts, shown as a share of all open contracts. A big net short is often a hedge against stocks held, not a bet on a crash; what matters is when shorts start being bought back.">Long 即買入，價格上升時賺錢；short 即沽出，價格下跌時賺錢。淨 long／淨 short 為 long 減 short，以佔全部未平倉合約的百分比表示。淨 short 大，往往是對沖手上持有的股票，未必是押注大跌；要留意的是 short 開始回補的時候。</li>
         <li data-en="Asset managers are pension funds, insurers and mutual funds: slow, long-term money. Leveraged funds are hedge funds and CTAs: fast money that chases trends and can be forced to unwind. For commodities the fund line is managed money.">資產管理機構即退休基金、保險公司、互惠基金，屬慢錢、長線；槓桿基金即對沖基金及商品交易顧問，屬快錢，會追勢，也會被迫平倉。商品的基金一欄為管理資金。</li>
         <li data-en="Who added and who cut: one line per market. Positive means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal; a split means fast and slow money disagree.">持倉變化總覽：每個市場一行，正數為加 long 或減 short。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強；出現分歧，代表快錢與慢錢看法不同。</li>
-        <li data-en="Crowding table: the percentile ranks this week against three years; 90+ or 10− is extreme. An extreme is not a trade signal by itself; it tells you how violent the unwind would be if the story changes. A turn from an extreme matters more than the level.">擁擠度表：百分位為本週在三年內的排位，90以上或10以下為極端。極端本身不是買賣訊號，代表一旦故事改變，平倉會很猛烈；由極端位置開始轉向，比水平本身重要。</li>
+        <li data-en="Crowding table: the percentile ranks this week against three years; 90+ or 10− is extreme. An extreme is not a trade signal by itself; it tells you how violent the unwind would be if the story changes. A turn from an extreme matters more than the level; the card shows 「開始轉向」 only when a turn from a deep extreme is clear (rule under 定義及轉向規則).">擁擠度表：百分位為本週在三年內的排位，90以上或10以下為極端。極端本身不是買賣訊號，代表一旦故事改變，平倉會很猛烈；由極端位置開始轉向，比水平本身重要。卡片只在由深度極端清楚轉向時才顯示「開始轉向」（規則見「定義及轉向規則」）。</li>
       </ul>
       <div class="rb-tablebox" style="max-height: none">
         <table class="rb-cases">
@@ -863,7 +924,7 @@
   // dataset (rows of kind "pick"), which only the local board has; see privatePicks below
   const DEFAULT_PICKS = ['NVDA', 'MSFT', 'AAPL', 'GOOGL', 'AMZN', 'META', 'AVGO', 'TSM', 'ORCL', 'AMD', 'MU', 'ANET', 'VRT', 'CEG', 'PLTR', 'NFLX'];
   const MAX_PICKS = 16;
-  const state = { page: 'overview', grp: 'sector', tail: 6, mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', withSectors: false, rrgPin: null, bench: 'spy', picks: [...DEFAULT_PICKS], picksEdited: false, range: { breadth: '3m', positioning: '3m' } };
+  const state = { page: 'overview', grp: 'sector', tail: 6, freq: 'w', mode: 'rel', sort: { key: 'rel1m', dir: -1 }, shown: new Set(), market: '13874A', posWin: '1w', withSectors: false, rrgPin: null, bench: 'spy', picks: [...DEFAULT_PICKS], picksEdited: false, range: { breadth: '3m', positioning: '3m' } };
   const DAYS = { '1w': 8, '1m': 31, '3m': 92, '6m': 183, '1y': 366, '3y': 1100 };
   // rows (with .d Date) inside the tab's chosen range, counted back from the last row
   const windowed = (rows, tab) => { if (!rows.length) return rows; const cut = +rows.at(-1).d - DAYS[state.range[tab]] * 864e5; return rows.filter((r) => +r.d >= cut); };
@@ -934,7 +995,7 @@
   };
 
   // Line chart over dates. series: [{name, color, dash, values: [{d: Date, v}]}]
-  function lineChart(el, { series, height = 220, yFmt = fmt1, ref = null, tipFmt = yFmt, yDomain = null }) {
+  function lineChart(el, { series, height = 220, yFmt = fmt1, ref = null, tipFmt = yFmt, yDomain = null, xDomain = null }) {
     el.replaceChildren();
     const W = Math.max(el.clientWidth, 280), H = height, mt = 8, mb = 22;
     const all = series.flatMap((s) => s.values).filter((p) => p.v != null);
@@ -943,7 +1004,7 @@
     const y = d3.scaleLinear(yd, [H - mb, mt]).nice(4);
     const ticks = y.ticks(4);
     const ml = measure(svg, ticks.map(yFmt)) + 8;
-    const x = d3.scaleUtc(d3.extent(all, (p) => p.d), [ml, W - 6]);
+    const x = d3.scaleUtc(xDomain || d3.extent(all, (p) => p.d), [ml, W - 6]);
     svg.append('g').selectAll('line').data(ticks).join('line').attr('class', 'rb-gridline')
       .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
     svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em')
@@ -1118,6 +1179,10 @@
   // ★ = watch list (the private picks plus whatever is in 自選股), ● = held; no marks on the public site
   const OWN = () => new Set([...privatePicks(), ...state.picks]);
   const HELD = () => new Set(HOLDINGS_LIST());
+  // long-term core holdings (in the long-term tracker): exits follow the company card, not weekly trading labels
+  const CORE = () => {
+    try { const h = dash.data('holdings'); return new Set(h && h.status === 'ok' ? h.data.filter((r) => r.kind === 'held' && r.core).map((r) => r.ticker) : []); } catch (e) { return new Set(); }
+  };
   const posMark = (t) => (window.RB_PUBLIC ? '' : HELD().has(t) ? '●' : OWN().has(t) ? '★' : '');
   // Leaders (rulebook §10a step 3): AI baskets top three by 26-week RS plus new entrants (4 weeks >= +15% vs the
   // S&P 500, RS-ratio rising); S&P sectors top two. A name in two groups is kept once in the headline (AI first).
@@ -1293,7 +1358,7 @@
     };
     const wasOpen = box.querySelector('details')?.open || false;
     const det = mk('details'); det.open = wasOpen;
-    det.append(mk('summary', null, L('標普500的11個板塊（頭兩名）', 'The 11 S&P 500 sectors (top two)')), table(groups.filter((x) => x.group === 'sector'), false));
+    det.append(mk('summary', null, L('標普500的11個板塊（頭兩名）', 'The 11 S&P 500 sectors (top two)')), table(groups.filter((x) => x.group === 'sector' && x.ticker !== 'GDX'), false));
     box.replaceChildren(mk('h3', 'rb-h3', L('AI產業鏈子板塊', 'AI chain sub-sectors')), table(groups.filter((x) => x.group === 'ai'), true), det);
   }
 
@@ -1314,13 +1379,14 @@
     return 2;
   }
   // Back at the 60-day high within 12 weeks (rulebook §10a step 4b, R24), by stage and by the dip against the
-  // sub-sector's typical one (25-50%, 50-100%, 100-150%, 150%+): [2020-26 %, 2023-26 %, n 2020-26]. Rerun
+  // sub-sector's typical one (25-50%, 50-100%, 100-150%, 150%+): [2020-26 %, 2023-26 %, n 2020-26, 2020-26 median
+  // further fall from that Friday's close to the lowest close before the high (or within 12 weeks)]. Rerun
   // backtests/scripts/dip_odds_checks.py to refresh.
   const DIP_ODDS = {
-    1: [[71, 75, 253], [53, 59, 184], [57, 74, 65], [48, 71, 25]],
-    2: [[77, 79, 529], [59, 63, 279], [55, 73, 44], [44, 50, 9]],
-    3: [[71, 74, 400], [52, 55, 446], [34, 39, 263], [26, 37, 113]],
-    4: [[68, 70, 122], [45, 53, 226], [39, 47, 149], [26, 38, 82]],
+    1: [[71, 75, 253, -5.4], [53, 59, 184, -10.2], [57, 74, 65, -5.2], [48, 71, 25, -6.5]],
+    2: [[77, 79, 529, -4.9], [59, 63, 279, -9.9], [55, 73, 44, -18.5], [44, 50, 9, -3.3]],
+    3: [[71, 74, 400, -4.9], [52, 55, 446, -9.5], [34, 39, 263, -12.8], [26, 37, 113, -15.6]],
+    4: [[68, 70, 122, -5.7], [45, 53, 226, -11.7], [39, 47, 149, -11.2], [26, 38, 82, -12.1]],
   };
   const dipOdds = (st, prog) => (prog == null || prog < 25 ? null : DIP_ODDS[st]?.[prog < 50 ? 0 : prog < 100 ? 1 : prog < 150 ? 2 : 3]);
   // Pullback starter (rulebook §10a step 4b, R24; trial from 2026-10-12). A = stage 1 with a typical-or-deeper dip;
@@ -1352,9 +1418,8 @@
   // The simple AI view (rulebook §10a step 4b, R24, R27): depth against the sub-sector's typical dip, a mark for the
   // rotation state, and the add list. Adds follow the completed week only: weekday readings are previews, since about
   // 60% of weekday signals were gone by the Friday close and waiting for Friday did at least as well (R27).
-  const DEPTH = () => [L('近高位', 'Near the high'), L('小回調', 'Small dip'), L('回調一半', 'Half a typical dip'), L('到典型', 'Typical or deeper'), L('跌穿最差線', 'Below the worst line')];
+  const DEPTH = () => [L('近高位', 'Near the high'), L('小回調', 'Small dip'), L('到中位數一半', 'Half the median dip'), L('到中位數或更深', 'Median dip or deeper'), L('跌穿較深門檻', 'Below the deep-dip line')];
   const depthOf = (x) => (x.r.off_hi60 == null || !x.typ ? null : x.r.off_hi60 <= x.typ[1] ? 4 : x.prog >= 100 ? 3 : x.prog >= 50 ? 2 : x.prog >= 25 ? 1 : 0);
-  const markOf = (x) => (x.st === 3 || depthOf(x) === 4 ? '✕' : x.st === 4 ? (x.r.turn_fw === 'confirmed' ? '✓' : '↗') : x.prog >= 50 ? '○' : '');
   const groupUp = (g, live) => (live ? ['leading', 'improving'].includes(g.quadrant) && (g.ratio_chg || 0) > 0 : ['leading', 'improving'].includes(g.q_fw) && (g.chg_fw || 0) > 0);
   function addPlan(rows, why, leaders) {
     const adds = [], watch = [], broken = rows.filter((x) => depthOf(x) === 4);
@@ -1378,7 +1443,7 @@
     });
     return { adds, watch, broken, preview };
   }
-  const tkr = (x) => `${posMark(x.r.ticker)}${x.r.ticker}`;
+  const tkr = (x) => x.r.ticker;  // plain tickers on the AI stage tab, no ●★○✕ marks (user 2026-10-16)
   // every AI basket name with its stage, dip progress and starter setup
   function stageRows() {
     const all = dash.data('stocks').data, groups = dash.data('sectors').data.filter((g) => g.group === 'ai'), rows = [];
@@ -1392,115 +1457,164 @@
     }
     return rows;
   }
+  // daily state of a stock or basket row (build_data: vs_50d_prev, off_hi60_prev, rel_low_days): "today crossed" only
+  // when yesterday was on the other side (rulebook §11a); a deep-dip crossing only when yesterday was above the line
+  const dailyOf = (r, typ) => {
+    const below = r.vs_50d != null && r.vs_50d < 0, prevBelow = r.vs_50d_prev != null ? r.vs_50d_prev < 0 : null;
+    const deep = typ && r.off_hi60 != null ? r.off_hi60 <= typ[1] : false;
+    const prevDeep = typ && r.off_hi60_prev != null ? r.off_hi60_prev <= typ[1] : null;
+    return { below, crossDown: below && prevBelow === false, crossUp: !below && prevBelow === true, newLow: r.rel_low_days === 0,
+      fiveNoLow: r.rel_low_days === 5, deep, crossDeep: deep && prevDeep === false, risk: below || r.rel_low_days === 0 || deep };
+  };
+  const pc = (v) => (Math.abs(v) < 1 ? signed(v, 1) : signed(v, 0));
+  // compact: the 50-day position, and a relative low only when it happened today
+  const dailyText = (r, d) => {
+    const p = [d.crossDown ? L('今日跌穿50天線', 'crossed below the 50-day') : d.crossUp ? L('今日重上50天線', 'back above the 50-day')
+      : r.vs_50d == null ? null : L(`50天線${d.below ? '下' : '上'} ${pc(r.vs_50d)}%`, `${pc(r.vs_50d)}% vs the 50-day`)];
+    if (d.newLow) p.push(L('相對新低', 'relative low'));
+    return p.filter(Boolean).join('・');
+  };
+  const weekText = (x) => {
+    const r = x.r, TN = TURN();
+    return { 1: L('領先', 'leading'), 2: L(`轉弱 ${r.down_wks_fw || 1}週`, `weakening ${r.down_wks_fw || 1}wk`),
+      3: L('輪動', 'rotating'), 4: L(`轉強・${TN[r.turn_fw] || ''}`, `turning up, ${TN[r.turn_fw] || ''}`) }[x.st];
+  };
+  const depthText = (x) => {
+    const r = x.r;
+    if (r.off_hi60 == null) return '—';
+    let t = `${signed(Math.round(r.off_hi60), 0)}%` + (x.typ ? L(`（中位 ${signed(x.typ[0], 0)}）`, ` (median ${signed(x.typ[0], 0)})`) : '');
+    if (r.off_high != null && r.off_high < r.off_hi60 - 10) t += L(`，52週 ${signed(Math.round(r.off_high), 0)}%`, `, 52-wk ${signed(Math.round(r.off_high), 0)}%`);
+    return t;
+  };
+  const md2 = (d) => (d ? L(`${+d.slice(5, 7)}月${+d.slice(8)}日`, d) : '—');
+
   function drawStage() {
     const tbl = document.getElementById('stage-table');
     if (!tbl || status(['sectors', 'stocks']) !== 'ok') return;
-    const groups = dash.data('sectors').data.filter((g) => g.group === 'ai'), ST = STAGES();
+    const groups = dash.data('sectors').data.filter((g) => g.group === 'ai');
     const asof = dash.data('breadth_now').status === 'ok' ? dash.data('breadth_now').data[0].asof : '';
-    document.getElementById('stage-asof').textContent = L(`階段以 ${groups[0].week_fw} 收市為準；距高位截至 ${asof}`, `Stages as of the ${groups[0].week_fw} close; distance from the high as of ${asof}`);
+    const week = groups[0].week_fw, done = !!groups[0].week_done;
+    document.getElementById('stage-asof').textContent = L(`每日價格：${md2(asof)}｜週線確認：${md2(week)}｜本週預覽：${done ? '本週已完成' : `截至 ${md2(asof)}，未完成`}`,
+      `Daily prices: ${asof} | weekly tags: ${week} | this week: ${done ? 'complete' : `to ${asof}, unfinished`}`);
     const leaders = new Set(leaderPool().filter((x) => x.kind === 'top').map((x) => x.r.ticker));
-    const priv = !window.RB_PUBLIC, own = priv ? OWN() : new Set();  // the public site doesn't favour the watch list
+    const priv = !window.RB_PUBLIC, own = priv ? OWN() : new Set(), held = priv ? HELD() : new Set(), core = priv ? CORE() : new Set();
     const rows = stageRows();
     const why = sizeDownWhy(dash.data('regime').status === 'ok' ? dash.data('regime').data[0] : null,
       dash.data('rates_now').status === 'ok' ? dash.data('rates_now').data[0] : null);
-    const px = (v) => (v != null ? L(`（${d3.format(',.2f')(v)}）`, ` (${d3.format(',.2f')(v)})`) : '');
+    rows.forEach((x) => { x.d = dailyOf(x.r, x.typ); });
+    const Q = QNAME(), DW = DEPTH();
+    const table = (head, body) => {
+      const t = mk('table', 'rb-table rb-stage'), h = t.createTHead().insertRow();
+      head.forEach((x) => h.append(mk('th', null, x)));
+      const tb2 = t.createTBody();
+      body.forEach((cells) => { const tr = tb2.insertRow(); cells.forEach((c) => { const td = tr.insertCell(); if (c instanceof Node) td.append(c); else td.textContent = c ?? '—'; }); });
+      const w = mk('div', 'rb-tablebox'); w.style.maxHeight = 'none'; w.append(t); return w;
+    };
+    const line = (label, text) => { const d = mk('div', 'rb-stline'); d.append(mk('b', null, label), text); return d; };
+    const out = [];
 
-    // summary: backdrop, today's top five, then the sub-sector table
+    // 1. the chain in four short lines: last confirmed week, the latest five sessions, dip depth, stance and focus
     {
-      const box = document.getElementById('stage-simple'), DW = DEPTH(), Q = QNAME();
+      const gq = (q) => groups.filter((g) => g.q_fw === q).map((g) => nm(g));
+      const wk = [['leading', '領先', 'leading'], ['improving', '改善', 'improving'], ['weakening', '轉弱', 'weakening'], ['lagging', '落後', 'lagging']]
+        .filter(([q]) => gq(q).length).map(([q, zh, en]) => L(`${zh} ${gq(q).join('、')}`, `${en} ${gq(q).join(', ')}`));
+      out.push(line(L(`週線（${md2(week)}）：`, `Week (${week}): `), wk.join(L('；', '; '))));
+      const gd = groups.map((g) => ({ g, d: dailyOf(g, typDip(g)) }));
+      const worst = [...groups].filter((g) => g.rel1w != null).sort((a, c) => a.rel1w - c.rel1w).slice(0, 3);
+      const nb = gd.filter((x) => x.d.below).length, lows = gd.filter((x) => x.d.newLow).length;
+      out.push(line(L('近 5 日：', '5 sessions: '), L(`最弱 ${worst.map((g) => `${nm(g)} ${signed(g.rel1w)}`).join('、')}；${nb}/${groups.length} 在 50 天線下；${lows} 個今日相對新低`,
+        `weakest ${worst.map((g) => `${nm(g)} ${signed(g.rel1w)}`).join(', ')}; ${nb}/${groups.length} below the 50-day; ${lows} at a relative low today`)));
+      const at = (k) => groups.filter((g) => { const t = typDip(g); return t && g.off_hi60 != null && (k === 4 ? g.off_hi60 <= t[1] : g.off_hi60 <= t[0] && g.off_hi60 > t[1]); }).map((g) => nm(g));
+      out.push(line(L('回調深度：', 'Dip depth: '), L(`到中位數或更深 ${at(3).join('、') || '沒有'}；跌穿較深門檻 ${at(4).join('、') || '沒有'}`,
+        `median or deeper ${at(3).join(', ') || 'none'}; below the deep-dip line ${at(4).join(', ') || 'none'}`)));
+      const tested = gd.filter((x) => x.g.q_fw === 'leading' && (x.d.below || x.d.newLow)).map((x) => nm(x.g));
+      let sp = null;
+      try { if (priv && status(['steps']) === 'ok') sp = dash.data('steps').data.find((r) => r.n === 3)?.nums; } catch (e) { sp = null; }
+      const bits = [...(sp && sp.ai_stance ? [L(`AI 供應鏈${sp.ai_stance}（同每日摘要）`, `AI supply chain ${sp.ai_stance} (as in the summary)`)] : []),
+        ...(tested.length ? [L(`看週線領先的${tested.join('、')}能否守住`, `watch whether ${tested.join(', ')} hold`)] : []),
+        ...(lows ? [L('看領跌環節是否停止創相對新低', 'watch whether the weakest stop making relative lows')] : [])];
+      if (bits.length) out.push(line(L('重點：', 'Focus: '), bits.join(L('；', '; '))));
+    }
+
+    // 2. what changed today (private): held names' new risks, blocked candidates, first repairs, confirmed repairs
+    if (priv) {
+      const byT = Object.fromEntries(rows.map((x) => [x.r.ticker, x]));
+      const pool = leaderPool().filter((p) => p.g.group === 'ai' && !p.dup);
+      const isCand = (x) => (x.st === 4 && x.r.turn_fw === 'confirmed' && leaders.has(x.r.ticker)) || (x.starter && !why.length)
+        || (x.st === 1 && x.r.turn_fw === 'confirmed' && leaders.has(x.r.ticker));
+      const todayRisk = (x) => [x.d.crossDown && L('跌穿50天線', 'below the 50-day'), x.d.newLow && L('相對新低', 'relative low'),
+        x.d.crossDeep && L('跌穿較深門檻', 'deep-dip line')].filter(Boolean);
+      const heldRisk = rows.filter((x) => held.has(x.r.ticker) && todayRisk(x).length)
+        .map((x) => `${tkr(x)} ${todayRisk(x).join(L('、', ', '))}${core.has(x.r.ticker) ? L('（長線核心）', ' (core)') : ''}`);
+      const blocked = rows.filter((x) => !held.has(x.r.ticker) && isCand(x) && (x.d.crossDown || x.d.newLow || x.d.crossDeep))
+        .map((x) => `${tkr(x)} ${weekText(x)}，但${todayRisk(x).join(L('、', ', '))}`);
+      const repair = rows.filter((x) => (x.d.crossUp || x.d.fiveNoLow) && (x.st >= 2 || (x.prog ?? 0) >= 50))
+        .map((x) => `${tkr(x)}：${[x.d.crossUp && L('今日重上 50 天線', 'back above the 50-day'), x.d.fiveNoLow && L('連續 5 日未創相對新低', '5 sessions without a relative low')].filter(Boolean).join(L('、', ', '))}`);
+      const confirmed = done ? rows.filter((x) => x.st === 4 && x.r.turn_fw === 'confirmed' && x.r.q1_fw !== 'improving').map((x) => `${tkr(x)}：${L('週線轉強確認', 'weekly turn confirmed')}`) : [];
+      const box = mk('div', 'rb-stchg');
+      box.append(mk('div', 'rb-sline', L('今日有重要變化', 'What changed today')));
+      const blocks = [[L('持有股票的新風險', 'New risks in held names'), heldRisk, 'rb-out'], [L('原有候選受阻', 'Candidates blocked'), blocked, 'rb-out'],
+        [L('初步修復', 'First repairs'), repair, 'rb-in'], [L('修復確認（週線）', 'Confirmed repairs (weekly)'), confirmed, 'rb-in']].filter((b) => b[1].length);
+      if (!blocks.length) box.append(mk('div', 'rb-sub', L('今日未有新增狀態轉變。', 'No new state changes today.')));
+      for (const [h, xs, cls] of blocks) { const d = mk('div'); d.append(mk('b', cls, h + L('：', ': ')), xs.join(L('；', '; '))); box.append(d); }
+      out.push(box);
+
+    }
+
+    // 4. sub-sector depth table
+    {
       const arrow = (g) => ((g.chg_fw || 0) > 0.5 ? '↑' : (g.chg_fw || 0) < -0.5 ? '↓' : '→');
-      const table = (head, body) => {
-        const t = mk('table', 'rb-table rb-stage'), h = t.createTHead().insertRow();
-        head.forEach((x) => h.append(mk('th', null, x)));
-        const tb2 = t.createTBody();
-        body.forEach((cells) => { const tr = tb2.insertRow(); cells.forEach((c) => { const td = tr.insertCell(); if (c instanceof Node) td.append(c); else td.textContent = c ?? '—'; }); });
-        const w = mk('div', 'rb-tablebox'); w.style.maxHeight = 'none'; w.append(t); return w;
-      };
-      const out = [];
-      if (priv) {  // the size-down backdrop is for the private board only
-        const bd = mk('div', 'rb-sline');
-        bd.append(mk('b', null, L('大環境：', 'Backdrop: ')), why.length ? mk('span', 'rb-out', L(`要減注（${why.join('；')}）`, `size down (${why.join('; ')})`))
-          : mk('span', 'rb-in', L('正常注碼', 'normal size')));
-        out.push(bd);
-      }
-
-      // today's top five (private): entries and starters first, then leaders leading with a rising ratio
-      if (priv) {
-        const pool = leaderPool().filter((x) => x.g.group === 'ai' && !x.dup);
-        const byT = Object.fromEntries(rows.map((x) => [x.r.ticker, x]));
-        const cands = [];
-        for (const p of pool) {
-          const r = p.r, x = byT[r.ticker];
-          const entry = r.q_fw === 'improving' && r.turn_fw === 'confirmed';
-          const strong = r.q_fw === 'leading' && (r.chg_fw || 0) > 0 && r.turn_fw === 'confirmed';
-          const start = x && x.starter && !why.length;
-          if (!entry && !strong && !start) continue;
-          cands.push({ p, r, x, pri: entry || start ? 0 : 1, gUp: groupUp(p.g) });
-        }
-        cands.sort((a, c) => a.pri - c.pri || (c.gUp - a.gUp) || ((c.r.rel26w_fw ?? 0) - (a.r.rel26w_fw ?? 0)));
-        const top = cands.slice(0, 5);
-        out.push(mk('div', 'rb-sline', L(`今日頭5隻（AI子板塊頭三名或新晉，強度已確認；以 ${groups[0].week_fw} 週收市為準）`, `Today's top five (AI sub-sector top three or new entrants, confirmed; ${groups[0].week_fw} weekly close)`)));
-        out.push(top.length ? table(
-          [L('股票', 'Stock'), L('子板塊', 'Sub-sector'), L('狀態', 'State'), L('上週', 'Last week'), L('對50天線', 'vs 50-day'), L('止蝕', 'Stop'), L('評語', 'Comment')],
-          top.map(({ p, r, x, pri, gUp }) => {
-            const c = [];
-            if (x && x.starter && !why.length) c.push(L(`可開倉：起步注1/3，目標 +${Math.round(x.starter.target)}%`, `can open: starter 1/3, target +${Math.round(x.starter.target)}%`));
-            else if (pri === 0) c.push(HELD().has(r.ticker) ? L('持有中：可加注', 'held: can add') : L(`可開倉：入場候選${why.length ? '（注碼減細）' : ''}`, `can open: entry candidate${why.length ? ' (smaller size)' : ''}`));
-            else c.push(HELD().has(r.ticker) ? L('持有中：續持', 'held: keep') : L('不開倉：持有區，不追高（等回調或下次確認）', 'don\'t open: hold zone, no chasing (wait for a dip or the next confirmed)'));
-            if ((r.chg_fw || 0) >= 5 && (r.relw_fw || 0) >= 8) c.push(L('上週急升', 'spiked last week'));
-            if ((r.vs_50d || 0) > 15) c.push(L('偏離50天線大', 'far above the 50-day'));
-            if (!gUp) c.push(L('⚠️ 子板塊強度回落', '⚠️ sub-sector RS-ratio falling'));
-            const stop = x && x.starter && !why.length ? x.starter.stop : r.stop_pct;
-            return [mk('b', null, `${posMark(r.ticker)}${r.ticker}`), p.kind === 'new' ? L(`${nm(p.g)}（新晉）`, `${nm(p.g)} (new)`) : L(`${nm(p.g)}（第${p.rank}）`, `${nm(p.g)} (#${p.rank})`),
-              `${Q[r.q_fw]}、${TURN()[r.turn_fw] || ''}`, `${signed(r.r1w)}%`, `${signed(r.vs_50d, 0)}%`, stop != null ? `−${Math.round(stop)}%` : '—', c.join(L('；', '; '))];
-          })) : mk('div', 'rb-sub', L('今日沒有符合條件的股票', 'nothing qualifies today')));
-        const P = addPlan(rows, why, leaders);
-        const extra = [];
-        if (P.watch.length) extra.push(L(`留意（已跌到典型回調一半）：${P.watch.map(({ x }) => tkr(x)).join('、')}`, `Watch (half a typical dip or more): ${P.watch.map(({ x }) => tkr(x)).join(', ')}`));
-        if (P.broken.length) extra.push(L(`跌穿最差線（不接）：${P.broken.map(tkr).join('、')}`, `Below the worst line: ${P.broken.map(tkr).join(', ')}`));
-        if (!groups[0].week_done && P.preview.length) extra.push(L(`本週至今預覽（未定）：${P.preview.map(tkr).join('、')}`, `Week so far (provisional): ${P.preview.map(tkr).join(', ')}`));
-        if (extra.length) out.push(mk('div', 'rb-sub', extra.join(L('｜', ' | '))));
-      }
-
-      // sub-sector table: rotation, typical dip and each name's distance from its high
       const qOrder = { leading: 0, improving: 1, weakening: 2, lagging: 3 };
       const gs = [...groups].sort((a, c) => (qOrder[a.q_fw] - qOrder[c.q_fw]) || ((c.chg_fw || 0) - (a.chg_fw || 0)));
       out.push(mk('div', 'rb-sline', L('各子板塊回調位置', 'Where each sub-sector stands')));
-      out.push(table([L('子板塊', 'Sub-sector'), L('輪動', 'Rotation'), L('典型／最差回調', 'Typical / worst dip'), L('個股（距高位 %）', 'Names (% off the high)')],
+      // one line per sub-sector (user 2026-10-16): weekly tag, latest daily state, its dip against the median and deep
+      // lines; the names are in the stock table below
+      const where = (g, t) => (!t || g.off_hi60 == null ? '—' : g.off_hi60 <= t[1] ? L('跌穿較深門檻', 'below the deep line')
+        : g.off_hi60 <= t[0] ? L('到中位數', 'at the median') : g.off_hi60 <= t[0] / 2 ? L('到中位數一半', 'half the median') : L('未到中位數一半', 'under half the median'));
+      out.push(table([L('子板塊', 'Sub-sector'), L('週線', 'Week'), L('最新日線', 'Latest'), L('回調（中位／較深）', 'Dip (median / deep)'), L('距60日高位', 'Off 60d high'), L('現時', 'Now')],
         gs.filter((g) => rows.some((x) => x.g.ticker === g.ticker)).map((g) => {
-          const xs = rows.filter((x) => x.g.ticker === g.ticker && depthOf(x) != null), t = typDip(g);
-          const parts = [0, 1, 2, 3, 4].map((d) => {
-            const ys = xs.filter((x) => depthOf(x) === d).sort((a, c) => c.r.off_hi60 - a.r.off_hi60);
-            return ys.length ? `${DW[d]} ${ys.map((x) => `${markOf(x)}${tkr(x)} ${signed(Math.round(x.r.off_hi60), 0)}`).join(L('、', ', '))}` : null;
-          }).filter(Boolean);
-          return [mk('b', null, nm(g)), `${Q[g.q_fw]}${arrow(g)}`, t ? `${signed(t[0], 0)}%／${signed(t[1], 0)}%` : '—', parts.join('｜') || '—'];
+          const t = typDip(g);
+          return [mk('b', null, nm(g)), `${Q[g.q_fw]}${arrow(g)}`, dailyText(g, dailyOf(g, t)) || '—',
+            t ? `${signed(t[0], 0)}／${signed(t[1], 0)}` : '—', g.off_hi60 != null ? `${signed(Math.round(g.off_hi60), 0)}%` : '—', where(g, t)];
         })));
-      out.push(mk('div', 'rb-legend-line', L('✓ 重新轉強・確認　↗ 重新轉強・觀察　○ 已跌到典型回調一半（起步注範圍）　✕ 輪動中（不接）' + (priv ? '　● 持有中　★ 觀察名單' : ''),
-        '✓ turning up, confirmed   ↗ turning up, watch   ○ half a typical dip or more (starter range)   ✕ rotating (don\'t catch)' + (priv ? '   ● held   ★ watch list' : ''))));
-      box.replaceChildren(...out);
+      out.push(mk('div', 'rb-sub', L('中位／較深回調：急升（20 日 +30%）後的歷史回調，2020–26；較深＝較差四分之一界線，不是最大跌幅。',
+        'Median / deep dip: dips after a quick pump (+30% in 20 sessions), 2020–26; deep = the worst-quarter line, not the largest fall.')));
     }
-    const TN = TURN();
-    // the table: one block per stage, the next step in the header, five names unless "show all" is on
+    document.getElementById('stage-simple').replaceChildren(...out);
+
+    // 5. the table: one block per weekly stage; daily state and weekly tag side by side
     const showAll = !!state.stageAll;
     const tb = tbl.tBodies[0] || tbl.createTBody(); tb.replaceChildren();
     const th = tbl.createTHead(); th.replaceChildren(); const hr = th.insertRow();
-    [L('股票', 'Stock'), L('子板塊', 'Sub-sector'), L('距高位（典型）', 'Off high (typical)'), L('12週內回到高位機率', 'Back at the high in 12 wks'),
-      L('比率連跌', 'Ratio down'), ...(priv ? [L('止蝕', 'Stop'), L('註', 'Note')] : [])].forEach((x) => hr.append(mk('th', null, x)));
+    [L('股票', 'Stock'), L('子板塊', 'Sub-sector'), L('最新日線', 'Latest'), L('200天線', '200-day'), L('週線', 'Week'), L('5日相對', '5d rel'),
+      L('距60日高位', 'Off 60d high'), ...(priv ? [L('判讀', 'Reading'), L('持倉', 'Position')] : [])].forEach((x) => hr.append(mk('th', null, x)));
     const HEAD = {
-      1: L('強勢：持有，不追高', 'Strong: hold, don\'t chase'),
-      2: L('轉弱中：比率跌一週先當回調；兩週偏向輪動，仍持有；第三週當輪動。不加注', 'Weakening: one down week = a pullback; two = leaning rotation, still hold; a third = rotation. Don\'t add'),
-      3: L('輪動中：不接，等重回改善', 'Rotating: don\'t catch; wait for improving'),
-      4: L('重新轉強：確認的龍頭＝入場候選，其餘觀察', 'Turning up: confirmed leaders are entry candidates; the rest watch'),
+      1: L('週線相對領先：持有區，不追高', 'Weekly leader: hold zone, no chasing'),
+      2: L('週線轉弱：一週當回調，三週當輪動；不加注', 'Weekly weakening: one week a pullback, three a rotation; don\'t add'),
+      3: L('週線輪動中：不接', 'Weekly rotating: don\'t catch'),
+      4: L('週線重新轉強：確認＋組內前列＝入場候選', 'Weekly turning up: confirmed and ranked high = entry candidate'),
     };
-    const own_ = (x) => (own.has(x.r.ticker) ? 0 : 1);
-    const dip_ = (x) => (x.prog >= 50 && depthOf(x) !== 4 ? 0 : 1);  // ○ candidates always show
-    const SORT = {
-      1: (a, c) => dip_(a) - dip_(c) || own_(a) - own_(c) || a.r.off_hi60 - c.r.off_hi60,
-      2: (a, c) => dip_(a) - dip_(c) || (c.r.down_wks_fw || 0) - (a.r.down_wks_fw || 0) || own_(a) - own_(c) || a.r.off_hi60 - c.r.off_hi60,
-      3: (a, c) => own_(a) - own_(c) || a.r.off_hi60 - c.r.off_hi60,
-      4: (a, c) => (a.r.turn_fw === 'confirmed' ? 0 : 1) - (c.r.turn_fw === 'confirmed' ? 0 : 1) || own_(a) - own_(c) || a.r.off_hi60 - c.r.off_hi60,
+    // top five per weekly block: held, then watch list, then the strongest over 26 weeks; the rest in one line
+    const pri = (x) => (held.has(x.r.ticker) ? 0 : own.has(x.r.ticker) ? 1 : 2);
+    const str = (x) => x.r.rel26w_fw ?? x.r.rel6m ?? -999;
+    const SORT = { 1: null, 2: null, 3: null, 4: null };
+    for (const k of [1, 2, 3, 4]) SORT[k] = (a, c) => pri(a) - pri(c) || str(c) - str(a);
+    const ncol = priv ? 9 : 7;
+    const readOf = (x) => {
+      const r = x.r, d = x.d, s0 = x.starter, dep = depthOf(x);
+      if (core.has(r.ticker)) return L('長線核心：按公司論點', 'long-term core: company card decides');
+      if (dep === 4 && x.st === 4) return L('改善受阻：深度回調，先看止跌', 'turn blocked by a deep dip');
+      if (dep === 4) return L('跌穿較深門檻：先看止跌', 'below the deep-dip line');
+      if (x.st === 1 && dep === 3) return L('領先但深度回調：看止跌', 'leader in a deep dip');
+      if (s0 && d.risk) return L(`起步注（${s0.setup}）受阻：日線轉弱`, `starter (${s0.setup}) blocked`);
+      if (s0 && why.length) return L(`起步注（${s0.setup}）：大環境要減注，暫不做`, `starter (${s0.setup}): size down, not now`);
+      if (s0) return L(`起步注1/3（試行）：風險距離 −${Math.round(s0.stop)}%`, `starter 1/3 (trial): risk −${Math.round(s0.stop)}%`);
+      if (x.st === 4 && r.turn_fw === 'confirmed') return leaders.has(r.ticker) ? (d.risk ? L('入場候選受阻：日線轉弱', 'candidate blocked') : L('入場候選', 'entry candidate')) : L('確認，非組內前列', 'confirmed, not ranked high');
+      if (x.st === 4) return L(`觀察（${TURN()[r.turn_fw] || ''}）`, `watch (${TURN()[r.turn_fw] || ''})`);
+      if (x.st === 1 && d.risk) return L('強勢受考驗', 'strength tested');
+      if ((x.st === 1 || x.st === 2) && x.prog >= 50) return L('到中位數一半：等子板塊轉強', 'half the median dip: wait');
+      return '';
     };
-    const ncol = priv ? 7 : 5;
     for (const k of [1, 2, 3, 4]) {
       const xs = rows.filter((x) => x.st === k).sort(SORT[k]);
       if (!xs.length) continue;
@@ -1509,34 +1623,137 @@
       const shown = showAll ? xs : xs.slice(0, 5);
       for (const x of shown) {
         const r = x.r, tr = tb.insertRow();
-        tr.insertCell().append(mk('b', null, `${markOf(x)}${posMark(r.ticker)}${r.ticker}`), leaders.has(r.ticker) ? mk('span', 'rb-sub', L(' 龍頭', ' leader')) : '');
+        tr.insertCell().append(mk('b', null, r.ticker));
         tr.insertCell().textContent = nm(x.g);
-        tr.insertCell().textContent = r.off_hi60 != null ? `${signed(Math.round(r.off_hi60), 0)}%${x.typ ? L(`（${signed(x.typ[0], 0)}%）`, ` (${signed(x.typ[0], 0)}%)`) : ''}` : '—';
-        const od = tr.insertCell(), o = x.odds;
-        if (o) { od.textContent = `${o[0]}%`; od.title = L(`2020至2026年 ${o[0]}%（${o[2]} 次）；2023至2026年 ${o[1]}%`, `${o[0]}% in 2020–26 (n ${o[2]}); ${o[1]}% in 2023–26`); }
-        else od.textContent = L('回調太淺', 'too shallow');
-        tr.insertCell().textContent = r.down_wks_fw ? L(`${r.down_wks_fw}週`, `${r.down_wks_fw} wk`) : '—';
+        tr.insertCell().append(mk('span', x.d.crossDown || x.d.newLow ? 'rb-out' : x.d.crossUp ? 'rb-in' : '', dailyText(r, x.d) || '—'));
+        tr.insertCell().textContent = r.vs_200d == null ? '—' : Math.abs(r.vs_200d) < 0.05 ? L('貼近', 'at the line') : L(`${r.vs_200d < 0 ? '下' : '上'} ${pc(r.vs_200d)}%`, `${pc(r.vs_200d)}%`);
+        tr.insertCell().textContent = weekText(x);
+        tr.insertCell().textContent = r.rel1w != null ? signed(r.rel1w) : '—';
+        tr.insertCell().textContent = depthText(x);
         if (priv) {
-          tr.insertCell().textContent = HELD().has(r.ticker) && r.stop_pct != null ? `−${Math.round(r.stop_pct)}%` : '';
-          let n = '';
-          const s0 = x.starter;
-          if (depthOf(x) === 4) n = L('跌穿最差線：當輪動', 'below the worst line: rotation');
-          else if (s0 && why.length) n = L(`符合起步注（${s0.setup}），大環境要減注：暫不做`, `fits a starter (${s0.setup}); size down: not now`);
-          else if (s0) n = L(`起步注1/3：止蝕 −${Math.round(s0.stop)}%${px(s0.stopPx)}，目標 +${Math.round(s0.target)}%`, `starter 1/3: stop −${Math.round(s0.stop)}%${px(s0.stopPx)}, target +${Math.round(s0.target)}%`);
-          else if (k === 4 && r.turn_fw === 'confirmed') n = leaders.has(r.ticker) ? L('入場候選', 'entry candidate') : L('確認，但不是龍頭', 'confirmed, not a leader');
-          else if (k === 4) n = L(`觀察（${TN[r.turn_fw] || ''}）`, `watch (${TN[r.turn_fw] || ''})`);
-          else if ((k === 1 || k === 2) && x.prog >= 50) n = L('已跌到典型回調一半，等子板塊轉強', 'half a typical dip or more; waiting for the sub-sector');
-          tr.append(mk('td', 'rb-note', n));
+          tr.append(mk('td', 'rb-note', readOf(x)));
+          tr.insertCell().textContent = !held.has(r.ticker) ? '' : core.has(r.ticker) ? L('長線核心', 'long-term core')
+            : r.stop_pct != null ? L(`交易倉 −${Math.round(r.stop_pct)}%`, `trade −${Math.round(r.stop_pct)}%`) : L('交易倉', 'trade');
         }
       }
-      if (!showAll && xs.length > 5) {
+      const hidden = xs.filter((x) => !shown.includes(x));
+      if (hidden.length) {
         const more = tb.insertRow(); const mc = more.insertCell(); mc.colSpan = ncol; mc.className = 'rb-sub';
-        mc.textContent = L(`另 ${xs.length - 5} 隻：${xs.slice(5).map((x) => `${posMark(x.r.ticker)}${x.r.ticker}`).join('、')}`,
-          `${xs.length - 5} more: ${xs.slice(5).map((x) => x.r.ticker).join(', ')}`);
+        mc.textContent = L(`另 ${hidden.length} 隻：${hidden.map((x) => x.r.ticker).join('、')}`, `${hidden.length} more: ${hidden.map((x) => x.r.ticker).join(', ')}`);
       }
     }
+    // historical cohort proportions: details only, with sample sizes; not a stock-specific forecast
+    let det = document.getElementById('stage-odds');
+    if (!det) { det = mk('details', 'rb-sub'); det.id = 'stage-odds'; tbl.closest('.rb-tablebox').after(det); }
+    const bands = [L('中位數 25–50%', '25–50% of median'), L('50–100%', '50–100%'), L('100–150%', '100–150%'), L('150% 以上', '150%+')];
+    const ot = mk('table', 'rb-mini'), oh = ot.createTHead().insertRow();
+    [L('週線階段', 'Weekly stage'), ...bands].forEach((h) => oh.append(mk('th', null, h)));
+    const ob = ot.createTBody();
+    for (const k of [1, 2, 3, 4]) { const tr = ob.insertRow(); tr.insertCell().textContent = STAGES()[k]; DIP_ODDS[k].forEach((o) => { tr.insertCell().textContent = L(`${o[0]}%，途中再跌 ${signed(o[3])}%（${o[2]}次；2023–26 ${o[1]}%）`, `${o[0]}%, further fall ${signed(o[3])}% (n ${o[2]}; 2023–26 ${o[1]}%)`); }); }
+    det.replaceChildren(mk('summary', null, L('歷史比例：12 週內重返當時 60 日高位（分組統計，不是個股預測）', 'History: back at the 60-day high within 12 weeks (cohort statistics, not a forecast)')), ot,
+      mk('p', null, L('按「週線階段 × 回調深度對中位數」分組，2020 至 2026 年；同組股票共用同一數字。「途中再跌」是中位數：由該週五收市起計，到重回高位前（或 12 週內）的最低收市。', 'Grouped by weekly stage × dip against the median, 2020–2026; names in the same cohort share one number. "Further fall" is the median drop from that Friday close to the lowest close before the high was regained (or within 12 weeks).')));
     const tog = document.getElementById('stage-all');
     if (tog) { tog.textContent = showAll ? L('每階段只顯示5隻', 'Show five per stage') : L('顯示全部', 'Show all'); tog.onclick = () => { state.stageAll = !showAll; drawStage(); }; }
+  }
+
+  // Each question owns one expandable evidence group. Missing borrower quotes are never forward-filled.
+  const summaryOpen = new Set();
+  function summaryCheck(kind, session) {
+    const titles = {
+      credit: L('展開報價及圖表：AI融資壓力', 'Quotes and charts: AI funding stress'),
+      breadth: L('展開圖表：市寬與升跌線', 'Charts: breadth and the advance-decline line'),
+      leaders: L('展開圖表：半導體及新雲相對走勢', 'Charts: semis and neoclouds relative to the S&P'),
+    };
+    const detail = mk('details', 'rb-summary-check'); detail.dataset.check = kind;
+    const body = mk('div', 'rb-check-body'); detail.append(mk('summary', null, titles[kind]), body);
+    const render = () => {
+      body.replaceChildren();
+      const end = day(session), begin = new Date(+end - 92 * 864e5), domain = [begin, end];
+      const note = (text) => body.append(mk('div', 'rb-check-note', text));
+      const plot = (title, series, options = {}) => {
+        const card = mk('div', 'rb-check-chart'); card.append(mk('b', null, title));
+        const legend = mk('div', 'rb-check-legend');
+        for (const s of series) { const sw = mk('span', null, s.name); sw.style.setProperty('--line-color', s.color); legend.append(sw); }
+        card.append(legend); const chart = mk('div'); card.append(chart); body.append(card);
+        lineChart(chart, { series, height: 190, xDomain: domain, ...options });
+        const svg = chart.querySelector('svg'); if (svg) { svg.setAttribute('role', 'img'); svg.setAttribute('aria-label', title); }
+      };
+      const recent = (rows) => rows.filter((r) => r.date <= session && day(r.date) >= begin);
+      if (kind === 'credit') {
+        const issuers = status(['borrower_credit']) === 'ok' ? dash.data('borrower_credit').data[0]?.issuers || [] : [];
+        for (const [id, name] of [['CRWV', 'CoreWeave'], ['ORCL', 'Oracle']]) {
+          const issuer = issuers.find((x) => x.id === id);
+          const series = (issuer?.series || []).filter((s) => s.comparable === true &&
+            ['cds_bp', 'bond_oas_bp'].includes(s.metric) && ['close_mid', 'close_trade'].includes(s.quote_type) &&
+            s.instrument && s.currency && s.series_id);
+          let count = 0;
+          for (const s of series) {
+            const obs = recent(s.observations || []).filter((o) => o.verified === true && /^\d{4}-\d{2}-\d{2}$/.test(o.date) &&
+              Number.isFinite(o.value) && /^https:\/\//.test(o.source || '') && o.observed_at && o.observed_at.slice(0,10) === o.date);
+            const byDate = new Map(); for (const o of obs) { if (byDate.has(o.date)) byDate.set(o.date, null); else byDate.set(o.date, o); }
+            const clean = [...byDate.values()].filter(Boolean).sort((a,b) => a.date.localeCompare(b.date));
+            if (clean.length < 2) continue;
+            const dates = status(['breadth']) === 'ok' ? recent(dash.data('breadth').data).map((r) => r.date) : clean.map((o) => o.date);
+            const values = dates.map((d) => ({ d: day(d), v: byDate.get(d)?.value ?? null }));
+            plot(`${name} · ${s.instrument} · ${s.currency}`, [{ name: s.metric === 'cds_bp' ? 'CDS (bp)' : 'OAS (bp)', color: colors()[count % colors().length], values }], { yFmt: (v) => v.toFixed(0), tipFmt: (v) => v.toFixed(1) + ' bp' });
+            note(L(`報價截至 ${clean.at(-1).date}；只連接有可比較收市報價的相鄰交易日，缺報價保留空隙。`, `Quotes through ${clean.at(-1).date}; missing sessions remain gaps.`));
+            const source = mk('a', null, L('最近報價來源', 'Latest quote source')); source.href = clean.at(-1).source; source.target = '_blank'; source.rel = 'noopener noreferrer'; body.append(source);
+            count += 1;
+          }
+          if (!count) {
+            const empty = mk('div', 'rb-check-empty'); empty.append(mk('b', null, `${name} — ${L('信用改善未確認', 'credit improvement unconfirmed')}`),
+              mk('div', 'rb-check-note', L(issuer?.note || '缺少同口徑連續收市CDS／指定債券息差。', 'Comparable consecutive closing CDS / specified bond spreads are unavailable.'))); body.append(empty);
+          }
+          const ref = issuer?.reference_display;
+          if (ref?.latest) {
+            const last = ref.latest, prior = ref.prior;
+            const card = mk('div', 'rb-check-chart');
+            card.append(mk('b', null, `${name} · ${last.instrument} · ${last.currency} · ${last.isin}`));
+            const box = mk('div', 'rb-tablebox'), table = mk('table', 'rb-table');
+            const header = mk('tr');
+            for (const label of [L('報價日期', 'Quote date'), L('淨價／每100面值', 'Clean price / 100'), 'YTW']) header.append(mk('th', null, label));
+            table.append(header);
+            for (const q of [prior, last].filter(Boolean)) {
+              const row = mk('tr');
+              for (const value of [q.price_date, q.clean_price_per_100.toFixed(3), q.yield_pct.toFixed(2) + '%']) row.append(mk('td', null, value));
+              table.append(row);
+            }
+            if (prior) {
+              const row = mk('tr');
+              for (const value of [L('兩日期變化（暫算）', 'Change between dates (indicative)'),
+                `${signed(ref.price_change, 3)} (${signed(ref.price_return_pct, 2)}%)`,
+                `${signed(ref.yield_change_bp, 0)} bp`]) row.append(mk('td', null, value));
+              table.append(row);
+            }
+            box.append(table); card.append(box); body.append(card);
+            note(L('延遲第三方資料，尚未與原始成交核對。淨價變化不含票息；YTW變化不是信用息差變化。', 'Delayed vendor data, not checked against original trades. Clean-price changes exclude coupons; yield changes are not credit-spread changes.'));
+            if (last.revision_note) note(L(last.revision_note, 'The vendor revised the same-date quote. Earlier snapshots are retained; revisions are not daily changes.'));
+            if (!prior) note(L(ref.status + '；缺少可比較的前次報價，變化未確認。', 'No comparable prior quote; change is unconfirmed.'));
+            for (const q of [prior, last].filter(Boolean)) {
+              const link = mk('a', null, `${q.provider} · ${q.price_date}`); link.href = q.source; link.target = '_blank'; link.rel = 'noopener noreferrer'; body.append(link);
+            }
+          } else if (ref) note(L(ref.status, 'Conflicting quotes; comparison withheld.'));
+        }
+        note(L('看息差是否持續收窄。缺報價不代表持平或改善；新雲股價及CCC−BB不代替借款人信用。', 'Watch for sustained spread narrowing. Missing is not flat or improving; equities and CCC–BB do not replace borrower credit.'));
+      } else if (kind === 'breadth') {
+        if (status(['breadth']) !== 'ok') { note(L('市寬資料未能載入。', 'Breadth unavailable.')); return; }
+        const rows = recent(dash.data('breadth').data);
+        if (rows.length < 2) { note(L('市寬歷史不足。', 'Insufficient breadth history.')); return; }
+        plot(L('高於50天線的成分股', 'Members above the 50-day average'), [{ name: L('高於50天線', 'Above 50-day'), color: colors()[0], values: rows.map((r) => ({ d: day(r.date), v: r.pct50 })) }], { ref: 55, yDomain: [0, 100], yFmt: (v) => v + '%', tipFmt: (v) => v.toFixed(1) + '%' });
+        plot(L('升跌線：參與度有否一起改善', 'Advance-decline line: is participation improving too?'), [{ name: L('升跌線', 'A-D line'), color: colors()[3], values: rows.map((r) => ({ d: day(r.date), v: r.ad_line })) }], { yFmt: d3.format(','), tipFmt: d3.format(',') });
+        note(L(`每日收市，截至 ${rows.at(-1).date}。55%虛線是觀察門檻，單日越線不是買入訊號；兩圖分別使用自己的單位。`, `Daily closes through ${rows.at(-1).date}. The 55% line is a reference, not a one-day buy signal; each chart has its own units.`));
+      } else {
+        if (status(['check_prices']) !== 'ok') { note(L('相對走勢資料未能載入。', 'Relative-price history unavailable.')); return; }
+        const rows = recent(dash.data('check_prices').data);
+        if (rows.length < 2) { note(L('可比較歷史不足。', 'Insufficient comparable history.')); return; }
+        const series = [['smh_spy', 'SMH / SPY', colors()[0]], ['neo_spy', L('新雲 / SPY', 'Neoclouds / SPY'), colors()[2]]].map(([key,name,color]) => ({ name, color, values: rows.map((r) => ({ d: day(r.date), v: r[key] == null ? null : r[key] / rows[0][key] * 100 })) }));
+        plot(L('相對標普：上升代表跑贏', 'Relative to the S&P: rising means outperforming'), series, { ref: 100 });
+        note(L(`每日收市，${rows[0].date} 同設100；截至 ${rows.at(-1).date}。新雲等權籃子有效成分 ${rows.at(-1).neo_members}/${rows.at(-1).neo_expected}。看是否停止創新低、回升能否維持；不是實際資金流量。`, `Daily closes, rebased to 100 on ${rows[0].date}; through ${rows.at(-1).date}. Complete neocloud coverage ${rows.at(-1).neo_members}/${rows.at(-1).neo_expected}. Relative performance is not observed fund flow.`));
+      }
+    };
+    detail.open = summaryOpen.has(kind);
+    detail.addEventListener('toggle', () => { if (detail.open) { summaryOpen.add(kind); render(); } else summaryOpen.delete(kind); });
+    return detail;
   }
 
   // the evening facts summary, shown as written: daily_summaries/<date>.md on the local board, the cleaned summary.md on
@@ -1550,23 +1767,39 @@
     if (asof && row.session < asof) return null;
     const md = (d) => L(`${+d.slice(5, 7)}月${+d.slice(8)}日`, d);
     const w = mk('div', 'rb-sum');
-    const title = mk('p'); title.append(mk('b', null, L(`每日摘要（${md(row.session)}收市）`, `Daily summary (${row.session} close)`)));
-    w.append(title);
-    let ul = null, sub = null;
+    if (!row.text.trimStart().startsWith('總結（')) {
+      const title = mk('p'); title.append(mk('b', null, L(`每日摘要（${md(row.session)}收市）`, `Daily summary (${row.session} close)`)));
+      w.append(title);
+    }
+    let ul = null, sub = null, target = w;
     for (const line of row.text.split('\n')) {
       if (!line.trim()) continue;
+      const check = line.trim().match(/^\[\[check:(credit|breadth|leaders)\]\]$/);
+      if (check) { if (!window.RB_PUBLIC) target.append(summaryCheck(check[1], row.session)); ul = null; sub = null; continue; }
+      const more = line.trim().match(/^\[\[details:(.+)\]\]$/);
+      if (more) {
+        const inline = ['每日板塊及模型數據', '下一交易日重點日程（英國時間）'].includes(more[1]);
+        const det = mk(inline ? 'div' : 'details', 'rb-daily-detail');
+        const heading = mk(inline ? 'p' : 'summary');
+        heading.append(inline ? mk('b', null, more[1]) : document.createTextNode(more[1]));
+        det.append(heading); w.append(det); target = det; ul = null; sub = null; continue;
+      }
+      if (line.trim() === '[[/details]]') { target = w; ul = null; sub = null; continue; }
+      if (line.trim() === '---') { target.append(mk('hr', 'rb-sumrule')); ul = null; sub = null; continue; }  // section divider
       const m = line.match(/^(\s*)[*•-]\s+(.*)$/);
       if (m && m[1] && ul && ul.lastElementChild) { // indented: a sub-bullet under the last bullet
         if (!sub) { sub = mk('ul'); ul.lastElementChild.append(sub); }
         sub.append(mk('li', null, m[2]));
       } else if (m) {
-        if (!ul) { ul = mk('ul'); w.append(ul); }
+        if (!ul) { ul = mk('ul'); target.append(ul); }
         ul.append(mk('li', null, m[2])); sub = null;
       } else { // a heading, or "label：text" on one line (假期, 注意)
         ul = null; sub = null;
         const p = mk('p'), h = line.match(/^([^：]{1,12}：)(.+)$/);
-        if (h) p.append(mk('b', null, h[1]), h[2]); else p.append(mk('b', null, line.trim()));
-        w.append(p);
+        if (h) p.append(mk('b', null, h[1]), h[2]);
+        else if (line.trim().endsWith('：')) p.append(mk('b', null, line.trim()));
+        else p.append(line.trim());
+        target.append(p);
       }
     }
     return w;
@@ -1574,6 +1807,10 @@
 
   function drawHeader() {
     const box = document.getElementById('takeaway');
+    if (!window.RB_PUBLIC && status(['breadth_now']) === 'ok') {
+      const current = summaryBlock(dash.data('breadth_now').data[0].asof);
+      if (current) { box.classList.remove('dash-skeleton'); box.replaceChildren(current); return; }
+    }
     if (!ready(box, ['regime', 'flows', 'breadth_now', 'positioning_now', 'sectors', 'rates_now'])) return;
     const g = dash.data('regime').data[0];
     const b = dash.data('breadth_now').data[0];
@@ -1747,7 +1984,22 @@
   }
 
   // ---------- overview ----------
+  // semis breadth (build_data: sox_below50 / sox_n), last 6 months, with the 80% flush line
+  function drawSoxBreadth() {
+    const el = document.getElementById('ch-soxb');
+    if (!ready(el, ['breadth'])) return;
+    const rows = dash.data('breadth').data.filter((r) => r.sox_n).slice(-126);
+    if (!rows.length) { el.closest('.rb-card').hidden = true; return; }
+    const last = rows.at(-1), wk = rows.at(-6);
+    const flush = last.sox_below50 >= Math.ceil(0.8 * last.sox_n);
+    document.getElementById('soxb-line').replaceChildren(mk('b', null, L(`${+last.date.slice(5, 7)}月${+last.date.slice(8)}日：${last.sox_below50}/${last.sox_n} 隻低於 50 天線`, `${last.date}: ${last.sox_below50}/${last.sox_n} below the 50-day`)),
+      L(`（一週前 ${wk.sox_below50}）；${flush ? '已到 80% 出清區' : `距 80% 出清區尚差 ${Math.ceil(0.8 * last.sox_n) - last.sox_below50} 隻`}`, ` (a week ago ${wk.sox_below50}); ${flush ? 'in the 80% flush zone' : `${Math.ceil(0.8 * last.sox_n) - last.sox_below50} short of the 80% zone`}`));
+    lineChart(el, { series: [{ name: L('低於 50 天線 %', '% below the 50-day'), color: colors()[0], values: rows.map((r) => ({ d: day(r.date), v: r.sox_below50 / r.sox_n * 100 })) }],
+      height: 190, ref: 80, yDomain: [0, 100], yFmt: (v) => v.toFixed(0) + '%', tipFmt: (v) => v.toFixed(0) + '%' });
+  }
+
   function drawOverview() {
+    drawSoxBreadth();
     const kpiOk = status(['kpi']);
     for (const tile of document.querySelectorAll('#kpis [data-source="kpi"]')) {
       if (kpiOk !== 'ok') { if (kpiOk === 'error') tile.textContent = '—'; continue; }
@@ -1841,7 +2093,10 @@
     }
     return dash.data('sectors').data.filter((r) => r.group === state.grp);
   }
-  const rotationIds = () => (isStock() ? ['stocks', 'stock_tails'] : ['sectors', 'rrg_tails']);
+  // daily rotation: the sector, theme, style and AI groups; 自選股 stays weekly
+  const daily = () => state.freq === 'd' && !isStock();
+  const DAY_TAIL = { 2: 5, 4: 10, 6: 15, 10: 20 };
+  const rotationIds = () => (isStock() ? ['stocks', 'stock_tails'] : daily() ? ['sectors', 'rrg_daily'] : ['sectors', 'rrg_tails']);
 
   function drawPicker() {
     const box = document.getElementById('picker');
@@ -1876,11 +2131,15 @@
     const el = document.getElementById('rrg');
     if (!ready(el, rotationIds())) return;
     const Q = QNAME();
-    const k = sfx();
+    const k = sfx(), dly = daily();
     const secs = rotationItems();
-    const tails = d3.group(dash.data(isStock() ? 'stock_tails' : 'rrg_tails').data, (r) => r.ticker);
+    const tails = d3.group(dash.data(isStock() ? 'stock_tails' : dly ? 'rrg_daily' : 'rrg_tails').data, (r) => r.ticker);
+    const tailN = dly ? DAY_TAIL[state.tail] || 15 : state.tail;
     const pts = secs.map((s) => ({ s, tail: (tails.get(s.ticker) || []).filter((p) => p['rs_ratio' + k] != null && p['rs_mom' + k] != null)
-      .slice(-state.tail).map((p) => ({ rs_ratio: p['rs_ratio' + k], rs_mom: p['rs_mom' + k] })) })).filter((p) => p.tail.length);
+      .slice(-tailN).map((p) => ({ rs_ratio: p['rs_ratio' + k], rs_mom: p['rs_mom' + k] })) })).filter((p) => p.tail.length);
+    document.getElementById('rrg-freq-note').hidden = !dly;
+    const TL = { 2: ['1週', '1 week'], 4: ['4週', '4 weeks'], 6: ['6週', '6 weeks'], 10: ['10週', '10 weeks'] };
+    document.querySelectorAll('.rb-tail').forEach((b) => { const n = +b.dataset.tail; b.textContent = dly ? L(`${DAY_TAIL[n]}日`, `${DAY_TAIL[n]} days`) : L(...TL[n]); });
     el.replaceChildren();
     if (!pts.length) { el.append(mk('div', 'rb-fail', L('未有可顯示的項目', 'Nothing to show'))); return; }
     const crowded = pts.length > 8;
@@ -1924,7 +2183,7 @@
     const benchName = state.bench === 'smh' ? L('半導體', 'semis') : L('標普', 'S&P');
     const labels = [];
     for (const p of pts) {
-      const qd = p.s['quadrant' + k], c = qc[qd] || 'var(--cds-chart-muted)';
+      const qd = p.s[(dly ? 'quadrant_d' : 'quadrant') + k], c = qc[qd] || 'var(--cds-chart-muted)';
       const id = p.s.ticker, on = state.rrgPin === id;
       const g = svg.append('g').attr('class', 'rb-item' + (on ? ' on' : '')).attr('data-t', id).attr('clip-path', `url(#${clipId})`);
       const X = (t) => x(t.rs_ratio), Y = (t) => y(t.rs_mom);
@@ -1936,7 +2195,7 @@
       g.selectAll('circle.t').data(p.tail.slice(0, -1)).join('circle').attr('class', 't').attr('cx', X).attr('cy', Y).attr('r', 1.8).attr('fill', c).attr('opacity', crowded ? 0.3 : 0.5);
       if (p.tail.length > 1) g.append('circle').attr('class', 't').attr('cx', X(p.tail[0])).attr('cy', Y(p.tail[0])).attr('r', 3).attr('fill', 'var(--color-panel)').attr('stroke', c).attr('stroke-width', 1.25).attr('opacity', crowded ? 0.45 : 0.7);
       g.selectAll('text.rb-wk').data(p.tail.slice(0, -1)).join('text').attr('class', 'rb-wk')
-        .attr('x', (t) => X(t) + 5).attr('y', (t) => Y(t) - 5).text((t, i) => L(`${p.tail.length - 1 - i}週前`, `${p.tail.length - 1 - i}w ago`));
+        .attr('x', (t) => X(t) + 5).attr('y', (t) => Y(t) - 5).text((t, i) => (dly ? L(`${p.tail.length - 1 - i}日前`, `${p.tail.length - 1 - i}d ago`) : L(`${p.tail.length - 1 - i}週前`, `${p.tail.length - 1 - i}w ago`)));
       const last = p.tail.at(-1);
       if (p.tail.length > 1) {  // arrow halfway along the last step: which way it is moving
         const a = p.tail.at(-2), x1 = X(a), y1 = Y(a), x2 = X(last), y2 = Y(last), len = Math.hypot(x2 - x1, y2 - y1);
@@ -1952,7 +2211,12 @@
       g.append('circle').attr('cx', X(last)).attr('cy', Y(last)).attr('r', 12).attr('fill', 'transparent').style('cursor', 'pointer')
         .on('pointerenter', () => focus(true))
         .on('click', () => { state.rrgPin = state.rrgPin === id ? null : id; drawRRG(); })
-        .on('pointermove', (event) => showTip(event, `${p.s.ticker.startsWith('AI_') ? '' : p.s.ticker + ' '}${nm(p.s)}`, [
+        .on('pointermove', (event) => showTip(event, `${p.s.ticker.startsWith('AI_') ? '' : p.s.ticker + ' '}${nm(p.s)}`, dly ? [
+          { color: c, text: `${Q[qd] || '—'}（${L('5日前', '5 days ago')}：${Q[p.s['quadrant_d5' + k]] || '—'}）` },
+          { text: L(`日線強度比率 ${fmt1(last.rs_ratio)} · 動量 ${fmt1(last.rs_mom)}`, `Daily RS-ratio ${fmt1(last.rs_ratio)} · momentum ${fmt1(last.rs_mom)}`) },
+          { text: L(`5日相對${benchName} ${signed(p.s['rel1w' + k])}%`, `5 days vs ${benchName} ${signed(p.s['rel1w' + k])}%`) },
+          { text: L(`週線：${Q[p.s['quadrant' + k]] || '—'}`, `Weekly: ${Q[p.s['quadrant' + k]] || '—'}`) },
+        ] : [
           { color: c, text: `${Q[qd] || '—'}（${L('4週前', '4 weeks ago')}：${Q[p.s['quadrant_4w' + k]] || '—'}）` },
           { text: L(`強度比率 ${fmt1(last.rs_ratio)} · 動量 ${fmt1(last.rs_mom)}`, `RS-ratio ${fmt1(last.rs_ratio)} · momentum ${fmt1(last.rs_mom)}`) },
           { text: L(`1個月相對${benchName} ${signed(p.s['rel1m' + k])}%`, `1 month vs ${benchName} ${signed(p.s['rel1m' + k])}%`) },
@@ -2280,17 +2544,30 @@
       line.append(mk('b', null, `${holderName(p, w)}：`), mk('span', r.zone === 'mid' ? '' : 'rb-ext', r.text));
       return line;
     }).filter(Boolean) : []), ...(hint ? [hint] : []));
-    // crowding card: extremes, and which of them are turning
-    const legs = now.flatMap((x) => ['lev', 'am'].map((w) => ({ x, w, r: holderRead(x, w) }))).filter((e) => e.r && e.r.zone !== 'mid');
-    const turning = legs.filter((e) => (e.r.zone === 'high' && e.x[e.w + '_chg_1w'] < 0) || (e.r.zone === 'low' && e.x[e.w + '_chg_1w'] > 0));
-    const name = (e) => L(`${e.x.name}${holderName(e.x, e.w)}（${e.r.zone === 'high' ? '高位' : '低位'}）`, `${e.x.name_en} ${holderName(e.x, e.w).toLowerCase()} (${e.r.zone})`);
+    // crowding card: one line for the week and four weeks (moves scaled by each series' own weekly swing, core macro
+    // markets only), and the clear turns from a deep extreme, shown only when there is one (build_data.positioning_reads)
+    const legs = now.filter((x) => x.core !== false).flatMap((x) => ['lev', 'am'].map((w) => ({ x, w })))
+      .filter((e) => e.x[e.w + '_z1'] != null);
+    const who = (e) => L(`${e.x.name}${holderName(e.x, e.w)}`, `${e.x.name_en} ${holderName(e.x, e.w).toLowerCase()}`);
+    const top = (k) => [...legs].filter((e) => e.x[e.w + '_' + k] != null).sort((p, q) => Math.abs(q.x[q.w + '_' + k]) - Math.abs(p.x[p.w + '_' + k]));
+    const wk = top('z1').slice(0, 2), m4 = top('z4').filter((e) => !wk.includes(e)).slice(0, 2);
+    const pts = (v) => L(`${signed(v)} 點`, `${signed(v)} pts`);
+    const dir = (v) => (v > 0 ? L('偏向 long', 'toward long') : L('偏向 short', 'toward short'));
+    const dt = now[0]?.date || '';
     const l1 = mk('span'); l1.style.display = 'block';
-    l1.append(mk('b', null, L(`三年極端：${legs.length} 項`, `3-year extremes: ${legs.length}`)), legs.length ? ' · ' + legs.map(name).join(sep()) : '');
-    const l2 = mk('span'); l2.style.display = 'block';
-    l2.append(mk('b', null, L('開始轉向：', 'Turning: ')), mk('span', turning.length ? 'rb-ext' : '', turning.length ? turning.map(name).join(sep()) : L('暫無，極端位置仍在延續', 'none yet; the extremes are still extending')));
-    const l3 = mk('span', 'rb-sub'); l3.style.display = 'block';
-    l3.textContent = L('轉向即極端位置的一週變化與極端方向相反，例如處低位而開始回升。極端本身不是訊號，轉向才值得留意。', 'Turning means the one-week change runs against the extreme, for example rising from a low. An extreme alone is not a signal; a turn is.');
-    all.replaceChildren(l1, l2, l3);
+    l1.append(mk('b', null, L(`本週（截至 ${+dt.slice(5, 7)}月${+dt.slice(8)}日）：`, `This week (to ${dt}): `)),
+      L(`變化最大的是${wk.map((e) => `${who(e)}（${pts(e.x[e.w + '_chg_1w'])}）`).join('及')}；四週累計最大是${m4.map((e) => `${who(e)}（${pts(e.x[e.w + '_chg_4w'])}，${dir(e.x[e.w + '_chg_4w'])}）`).join('及')}。`,
+        `biggest moves: ${wk.map((e) => `${who(e)} (${pts(e.x[e.w + '_chg_1w'])})`).join(' and ')}; over four weeks: ${m4.map((e) => `${who(e)} (${pts(e.x[e.w + '_chg_4w'])}, ${dir(e.x[e.w + '_chg_4w'])})`).join(' and ')}.`));
+    const turns = now.flatMap((x) => ['lev', 'am'].map((w) => ({ x, w, t: x[w + '_turn'] }))).filter((e) => e.t);
+    const kids = [l1];
+    if (turns.length) {
+      const l2 = mk('span'); l2.style.display = 'block';
+      l2.append(mk('b', null, L('開始轉向：', 'Turning: ')), mk('span', 'rb-ext', turns.map((e) => L(
+        `${who(e)}（由三年第 ${e.t.peak} 百分位${e.t.from === 'high' ? '回落' : '回升'}至第 ${e.t.now}，兩週 ${signed(e.t.move_2w)} 點）`,
+        `${who(e)} (from the ${e.t.peak}th to the ${e.t.now}th 3-yr percentile, ${signed(e.t.move_2w)} pts in two weeks)`)).join(sep())));
+      kids.push(l2);
+    }
+    all.replaceChildren(...kids);
   }
 
   function drawPositioning() {
@@ -2440,6 +2717,7 @@
       if (levels) lineChart(rateEls[1], { series: credit, height: 240, yFmt: pctFmt, tipFmt: (v) => v.toFixed(2) + '%' });
       else lineChart(rateEls[1], { series: credit, height: 240, ref: 0, yFmt: (v) => signed(v, 0), tipFmt: (v) => signed(v, 0) + L(' 基點', 'bp') });
       lineChart(rateEls[2], { series: [{ name: L('10年減2年', '10y minus 2y'), color: c[0], values: rs.map((r) => ({ d: r.d, v: r.curve })) }], height: 200, ref: 0, yFmt: (v) => v.toFixed(1), tipFmt: (v) => signed(v, 2) });
+      drawCccBb(rs, levels);
     }
 
     const lq = document.getElementById('ch-liq');
@@ -2450,6 +2728,32 @@
     drawChips();
     drawCreditVsStocks();
     drawIgWatch();
+  }
+
+  // CCC minus BB (rulebook §3: read credit by the change from the low). The local board plots the gap in percent; the
+  // public site has no ICE BofA levels, so it plots the change in the gap since the start of the range, in bp.
+  function drawCccBb(rs, levels) {
+    const el = document.getElementById('ch-cccbb'), line = document.getElementById('cccbb-line');
+    if (!rs.some((r) => (levels ? r.ccc_oas : r.ccc_oas_cum) != null)) { el.closest('.rb-card').hidden = true; return; }
+    const gap = (r) => (levels ? (r.ccc_oas == null || r.bb_oas == null ? null : r.ccc_oas - r.bb_oas)
+      : (r.ccc_oas_cum == null || r.bb_oas_cum == null ? null : r.ccc_oas_cum - r.bb_oas_cum));
+    const first = rs.map(gap).find((v) => v != null) ?? 0;
+    const values = rs.map((r) => ({ d: r.d, v: gap(r) == null ? null : levels ? gap(r) : gap(r) - first }));
+    const name = L('CCC 減 BB', 'CCC minus BB');
+    if (levels) lineChart(el, { series: [{ name, color: colors()[0], values }], height: 200, yFmt: (v) => v.toFixed(1) + '%', tipFmt: (v) => v.toFixed(2) + '%' });
+    else lineChart(el, { series: [{ name, color: colors()[0], values }], height: 200, ref: 0, yFmt: (v) => signed(v, 0), tipFmt: (v) => signed(v, 0) + L(' 基點', 'bp') });
+    if (status(['rates_now']) !== 'ok') { line.replaceChildren(); return; }
+    const rt = dash.data('rates_now').data[0];
+    const ch = (w) => (rt['ccc_oas_' + w] == null || rt['bb_oas_' + w] == null ? null : rt['ccc_oas_' + w] - rt['bb_oas_' + w]);
+    const bits = [];
+    if (rt.ccc_oas != null && rt.bb_oas != null) bits.push(L(`最新 ${(rt.ccc_oas - rt.bb_oas).toFixed(2)}%`, `latest ${(rt.ccc_oas - rt.bb_oas).toFixed(2)}%`));
+    let cq = null;
+    try { if (status(['alerts']) === 'ok') cq = dash.data('alerts').data.find((a) => a.id === 'credit_quality'); } catch (e) { cq = null; }
+    if (cq && cq.widen_bp != null) bits.push(L(`較 12 個月低位 ${signed(cq.widen_bp, 0)} 基點`, `${signed(cq.widen_bp, 0)}bp above its 12-month low`));
+    for (const [w, zh, en] of [['1w', '一週', '1 wk'], ['1m', '一個月', '1 mo'], ['1y', '一年', '1 yr']]) {
+      const v = ch(w); if (v != null) bits.push(L(`${zh} ${signed(v, 0)} 基點`, `${en} ${signed(v, 0)}bp`));
+    }
+    line.replaceChildren(mk('b', null, L('差距：', 'Gap: ')), bits.join(L('；', '; ')));
   }
 
   // Latest value plus one-week and one-month change under a chart title; each number is marked to rates_now.
@@ -2522,6 +2826,59 @@
       tr.append(mk('td', 'rb-left', read(lev, am, p.has_am)));
       return tr;
     }));
+  }
+
+  // Alert lamps (alerts.py; rulebook §3): risk lamps red when on, green when off; the relief lamp green when on.
+  // Each lamp has its own on and off thresholds; a switch today is flagged as newly triggered or improved.
+  // The public site shows the lamps only, without the readings behind them.
+  // the local board's daily summary already carries a section for the same close: don't show it twice (user, 2026-10-15)
+  const inSummary = (heading, asof) => {
+    try {
+      if (window.RB_PUBLIC || status(['summary']) !== 'ok') return false;
+      const row = dash.data('summary').data[0];
+      return !!row && row.session >= asof && row.text.split('\n').some((l) => l.trim().startsWith(heading));
+    } catch (e) { return false; }
+  };
+
+  function drawAlerts() {
+    // Evidence is consolidated in the daily summary; do not reintroduce proxy alarms on the public build.
+    const el = document.getElementById('alerts');
+    el.hidden = true;
+    el.replaceChildren();
+  }
+
+  // AI cycle layers (ai_cycle_watch/track.py, local board only): state, drawdown, since when, and today's switches
+  function drawLayers() {
+    const card = document.getElementById('layers-card');
+    let st;
+    try { st = window.RB_PUBLIC ? 'off' : status(['ai_layers']); } catch (e) { st = 'off'; }
+    if (st !== 'ok') { card.hidden = true; return; }
+    const lt = dash.data('ai_layers').data[0];
+    // layer 1 to 5, then the payer, the renter, private credit and BDCs (user 2026-10-16); lt.layers keeps the expected
+    // compression order (layer 5 first)
+    const OTHER = ['SPEND', 'NEO', 'ALT', 'BDC'];
+    const rows = [...Object.entries(lt.layers).sort(([a], [c]) => a.localeCompare(c)),
+      ...Object.entries(lt.other).sort(([a], [c]) => (OTHER.indexOf(a) + 1 || 99) - (OTHER.indexOf(c) + 1 || 99))];
+    const lay = (k) => lt.layers[k].label.split(' ')[0];
+    const since = (v) => (!v.since ? '—' : v.since === lt.history_start ? L(`${v.since} 或更早`, `${v.since} or earlier`) : v.since);
+    const moved = rows.filter(([, v]) => v.prev_state && v.prev_state !== v.state).map(([, v]) => `${v.label} ${v.prev_state} → ${v.state}`);
+    document.getElementById('layers-line').replaceChildren(mk('b', null, L(`${lt.asof} 收市：`, `${lt.asof} close: `)),
+      L(`今日轉變：${moved.length ? moved.join('；') : '沒有'}。壓縮次序（最深先）：${lt.actual_order.map(lay).join(' → ')}；預期：${Object.keys(lt.layers).map(lay).join(' → ')}（${lt.order_matches_expected ? '一致' : '不一致'}）。新雲減付款方 4 週 ${signed(lt.spreads.neo_minus_spend_4w)} 點。`,
+        `Switched today: ${moved.length ? moved.join(', ') : 'none'}. Order: ${lt.actual_order.join(' → ')} (${lt.order_matches_expected ? 'as expected' : 'not as expected'}); neoclouds minus spenders over 4 weeks ${signed(lt.spreads.neo_minus_spend_4w)} pts.`));
+    const t = document.getElementById('layers-table');
+    const head = mk('tr');
+    for (const h of [L('層', 'Layer'), L('狀態', 'State'), L('距 52 週高位', 'From 52-wk high'), L('4 週相對 SMH', '4 wk vs SMH'), L('13 週相對標普', '13 wk vs S&P'), L('狀態自', 'Since')]) head.append(mk('th', null, h));
+    const body = mk('tbody');
+    for (const [, v] of rows) {
+      const tr = mk('tr');
+      const cls = v.state === '壓縮' ? 'rb-down' : v.state === '回調' ? 'rb-warn' : '';
+      tr.append(mk('td', null, v.label), mk('td', cls, v.state + (v.prev_state && v.prev_state !== v.state ? L('（今日轉）', ' (today)') : '')),
+        mk('td', null, `${signed(v.dd52w)}%`), mk('td', null, signed(v.rel4w_smh)), mk('td', null, signed(v.rel13w_spy)), mk('td', null, since(v)));
+      body.append(tr);
+    }
+    const thead = mk('thead'); thead.append(head);
+    t.replaceChildren(thead, body);
+    card.hidden = false;
   }
 
   // Investment-grade spread watch (build_data.ig_watch): a supply jam that passes, or buyers stepping back?
@@ -2666,6 +3023,7 @@
   document.querySelectorAll('.rb-lang').forEach((b) => b.addEventListener('click', () => dash.setParams({ lang: b.dataset.lang })));
   document.querySelectorAll('.rb-grp').forEach((b) => b.addEventListener('click', () => { state.grp = b.dataset.grp; drawAll(); }));
   document.querySelectorAll('.rb-tail').forEach((b) => b.addEventListener('click', () => { state.tail = +b.dataset.tail; drawAll(); }));
+  document.querySelectorAll('.rb-freq').forEach((b) => b.addEventListener('click', () => { state.freq = b.dataset.freq; drawAll(); }));
   document.querySelectorAll('.rb-mode').forEach((b) => b.addEventListener('click', () => { state.mode = b.dataset.mode; drawAll(); }));
   document.getElementById('rank-sectors').addEventListener('change', (e) => { state.withSectors = e.target.checked; drawAll(); });
   document.querySelectorAll('.rb-bench').forEach((b) => b.addEventListener('click', () => { state.bench = b.dataset.bench; drawAll(); }));
@@ -2698,6 +3056,7 @@
     press('.rb-lang', 'lang', en() ? 'en' : 'zh');
     press('.rb-grp', 'grp', state.grp);
     press('.rb-tail', 'tail', state.tail);
+    press('.rb-freq', 'freq', state.freq);
     press('.rb-mode', 'mode', state.mode);
     press('.rb-poswin', 'win', state.posWin);
     press('.rb-bench', 'bench', state.bench);
@@ -2711,10 +3070,14 @@
       const name = src === 'treasury' ? L('美國財政部', 'US Treasury') : src === 'fred' ? 'FRED' : null;
       document.getElementById('asof-yield-src').textContent = L(`· 美債${name ? `（${name}）` : ''}`, `· Treasury yields${name ? ` (${name})` : ''}`);
     }
+    document.getElementById('asof-weekly').hidden = true;
     drawHeader();
+    drawAlerts();
+    drawLayers();
     if (state.page === 'overview') drawOverview();
     if (state.page === 'rotation') {
-      document.getElementById('rrg-title').textContent = state.bench === 'smh' ? L('相對輪動圖（對半導體）', 'Relative rotation graph (vs semis)') : L('相對輪動圖（對標普500）', 'Relative rotation graph (vs S&P 500)');
+      document.getElementById('rrg-title').textContent = (state.bench === 'smh' ? L('相對輪動圖（對半導體', 'Relative rotation graph (vs semis') : L('相對輪動圖（對標普500', 'Relative rotation graph (vs S&P 500'))
+        + (daily() ? L('，日線）', ', daily)') : L('，週線）', ', weekly)'));
       drawPicker(); drawRRG(); drawTable(); drawLeaders();
     }
     if (state.page === 'stage') drawStage();
