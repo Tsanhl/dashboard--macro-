@@ -30,7 +30,7 @@ DATASETS = ["sectors", "rrg_tails", "ratios", "ratio_summary", "breadth", "bread
 # summary sections the public copy leaves out (local only, user 2026-10-15): the 總結 overview, the lamps, the AI layers,
 # the weekly rotation and leader lists (trading lines are private, like the board's 輪動操作)
 LOCAL_SECTIONS = ("總結", "警報燈：", "五步讀盤：", "AI 周期分層（價格）：", "板塊輪動（", "股票（龍頭名單")
-LOCAL_ONLY = {"steps", "ai_layers", "check_prices", "borrower_credit"}
+LOCAL_ONLY = {"steps", "ai_layers", "check_prices", "borrower_credit", "holdings"}
 BORROWER_CREDIT = ROOT.parent / "board_evidence" / "borrower_credit.json"
 AI_LAYERS = ROOT.parent / "ai_cycle_watch" / "data"  # track.py's latest.json and history.json (local board only)
 CREDIT = ["hy_oas", "ig_oas", "ig_yield", "ccc_oas", "bb_oas"]  # ICE BofA levels: percentiles and changes only on the public site
@@ -87,9 +87,11 @@ def write_public_summary():
         # The daily detail now includes raw CTA trigger prices and SKEW. The public copy retains
         # changes/ratios, consistent with public_data(), never the raw index levels.
         if body.startswith("CTA 今日"):
-            line = line.split("；一個月趨勢轉負參考", 1)[0].rstrip("。") + "。"
+            # All trigger-level details follow the first semicolon. Keep only model changes,
+            # including when the reference label changes between daily summary versions.
+            line = line.split("；", 1)[0].rstrip("。") + "。"
         if body.startswith("VIX／VIX3M"):
-            line = re.sub(r"、SKEW [^（\n]+", "", line)
+            line = re.sub(r"[、；]SKEW\s+[^。\n]*", "", line)
         if line.strip() or (out and out[-1].strip()):  # one blank line where a dropped section was
             out.append(line)
     PUBLIC_SUMMARY.write_text(f"session: {rows[0]['session']}\n" + "\n".join(out))

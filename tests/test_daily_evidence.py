@@ -75,6 +75,8 @@ class EvidenceTests(unittest.TestCase):
 
     def test_public_datasets_exclude_private_evidence_and_raw_levels(self):
         data={'check_prices':[{'spy_1d':1}],'steps':[{}],'ai_layers':[{}],
+              'holdings':[{'ticker':'PRIVATE_SENTINEL','kind':'held'}],
+              'borrower_credit':[{'private_note':'PRIVATE_SENTINEL'}],
               'rates':[{'date':'2026-10-14','ccc_oas':12.82,'bb_oas':1.99}],
               'rates_now':[{'ccc_oas':12.82,'bb_oas':1.99}],
               'sectors':[{'price':123,'r1d':1}], 'flowmodel_now':[{'spx':7650,'cta_flips':[{'level':7300,'dist':-4}]}]}
@@ -83,5 +85,18 @@ class EvidenceTests(unittest.TestCase):
         for key in build_site.LOCAL_ONLY:self.assertNotIn(key,public)
         self.assertNotIn('price',public['sectors'][0]);self.assertNotIn('ccc_oas',public['rates'][0])
         self.assertNotIn('level',public['flowmodel_now'][0]['cta_flips'][0])
+
+    def test_public_summary_omits_updated_model_reference_labels(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp)
+            text=('總結（10月16日收市）：\n私人取態\n\n---\n\n每日模型詳情：\n\n'
+                  '* CTA 今日 −11.0、近5日 −19.9；下一交易日一個月趨勢判定參考 7765.0，整體轉平 7361.0。\n'
+                  '* VIX／VIX3M 0.975（10月16日）；SKEW 160.4（10月15日，16日尚未提供）。\n')
+            with patch.object(build_site,'latest_summary',return_value=[{'session':'2026-10-16','text':text}]),patch.object(build_site,'HOLDINGS',root/'missing.json'),patch.object(build_site,'PUBLIC_SUMMARY',root/'summary.md'):
+                build_site.write_public_summary();out=(root/'summary.md').read_text()
+            for private in ['私人取態','7765','7361','趨勢判定參考','160.4','SKEW']:
+                self.assertNotIn(private,out)
+            self.assertIn('CTA 今日 −11.0、近5日 −19.9。',out)
+            self.assertIn('VIX／VIX3M 0.975（10月16日）。',out)
 
 if __name__=='__main__':unittest.main()

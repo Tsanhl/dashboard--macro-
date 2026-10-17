@@ -416,8 +416,9 @@
     <div class="rb-card" id="card-poschange">
       <div class="rb-cardhead">
         <div>
-          <h2 class="rb-h2" data-en="Who added and who cut">持倉變化總覽</h2>
-          <p class="rb-sub" data-en="Change in net position, in percentage points of open interest. Positive: added longs or cut shorts. Negative: cut longs or added shorts. Moves of 2 points or more are in bold.">淨持倉變化，以佔未平倉合約的百分點計。正數為加 long 或減 short，負數為減 long 或加 short。變動2個百分點或以上以粗體顯示。</p>
+          <h2 class="rb-h2" data-en="Net positioning changes">持倉變化總覽</h2>
+          <p class="rb-sub" data-en="Weekly change in (long minus short) as a share of open interest, in percentage points. Positive means the net share rose; negative means it fell. A rise can mean less net short exposure rather than more net long exposure. Changing open interest also affects the percentage; this is not a measure of cash flows. Moves of 2 points or more are in bold.">每週淨持倉（long 減 short）佔未平倉合約的比例變化，以百分點計。正數表示淨佔比上升，負數表示下降；上升可能只是淨空倉減少，未必是增加淨多倉。未平倉合約總數改變亦會影響比例，不能直接當作資金流。變動2個百分點或以上以粗體顯示。</p>
+          <p class="rb-sub" id="poschange-asof" data-source="positioning_now"></p>
         </div>
         <div class="rb-seg" role="group" aria-label="變化期間" data-en-aria="Change period">
           <button type="button" class="rb-poswin" data-win="1w" aria-pressed="true" data-en="1 week">一週</button>
@@ -437,7 +438,7 @@
         <p class="rb-sub" data-en="CFTC weekly report: Tuesday positions, published Friday, so this part changes once a week (the rest of the board updates daily). Figures are net position (long minus short) as a share of open interest.">CFTC 每週報告：週二持倉，週五公佈，所以這部分一週只變一次（看板其他部分每日更新）。數字為淨持倉（long 減 short）佔未平倉合約的百分比。</p>
         <details class="rb-sub rb-posnote">
           <summary data-en="Definitions and the turn rule">定義及轉向規則</summary>
-          <p data-en="Percentile: this week's rank over the past three years; 90+ or 10− is marked in the table. Asset managers are pension funds, mutual funds and insurers; leveraged funds are hedge funds and CTAs; for commodities the fund column is managed money. The 52-week z is how many standard deviations net contracts sit from their one-year average. Leveraged funds' big shorts in S&amp;P and Treasury futures are mostly basis trades (long cash, short futures), not bearish bets.">百分位：本週在過去三年的排位，表中 90 以上或 10 以下會標示。資產管理機構即退休基金、互惠基金及保險公司；槓桿基金即對沖基金及商品交易顧問；商品一欄為管理資金。52週 z 為淨合約數與過去一年平均相差多少個標準差。槓桿基金在標普及美債期貨的大額 short 多屬基差交易（long 現貨、short 期貨），不代表看淡。</p>
+          <p data-en="Percentile: this week's rank over the past three years; 90+ or 10− is marked in the table. Asset managers include pension funds, mutual funds and insurers; leveraged funds include hedge funds and CTAs, and are not a separate CTA position count. For commodities the fund column is managed money. The 52-week z is how many standard deviations net contracts sit from their one-year average. Futures shorts may include hedges or basis trades (long cash, short futures); a net short position alone does not establish a bearish directional view.">百分位：本週在過去三年的排位，表中 90 以上或 10 以下會標示。資產管理機構包括退休基金、互惠基金及保險公司；槓桿基金包括對沖基金及商品交易顧問，並非 CTA 的獨立持倉統計。商品一欄為管理資金。52週 z 為淨合約數與過去一年平均相差多少個標準差。期貨空倉可能包括對沖或基差交易（long 現貨、short 期貨），不能單憑淨空倉判定方向性看淡。</p>
           <p data-en="The weekly line ranks moves against each series' own typical weekly change, so markets are comparable. A turn is shown only when all four hold: 2–4 weeks ago beyond the 3-year 5th/95th percentile; two straight weekly moves against it; the 2-week move at least 1.5 times the typical weekly change; the percentile now 20+ points off. Over the past year that marked about 40 turns across 62 series, under one a year per series.">每週一句按各自平日每週變化比較，所以不同市場可以相比。「開始轉向」只在四項同時成立時才顯示：2 至 4 週前處三年第 5 或第 95 百分位以外；連續兩週反向；兩週變化至少是平日每週變化的 1.5 倍；百分位已離開極端 20 點以上。過去一年 62 條序列共約 40 次，即每條序列不到一年一次。</p>
         </details>
       </div>
@@ -522,11 +523,12 @@
     </div>
     <div class="rb-grid">
       <div class="rb-card" id="card-bondcta">
-        <h2 class="rb-h2" data-en="CTA signals on 10-year government bonds">CTA 國債信號（10年期）</h2>
-        <p class="rb-sub" data-en="Trend signal in standard deviations, from the 10-year yield (a falling yield is a rising bond). Negative: trend funds short bonds, betting on higher yields. Below −1 is a strong short; a turn back toward zero means short covering that can add to a bond rally. Germany uses the ECB's euro-area AAA curve. The UK yield comes from the Bank of England a session late; the date of each yield is shown below the chart.">以標準差表示的趨勢信號，由10年期收益率計算（收益率下跌即債價上升）。負數：趨勢基金 short 債券，押注收益率上升。低於 −1 屬強烈 short；回升向零代表 short 回補，可能加快債市升勢。德國以歐洲央行歐元區AAA收益率曲線代替。英國收益率來自英倫銀行，遲一個交易日公佈；各收益率的日期列於圖下。</p>
+        <h2 class="rb-h2" data-en="CTA signal: US 10-year Treasury">CTA 美國國債信號（10年期）</h2>
+        <p class="rb-sub" data-en="Model trend signal in standard deviations, calculated from the US 10-year Treasury yield (a falling yield is a rising bond price). Negative means the model favours short bonds; below −1 is a strong short signal. A move back toward zero indicates easing short pressure in the model, not observed fund positions or actual short covering. The yield observation date is shown below the chart.">以標準差表示的模型趨勢信號，由美國10年期國債收益率計算（收益率下跌即債價上升）。負數代表模型偏向做空債券；低於 −1 屬強烈做空信號。回升向零表示模型的做空壓力減弱，不代表已觀察到基金持倉或實際回補。收益率觀察日期列於圖下。</p>
         <div class="rb-legend" id="lg-bondcta"></div>
         <div class="rb-chart dash-skeleton" id="ch-bondcta" data-source="flowmodel flowmodel_now" style="min-height: 13rem"></div>
         <div class="rb-chips" id="chips-bond"></div>
+        <p class="rb-take-line" id="bondcta-reading" data-source="flowmodel flowmodel_now rates_now"></p>
       </div>
       <div class="rb-card" id="card-vixts">
         <h2 class="rb-h2" data-en="VIX term structure">VIX 期限結構</h2>
@@ -716,7 +718,7 @@
       <ul>
         <li data-en="Long means bought, making money if the price rises; short means sold, making money if it falls. Net long or net short is longs minus shorts, shown as a share of all open contracts. A big net short is often a hedge against stocks held, not a bet on a crash; what matters is when shorts start being bought back.">Long 即買入，價格上升時賺錢；short 即沽出，價格下跌時賺錢。淨 long／淨 short 為 long 減 short，以佔全部未平倉合約的百分比表示。淨 short 大，往往是對沖手上持有的股票，未必是押注大跌；要留意的是 short 開始回補的時候。</li>
         <li data-en="Asset managers are pension funds, insurers and mutual funds: slow, long-term money. Leveraged funds are hedge funds and CTAs: fast money that chases trends and can be forced to unwind. For commodities the fund line is managed money.">資產管理機構即退休基金、保險公司、互惠基金，屬慢錢、長線；槓桿基金即對沖基金及商品交易顧問，屬快錢，會追勢，也會被迫平倉。商品的基金一欄為管理資金。</li>
-        <li data-en="Who added and who cut: one line per market. Positive means more long or less short. One week shows the latest move, four weeks the trend. Both groups moving the same way is a stronger signal; a split means fast and slow money disagree.">持倉變化總覽：每個市場一行，正數為加 long 或減 short。一週看最新動作，四週看趨勢；兩類持倉者同方向，訊號較強；出現分歧，代表快錢與慢錢看法不同。</li>
+        <li data-en="Net positioning changes: one line per market. One week shows the latest change in net position as a share of open interest; four weeks adds context. A positive change can be a reduction in net shorts. The two groups can move in the same or opposite directions, but this alone does not reveal their trade intent or measure cash flows.">持倉變化總覽：每個市場一行，一週看淨持倉佔比最新變化，四週看近期方向；正數可能只是淨空倉減少。兩類持倉者同向或相反，不足以判定交易目的，亦不是資金流統計。</li>
         <li data-en="Crowding table: the percentile ranks this week against three years; 90+ or 10− is extreme. An extreme is not a trade signal by itself; it tells you how violent the unwind would be if the story changes. A turn from an extreme matters more than the level; the card shows 「開始轉向」 only when a turn from a deep extreme is clear (rule under 定義及轉向規則).">擁擠度表：百分位為本週在三年內的排位，90以上或10以下為極端。極端本身不是買賣訊號，代表一旦故事改變，平倉會很猛烈；由極端位置開始轉向，比水平本身重要。卡片只在由深度極端清楚轉向時才顯示「開始轉向」（規則見「定義及轉向規則」）。</li>
       </ul>
       <div class="rb-tablebox" style="max-height: none">
@@ -2469,9 +2471,47 @@
   const lvl = (v) => (v == null ? '—' : d3.format(',')(v));
   const LOOKBACK = () => ({ 20: L('1個月', '1 month'), 60: L('3個月', '3 months'), 125: L('6個月', '6 months'), 250: L('12個月', '12 months') });
   const chip = (text, c) => mk('span', c || null, text);
+  function bondCTAReading(f, history, rates) {
+    const us = f?.bonds?.find((b) => b.key === 'us');
+    if (!us?.date || !f?.date || us.date > f.date || !Number.isFinite(us.signal))
+      return L('每日判讀：美債模型資料不足，未確認。', 'Daily reading: US bond model data are incomplete; unconfirmed.');
+    const value = us.signal;
+    const side = value < 0 ? L('偏空', 'short-biased') : value > 0 ? L('偏多', 'long-biased') : L('中性', 'neutral');
+    const lead = L(`${md2(us.date)}判讀：模型${side}（${signed(value, 2)}）。`, `${md2(us.date)}: the model is ${side} (${signed(value, 2)}). `);
+    if (us.date !== f.date)
+      return lead + L(`未有${md2(f.date)}的新報價，當日變化未確認。`, `No new quote for ${md2(f.date)}; that session's change is unconfirmed.`);
+    // Read the previous actual yield observation, not a carried-forward equity-session row.
+    const prevDate = rates?.nominal10_date === us.date ? rates.nominal10_prev_date : null;
+    const currentRows = history.filter((r) => r.date === us.date);
+    const previousRows = prevDate && prevDate < us.date ? history.filter((r) => r.date === prevDate) : [];
+    const aligned = currentRows.length === 1 && Number.isFinite(currentRows[0].b_us)
+      && Math.abs(currentRows[0].b_us - value) < 0.005;
+    const daily = aligned && previousRows.length === 1 && Number.isFinite(previousRows[0].b_us)
+      ? Number((value - previousRows[0].b_us).toFixed(2)) : null;
+    // chg_5d is calculated over five source-yield observations in flows.py, not five equity sessions.
+    const five = aligned && Number.isFinite(us.chg_5d) ? us.chg_5d : null;
+    const changeText = (delta) => {
+      const before = Number((value - delta).toFixed(2));
+      if (delta === 0) return L('模型信號持平', 'the model signal is unchanged');
+      if (value === 0) return L('模型回到中性', 'the model returned to neutral');
+      if (value < 0 && before >= 0) return L('模型轉為偏空', 'the model turned short-biased');
+      if (value > 0 && before <= 0) return L('模型轉為偏多', 'the model turned long-biased');
+      if (value < 0) return delta > 0 ? L('做空訊號減弱', 'the short signal weakened') : L('做空訊號增強', 'the short signal strengthened');
+      return delta > 0 ? L('做多訊號增強', 'the long signal strengthened') : L('做多訊號減弱', 'the long signal weakened');
+    };
+    const weekText = five == null ? L('較5次報價前的變化未確認', 'The change over five yield observations is unconfirmed')
+      : L(`較5次報價前，${changeText(five)}`, `Compared with five yield observations earlier, ${changeText(five)}`);
+    const connector = five != null && daily != null && five * daily < 0 ? L('；但', '; but ') : L('；', '; ');
+    const dayText = daily == null ? L('最新一日變化未確認', "the latest observation's change is unconfirmed")
+      : L(`較上一報價日（${md2(prevDate)}），${changeText(daily)}`, `compared with the prior quote (${md2(prevDate)}), ${changeText(daily)}`);
+    return lead + weekText + connector + dayText + L('。', '.');
+  }
   function drawFlowModels() {
     const f = status(['flowmodel_now']) === 'ok' ? dash.data('flowmodel_now').data[0] : null;
     const c = colors();
+    const history = status(['flowmodel']) === 'ok' ? dash.data('flowmodel').data : [];
+    const rates = status(['rates_now']) === 'ok' ? dash.data('rates_now').data[0] : null;
+    document.getElementById('bondcta-reading').textContent = bondCTAReading(f, history, rates);
 
     const fch = ['ch-cta', 'ch-vc', 'ch-bondcta', 'ch-vixts'].map((id) => document.getElementById(id));
     if (!fch.map((el) => ready(el, ['flowmodel', 'flowmodel_now'])).every(Boolean)) return;
@@ -2494,11 +2534,11 @@
     document.getElementById('chips-vc').replaceChildren(...(f ? [chip(L(`現時 ${f.vc}%`, `Now ${f.vc}%`)), chip(L(`五日 ${signed(f.vc_5d)}`, `5 days ${signed(f.vc_5d)}`)), chip(L(`一個月 ${signed(f.vc_21d)}`, `1 month ${signed(f.vc_21d)}`)),
       chip(L(`實現波幅 1個月 ${f.rv1}%｜3個月 ${f.rv3}%`, `Realised vol 1m ${f.rv1}% | 3m ${f.rv3}%`))] : []));
 
-    const bonds = [['b_us', L('美國', 'US')], ['b_de', L('德國', 'Germany')], ['b_uk', L('英國', 'UK')], ['b_jp', L('日本', 'Japan')]]
+    const bonds = [['b_us', L('美國', 'US')]]
       .filter(([k]) => rows.some((r) => r[k] != null)).map(([k, name], i) => ({ name, color: c[i], values: pts(k) }));
     legend(document.getElementById('lg-bondcta'), bonds);
     if (bonds.length) lineChart(fch[2], { series: bonds, height: 210, ref: 0, yFmt: (v) => v.toFixed(1), tipFmt: (v) => signed(v, 2) });
-    document.getElementById('chips-bond').replaceChildren(...(f?.bonds || []).map((b) => chip(L(`${nm(b)} 10年 ${b.yield?.toFixed(2) ?? '—'}%（${b.date}）`, `${nm(b)} 10y ${b.yield?.toFixed(2) ?? '—'}% (${b.date})`))));
+    document.getElementById('chips-bond').replaceChildren(...(f?.bonds || []).filter((b) => b.key === 'us').map((b) => chip(L(`${nm(b)} 10年 ${b.yield?.toFixed(2) ?? '—'}%（${b.date}）`, `${nm(b)} 10y ${b.yield?.toFixed(2) ?? '—'}% (${b.date})`))));
 
     lineChart(fch[3], { series: [{ name: 'VIX / VIX3M', color: c[2], values: pts('vix_ratio') }], height: 210, ref: 1, yFmt: (v) => v.toFixed(2), tipFmt: (v) => v.toFixed(3) });
     document.getElementById('chips-vix').replaceChildren(...(f ? [chip(`VIX9D ${f.vix9d ?? '—'}`), chip(`VIX ${f.vix ?? '—'}`), chip(`VIX3M ${f.vix3m ?? '—'}`), chip(`SKEW ${f.skew ?? '—'}`)] : []));
@@ -2552,12 +2592,12 @@
     const top = (k) => [...legs].filter((e) => e.x[e.w + '_' + k] != null).sort((p, q) => Math.abs(q.x[q.w + '_' + k]) - Math.abs(p.x[p.w + '_' + k]));
     const wk = top('z1').slice(0, 2), m4 = top('z4').filter((e) => !wk.includes(e)).slice(0, 2);
     const pts = (v) => L(`${signed(v)} 點`, `${signed(v)} pts`);
-    const dir = (v) => (v > 0 ? L('偏向 long', 'toward long') : L('偏向 short', 'toward short'));
+    const dir = (v) => (v > 0 ? L('淨佔比上升', 'net share rose') : L('淨佔比下降', 'net share fell'));
     const dt = now[0]?.date || '';
     const l1 = mk('span'); l1.style.display = 'block';
     l1.append(mk('b', null, L(`本週（截至 ${+dt.slice(5, 7)}月${+dt.slice(8)}日）：`, `This week (to ${dt}): `)),
-      L(`變化最大的是${wk.map((e) => `${who(e)}（${pts(e.x[e.w + '_chg_1w'])}）`).join('及')}；四週累計最大是${m4.map((e) => `${who(e)}（${pts(e.x[e.w + '_chg_4w'])}，${dir(e.x[e.w + '_chg_4w'])}）`).join('及')}。`,
-        `biggest moves: ${wk.map((e) => `${who(e)} (${pts(e.x[e.w + '_chg_1w'])})`).join(' and ')}; over four weeks: ${m4.map((e) => `${who(e)} (${pts(e.x[e.w + '_chg_4w'])}, ${dir(e.x[e.w + '_chg_4w'])})`).join(' and ')}.`));
+      L(`相對各自平日變幅，本週較突出的是${wk.map((e) => `${who(e)}（${pts(e.x[e.w + '_chg_1w'])}）`).join('及')}；四週另見${m4.map((e) => `${who(e)}（${pts(e.x[e.w + '_chg_4w'])}，${dir(e.x[e.w + '_chg_4w'])}）`).join('及')}。不代表報告日之後的買賣。`,
+        `moves relative to each series' usual weekly variation: ${wk.map((e) => `${who(e)} (${pts(e.x[e.w + '_chg_1w'])})`).join(' and ')}; other notable four-week moves: ${m4.map((e) => `${who(e)} (${pts(e.x[e.w + '_chg_4w'])}, ${dir(e.x[e.w + '_chg_4w'])})`).join(' and ')}. Excludes trading after the report date.`));
     const turns = now.flatMap((x) => ['lev', 'am'].map((w) => ({ x, w, t: x[w + '_turn'] }))).filter((e) => e.t);
     const kids = [l1];
     if (turns.length) {
@@ -2795,24 +2835,31 @@
   function drawPosChange() {
     const table = document.getElementById('poschange-table');
     const st = status(['positioning_now']);
+    const dateLine = document.getElementById('poschange-asof');
+    dateLine.textContent = '';
     if (!tableState(table, st)) return;
+    const dates = [...new Set(dash.data('positioning_now').data.map((p) => p.date).filter(Boolean))].sort();
+    dateLine.textContent = dates.length === 1
+      ? L(`每週資料，持倉截至 ${dates[0]}；不包括其後交易日。`, `Weekly positions as of ${dates[0]}; excludes subsequent sessions.`)
+      : L(`各市場觀察日期：${dates.join('、') || '未確認'}`, `Market observation dates: ${dates.join(', ') || 'unconfirmed'}`);
     const k = state.posWin === '4w' ? '4w' : '1w';
     const cols = [
       { f: en() ? 'name_en' : 'name', label: L('市場', 'Market') },
       { f: 'lev_chg_' + k, label: L('槓桿基金／管理資金', 'Leveraged funds / managed money') },
       { f: 'am_chg_' + k, label: L('資產管理機構', 'Asset managers') },
-      { f: null, label: L('解讀', 'Reading') },
+      { f: null, label: L('淨佔比方向', 'Net share direction') },
     ];
     table.tHead.rows[0].replaceChildren(...cols.map((c) => { const th = mk('th', null, c.label); th.scope = 'col'; if (c.f) th.dataset.field = c.f; return th; }));
     const word = (v) => (v == null ? null : v >= 0.5 ? 'add' : v <= -0.5 ? 'cut' : 'flat');
     const read = (lev, am, hasAm) => {
       const a = word(lev), b = hasAm ? word(am) : null;
-      if (!hasAm) return { add: L('基金加倉', 'Funds adding'), cut: L('基金減倉', 'Funds cutting'), flat: L('變化不大', 'Little change') }[a];
+      if (!hasAm) return { add: L('基金淨佔比上升', 'Fund net share rose'), cut: L('基金淨佔比下降', 'Fund net share fell'), flat: L('變化不大', 'Little change') }[a] || L('未確認', 'Unconfirmed');
+      if (a == null || b == null) return L('資料不足', 'Incomplete data');
       if (a === 'flat' && b === 'flat') return L('變化不大', 'Little change');
-      if (a === b) return a === 'add' ? L('兩者同時加倉', 'Both adding') : L('兩者同時減倉', 'Both cutting');
-      if (a === 'flat') return b === 'add' ? L('資管加倉', 'Asset managers adding') : L('資管減倉', 'Asset managers cutting');
-      if (b === 'flat') return a === 'add' ? L('槓桿基金加倉', 'Leveraged funds adding') : L('槓桿基金減倉', 'Leveraged funds cutting');
-      return a === 'add' ? L('分歧：槓桿基金加，資管減', 'Split: leveraged adding, asset managers cutting') : L('分歧：槓桿基金減，資管加', 'Split: leveraged cutting, asset managers adding');
+      if (a === b) return a === 'add' ? L('兩者淨佔比上升', 'Both net shares rose') : L('兩者淨佔比下降', 'Both net shares fell');
+      if (a === 'flat') return b === 'add' ? L('資管淨佔比上升', 'Asset-manager net share rose') : L('資管淨佔比下降', 'Asset-manager net share fell');
+      if (b === 'flat') return a === 'add' ? L('槓桿淨佔比上升', 'Leveraged net share rose') : L('槓桿淨佔比下降', 'Leveraged net share fell');
+      return a === 'add' ? L('淨佔比：槓桿↑、資管↓', 'Net shares: leveraged ↑, managers ↓') : L('淨佔比：槓桿↓、資管↑', 'Net shares: leveraged ↓, managers ↑');
     };
     table.tBodies[0].replaceChildren(...dash.data('positioning_now').data.map((p) => {
       const tr = mk('tr');

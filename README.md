@@ -44,6 +44,11 @@ not older than the board's data) and `holdings` (`../holdings.json`, `{"updated"
 the ★ marks). Neither is ever written to `data/`, `site/` or this repo. Elsewhere (the artifact, the public site) the
 holdings dataset is missing: no marks, and 自選股 starts from a neutral list of large AI-chain and tech names.
 
+`summary.md` is a separately reviewed public market summary. It may include market-wide breadth, credit changes,
+weekly CFTC context and model estimates; it does not include personal holdings, watch-list marks, valuations,
+position plans, raw index trigger levels or private borrower evidence. The full local summary stays outside this
+repository. The public build uses only this reviewed file and never loads personal holdings or borrower records.
+
 ## Data sources
 
 - Prices: Yahoo Finance via `yfinance` (dividend-adjusted)
