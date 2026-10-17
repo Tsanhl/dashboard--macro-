@@ -4,6 +4,7 @@ __pycache__/
 data/
 site/
 site_private/
+.refresh/
 
 # Private project inputs and evidence must never be committed if copied into this repo.
 holdings.json
@@ -16,3 +17,5 @@ board_updates/
 ai_cycle_watch/
 .env
 .env.*
+
+.venv/

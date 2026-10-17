@@ -1,18 +1,9 @@
-"""Build the public website version of the dashboard into site/.
+"""Render public or private data; refresh.py stages and validates normal builds.
 
-Run after build_data.py:  python3 build_site.py
-- Copies data/*.json to site/data/, leaving out what should not be republished:
-  raw Yahoo price levels (ETF and stock prices, the "last" column of the macro table) and
-  ICE BofA credit-spread levels (replaced by changes in bp and a 3-year percentile).
-- Wraps index.html (written for the Claude Dashboard artifact) in a standalone page with
-  a small stand-in for the artifact's `dash` API, d3 from cdnjs and the colour tokens.
-The full data stays local and in the Claude dashboard.
-With --private, the newest ../daily_summaries/<date>.md is added as the "summary" dataset and ../holdings.json (positions
-held and the user's picks) as the "holdings" dataset (local board only; neither ever goes into site/ or the dashboard
-repo).
-With --summary, writes summary.md (committed, so the public site can show it): the newest daily summary without the
-private 大環境 line and without the user's held and picked tickers in the 業績 lines. The public build shows summary.md.
-A missing data file is left out with a warning; the page then shows 未能載入 for that dataset.
+Public output filters raw price/index and ICE BofA levels, personal inputs and
+borrower evidence. Private output reads independently dated summaries, optional
+holdings and borrower records from the parent workspace. Neither output writes
+an AI summary. A separately reviewed summary.md supplies the public narrative.
 """
 import json
 import re
@@ -46,7 +37,10 @@ def load(name):
 
 
 def load_all():
-    return {name: rows for name in DATASETS if (rows := load(name)) is not None}
+    out = {name: rows for name in DATASETS if (rows := load(name)) is not None}
+    if (DATA / 'refresh_meta.json').is_file():
+        out['refresh_meta'] = load('refresh_meta')
+    return out
 
 
 def latest_summary():
@@ -140,6 +134,8 @@ def public_data():
             x.pop("level", None)
     for k in LOCAL_ONLY:
         out.pop(k, None)
+    for row in out.get('refresh_meta', []):
+        row.pop('borrower_references', None)
     # alert lamps: the public site shows the lamps only (no readings, no ICE BofA levels)
     for row in out.get("alerts", []):
         for k in list(row):
@@ -299,6 +295,10 @@ def main(private=False):
         page = page.replace("refreshed Tuesday to Saturday; this public version omits raw price and index levels and ICE BofA spread levels.",
                             "updated after completed sessions; this is the full local version. Source observation dates are shown in the summary and charts.")
     (SITE / "index.html").write_text(page)
+    if (ROOT / 'refresh.js').exists():
+        shutil.copy2(ROOT / 'refresh.js', SITE / 'refresh.js')
+        page = page.replace('</body>', '<script src="refresh.js"></script>\n</body>')
+        (SITE / 'index.html').write_text(page)
     (SITE / ".nojekyll").write_text("")
     print(f"{SITE.name}/ built:", len(data), "data files" + (f", summary {summary[0]['session']}" if summary else "")
           + (f", holdings {len(held)}" if held is not None else ""))

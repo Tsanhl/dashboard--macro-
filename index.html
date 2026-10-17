@@ -126,6 +126,12 @@
   .rb-page.rb-in { animation: rb-fade var(--cds-dur-slow) var(--cds-ease-out); }
   @keyframes rb-fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 }
+.rb-controls { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.rb-refresh { padding:6px 12px; border:1px solid var(--color-border-line); border-radius:6px; background:var(--color-panel); color:var(--color-fg); cursor:pointer; font:inherit; font-size:13px; }
+.rb-refresh:disabled { opacity:.6; cursor:wait; }
+.rb-update-status { font-size:13px; color:var(--color-fg-muted); line-height:1.7; margin:8px 0; }
+.rb-update-status a { color:var(--series-1); }
+.rb-summary-age { padding:10px; border:1px solid var(--color-warn); border-radius:6px; }
 </style>
 
 <style>
@@ -174,11 +180,14 @@
   <header class="rb-head">
     <div class="rb-titlerow">
       <h1 class="rb-title" data-en="Sector rotation &amp; market breadth">板塊輪動與市寬</h1>
-      <div class="rb-seg" role="group" aria-label="語言" data-en-aria="Language">
+      <div class="rb-controls"><div class="rb-seg" role="group" aria-label="語言" data-en-aria="Language">
         <button type="button" class="rb-lang" data-lang="zh" aria-pressed="true">繁體</button>
         <button type="button" class="rb-lang" data-lang="en" aria-pressed="false">English</button>
       </div>
+      <button type="button" class="rb-refresh" id="update-data" hidden>更新數據</button></div>
     </div>
+    <div id="update-status" class="rb-update-status" role="status" aria-live="polite"></div>
+    <details id="update-dates" class="rb-update-status" hidden><summary>資料更新狀態 / Source dates</summary><div id="update-date-list"></div></details>
     <div class="rb-take dash-skeleton" id="takeaway" data-source="regime flows ai_flows positioning_now rates_now breadth_now sectors global stocks"></div>
     <div class="rb-alerts dash-skeleton" id="alerts" data-source="alerts"></div>
     <p class="rb-asof"><span data-en="Data: prices">數據：股價</span> <span data-source="breadth_now" data-field="asof" data-row="0">—</span> <span id="asof-yield-src">· 美債</span> <span data-source="rates_now" data-field="date" data-row="0">—</span> <span data-en="· credit spreads (FRED)">· 信貸息差（FRED）</span> <span data-source="rates_now" data-field="hy_date" data-row="0">—</span> <span id="asof-weekly"><span data-en="· futures positioning (weekly)">· 期貨持倉（每週）</span> <span data-source="positioning_now" data-field="date" data-row="0">—</span></span> <span data-en="· breadth from">· 市寬按</span> <span data-source="breadth_now" data-field="members" data-row="0">—</span> <span data-en="S&amp;P 500 members">隻標普500成分股</span></p>
@@ -1764,11 +1773,10 @@
     let row;
     try { if (status(['summary']) !== 'ok') return null; row = dash.data('summary').data[0]; } catch (e) { return null; }
     if (!row || !row.text) return null;
-    // older than the board's data (tonight's summary not saved yet): show the board's own reading instead, which the
-    // evening task reads (its 大環境 line) before it saves tonight's summary
-    if (asof && row.session < asof) return null;
+    const stale = asof && row.session < asof;
     const md = (d) => L(`${+d.slice(5, 7)}月${+d.slice(8)}日`, d);
     const w = mk('div', 'rb-sum');
+    if (stale) w.append(mk('p', 'rb-summary-age', L(`數據已更新至 ${asof}；以下AI摘要仍截至 ${row.session}，尚未重新分析。`, `Data updated through ${asof}; the AI summary below is still dated ${row.session} and has not been reanalysed.`)));
     if (!row.text.trimStart().startsWith('總結（')) {
       const title = mk('p'); title.append(mk('b', null, L(`每日摘要（${md(row.session)}收市）`, `Daily summary (${row.session} close)`)));
       w.append(title);
@@ -1777,7 +1785,13 @@
     for (const line of row.text.split('\n')) {
       if (!line.trim()) continue;
       const check = line.trim().match(/^\[\[check:(credit|breadth|leaders)\]\]$/);
-      if (check) { if (!window.RB_PUBLIC) target.append(summaryCheck(check[1], row.session)); ul = null; sub = null; continue; }
+      if (check) {
+        if (!window.RB_PUBLIC) {
+          if (stale) target.append(mk('p', 'rb-check-note', L(`下方圖表已更新至 ${asof}，不代表上述舊摘要已重新分析。`, `Charts below use data through ${asof}; the older analysis above has not been rewritten.`)));
+          target.append(summaryCheck(check[1], asof || row.session));
+        }
+        ul = null; sub = null; continue;
+      }
       const more = line.trim().match(/^\[\[details:(.+)\]\]$/);
       if (more) {
         const inline = ['每日板塊及模型數據', '下一交易日重點日程（英國時間）'].includes(more[1]);

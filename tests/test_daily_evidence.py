@@ -42,7 +42,7 @@ class EvidenceTests(unittest.TestCase):
         self.assertIsNone(r['price_change'])
 
     def test_different_bond_or_basis_is_not_compared(self):
-        for key,value in [('isin','OTHER123'),('yield_type','YTM'),('price_basis','dirty')]:
+        for key,value in [('isin','OTHER123'),('yield_type','YTM'),('price_basis','dirty'),('settlement_basis','T+2')]:
             last=quote('2026-10-15',84,14.5);last[key]=value
             self.assertIsNone(self.read([quote('2026-10-14',80,15),last])['price_change'])
 

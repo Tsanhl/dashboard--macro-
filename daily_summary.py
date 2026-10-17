@@ -59,6 +59,9 @@ def reference_reading(issuer, asof):
     if sum(q["price_date"] == prior["price_date"] for q in earlier) != 1 or any(prior[k] != last[k] for k in keys):
         out["status"] = "前次報價口徑不一或有衝突，暫不比較"
         return out
+    if prior.get("settlement_basis") != last.get("settlement_basis"):
+        out["status"] = "結算假設不一致或前值未記錄，變化未確認"
+        return out
     change = last["clean_price_per_100"] - prior["clean_price_per_100"]
     out.update(prior=prior, price_change=round(change, 6),
                price_return_pct=round(change / prior["clean_price_per_100"] * 100, 6),

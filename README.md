@@ -2,86 +2,96 @@
 
 板塊輪動與市寬儀表板 · Sector rotation & market breadth dashboard
 
-A Claude Dashboard artifact that tracks US sector and AI-chain rotation, market breadth, futures positioning, rates,
-credit, liquidity and model flow estimates, with a 繁體 / English switch and a built-in reading guide (the 讀法 /
-How to read tab).
+A Traditional Chinese / English dashboard for US sectors, the AI chain, breadth, futures positioning, rates,
+credit and model estimates. Prices and relative performance are not observed fund flows; CTA and volatility
+control are estimates, not a census of institutional positions.
 
-## Files
+## Run locally
 
-| File | What it is |
-|---|---|
-| `build_data.py` | Pulls the data and writes 18 JSON files to `data/` (AI baskets, typical dips and the watch list are defined at the top) |
-| `flows.py` | Flow models for the 資金流向 tab (dealer gamma, CTA, vol control, VIX term structure); called at the end of `build_data.py`, and the build carries on without it if it fails |
-| `daily_facts.py` | Prints the numbers for the evening facts summary from `data/` and Yahoo (used by the local evening task) |
-| `index.html` | The dashboard page (runs inside the Claude Dashboard artifact type, which supplies `dash` and `d3`) |
-| `build_site.py` | Builds the public website into `site/`: wraps `index.html` with a stand-in `dash` API, d3 and colour tokens, and copies a filtered copy of the data. `--private` builds a full-data local copy into `site_private/` |
-| `.github/workflows/pages.yml` | Rebuilds the data and the site Tuesday to Saturday at 05:30 UTC and publishes it to GitHub Pages |
-| `data/`, `site/`, `site_private/` | Generated output, not committed |
-
-The 18 data files: `sectors`, `rrg_tails`, `stocks`, `stock_tails` (returns and relative rotation for sectors, themes,
-styles, the AI baskets and single stocks), `ratios`, `ratio_summary` (the eight ratio lines), `breadth`, `breadth_now`,
-`macro`, `global`, `positioning`, `positioning_now` (CFTC), `rates`, `rates_now`, `liquidity`, and `flowmodel`,
-`flowmodel_now`, `gamma` (the flow models). `data/_gamma_hist.json` keeps the nightly gamma history between builds; it is
-not a dataset.
-
-## Two versions
-
-| | Local / Claude dashboard | Public website |
-|---|---|---|
-| CFTC positioning, Treasury and FRED yields, breakevens, term premium, Fed balance sheet | Shown | Shown |
-| Indicators derived from Yahoo prices (returns, ratios, rotation, breadth) | Shown | Shown |
-| Raw Yahoo price levels (the "Last" column in macro) | Shown | Hidden; changes only |
-| Index levels behind the flow models (SPX spot, gamma strikes, flip, CTA trigger levels, VIX levels) | Shown | Hidden; gamma by % distance from spot, flip as a distance |
-| ICE BofA credit-spread levels | Shown | Hidden; change in bp and 3-year percentile |
-| Rotation playbook, leaders list, size-down line, held and watch-list marks, nightly gamma history | Shown | Hidden |
-
-## Private local build
-
-`python3 build_site.py --private` builds `site_private/` with the full data plus two datasets read from the project
-folder one level up: `summary` (the newest `../daily_summaries/<date>.md`, shown as the board's top section while it is
-not older than the board's data) and `holdings` (`../holdings.json`, `{"updated": ..., "held": [tickers], "picks":
-[tickers]}`: the positions held, which set the ● marks, and the user's watch list, which becomes the 自選股 default and
-the ★ marks). Neither is ever written to `data/`, `site/` or this repo. Elsewhere (the artifact, the public site) the
-holdings dataset is missing: no marks, and 自選股 starts from a neutral list of large AI-chain and tech names.
-
-`summary.md` is a separately reviewed public market summary. It may include market-wide breadth, credit changes,
-weekly CFTC context and model estimates; it does not include personal holdings, watch-list marks, valuations,
-position plans, raw index trigger levels or private borrower evidence. The full local summary stays outside this
-repository. The public build uses only this reviewed file and never loads personal holdings or borrower records.
-
-## Data sources
-
-- Prices: Yahoo Finance via `yfinance` (dividend-adjusted)
-- S&P 500 members: [datasets/s-and-p-500-companies](https://github.com/datasets/s-and-p-500-companies)
-- Futures positioning: CFTC public reporting API (Traders in Financial Futures and Disaggregated reports)
-- Treasury yields and real yields: the US Treasury's daily par curves first (published the same evening), FRED for
-  older days and as the fallback
-- Credit spreads, term premium (Kim-Wright), Fed balance sheet: FRED
-- Other 10-year yields for the bond CTA signals: the ECB (euro-area AAA curve, for Germany), the Bank of England and
-  Japan's Ministry of Finance
-- SPX dealer gamma: Cboe delayed option quotes
-
-## Build
+Python 3.12 or later on macOS/Linux:
 
 ```bash
-pip3 install -r requirements.txt
-python3 build_data.py      # full data, for the local / Claude dashboard
-python3 build_site.py      # public site in site/
-python3 build_site.py --private   # full-data local copy in site_private/ (never published)
-python3 -m http.server 8765 --directory site   # preview at http://localhost:8765
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python refresh.py
+python serve.py
 ```
 
-`python3 build_data.py positioning` rebuilds only the CFTC, Treasury and FRED files.
+Open http://localhost:8766. The **更新數據 / Update data** button fetches source data, recalculates indicators and
+rebuilds the local board. Keep the server running. A plain static HTTP server can display the files but cannot
+perform updates. The update endpoint accepts same-origin requests on loopback only; it is not a public backend.
 
-## Tabs
+The updater uses a process lock, a staged build, source-date validation and rollback backups. Concurrent clicks
+share one update; an independently running command holds the same lock. A failed batch retains the previous
+served board. Logs and prior snapshots stay local in the parent `board_updates/` folder (public runs use ignored
+`.refresh/runs/`). They are intentionally retained for recovery, not committed.
 
-1. **總覽 Overview**: two-timeframe regime reading, money in and out, rotation inside the AI chain, credit and curve reads, positioning changes, six headline figures, eight ratio lines
-2. **板塊輪動 Rotation**: relative rotation graph and return rankings for 11 sectors, themes, styles and factors, 10 AI-chain baskets (hyperscalers plus nine supplier baskets) and up to sixteen picked stocks, against the S&P 500 or semis (SMH)
-3. **AI 階段 AI stages**: how far each AI sub-sector and name has pulled back from its 60-day high against the sub-sector's typical dip, and each name's rotation stage
-4. **市寬 Breadth**: share above moving averages, equal weight vs index, A-D line, McClellan, new highs minus lows, sector participation
-5. **持倉與利率 Positioning & rates**: who added and cut, crowding and turns from extremes (weekly CFTC data), 10-year yield decomposition, credit vs stocks, curve, net liquidity
-6. **資金流向 Flows**: model estimates of who may be forced to trade: dealer gamma, CTA (S&P 500 and 10-year bonds), vol control, VIX term structure, and what tomorrow's moves would do to them
-7. **宏觀與環球 Macro & global**: macro drivers and a global sweep
-8. **讀法 How to read**: what every indicator means and what to look for
+A standalone clone works without personal files. Optional holdings, private summaries, borrower evidence and
+AI-cycle tracker inputs live outside the repository; they are neither downloaded from this repo nor published.
 
-Not investment advice.
+## What the button updates
+
+| Cadence | Content | Rule |
+|---|---|---|
+| Each completed US session | Prices, sector/AI returns, breadth, A/D, McClellan, highs/lows, relative strength, daily rotation, CTA/volatility models | Calendar-aware close plus a settling buffer; never label an unfinished bar as the close |
+| Check daily for releases | Nominal/real Treasury yields, breakevens, curve, HY/IG/CCC/BB spreads | Keep each source's observation date; a carried value is not a new observation |
+| Check daily for reference quotes, local only | Specified CoreWeave/Oracle BondTerminal bonds | Same ISIN, dated price/YTW and convention; gaps/conflicts remain unconfirmed. These are not CDS or OAS |
+| New weekly report | CFTC positions, crowding, one-/four-week changes | Usually Friday release of Tuesday positions; unchanged between reports |
+| Completed trading week | Confirmed rotation/leader ranks and consecutive weeks | Preserve the prior confirmation during the week; daily previews stay separate |
+| New weekly release | Fed balance sheet / aligned net liquidity | Match the existing weekly observation basis |
+
+Long lookbacks do not imply infrequent updates: a daily 20-day return is recalculated every completed session.
+Research thresholds, dip statistics and recovery studies are not refitted by this button.
+
+**The button does not rewrite AI analysis or the event calendar.** A narrative retains its own session date,
+with an explicit notice when market data is newer. The existing independently configured after-close AI task
+continues separately. After reviewing/saving a narrative, render it through the same lock without a new download:
+
+```bash
+python refresh.py --render-only
+```
+
+## Public website and GitHub
+
+```bash
+python refresh.py --public
+```
+
+This produces `site/`; local mode produces `site_private/`. Publishing the public build never replaces the private
+site. The public button reloads **already published** data. An adjacent owner link opens the authenticated GitHub
+Actions workflow; only repository users with the required write permission can run a fresh build there. No token
+is embedded in the browser. Manual runs, pushes and the existing Tue–Sat 05:30 UTC job use the same updater.
+
+The public build excludes personal holdings/picks, company valuations, position plans, private borrower evidence,
+raw Yahoo price/index levels and ICE BofA spread levels. Derived returns, model directions and credit changes are
+retained under the existing display policy. This filtering is not a redistribution licence from data providers.
+Raw inputs, logs and generated sites are ignored by Git. The separately reviewed `summary.md` is the only public
+narrative; neither the button nor GitHub Actions copies a private summary into it.
+
+## Code map
+
+| File | Responsibility |
+|---|---|
+| `refresh.py`, `market_clock.py` | Shared transaction, backups, validation and exchange calendar |
+| `serve.py`, `refresh.js` | Local button/status API and public reload/owner entry |
+| `build_data.py` | Fetch and calculate the board datasets; lower-level worker invoked by the updater |
+| `flows.py`, `alerts.py` | Source observations, model calculations and existing risk rules |
+| `bond_reference.py` | Fail-closed parsing of dated specified-bond price/YTW references |
+| `daily_summary.py`, `daily_facts.py` | Reviewable facts from the same snapshot, not an independent market download |
+| `build_site.py`, `index.html` | Private/public rendering and interactive charts |
+| `.github/workflows/pages.yml` | Tests, public refresh and Pages deployment |
+| `tests/` | Date/comparison, public-boundary, rollback, concurrency and endpoint checks |
+
+`build_site.DATASETS` defines the required datasets. `refresh_meta` adds observation dates; optional private data
+is separate. Active flow models are equity/Treasury CTA, volatility control and VIX term structure; historical
+research files are not additional active updaters.
+
+## Sources and pages
+
+Sources: Yahoo Finance (`yfinance`, adjusted prices), CFTC, US Treasury, FRED, Cboe, ECB, Bank of England,
+Japan's Ministry of Finance, public S&P constituent lists and delayed BondTerminal reference quotations.
+
+Pages: **總覽**, **板塊輪動**, **AI階段**, **市寬**, **持倉與利率**, **宏觀與環球**, **讀法**.
+
+Run checks with `python -m unittest discover -s tests -v`. Not investment advice.

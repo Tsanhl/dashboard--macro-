@@ -9,6 +9,7 @@ Breadth uses today's members over the whole window (survivorship bias, small).
 import http.client
 import io
 import json
+import os
 import sys
 import time
 import urllib.request
@@ -19,6 +20,7 @@ import numpy as np
 import pandas as pd
 import yfinance as yf
 from pandas.tseries.holiday import USFederalHolidayCalendar
+from market_clock import completed_session, week_complete
 
 
 OUT = Path(__file__).resolve().parent / "data"
@@ -247,10 +249,15 @@ def main():
     close = close.dropna(how="all")
     # a build while US markets are open gets today's unfinished bar from Yahoo; leave it out until the close
     now_et = pd.Timestamp.now(tz="America/New_York")
-    if close.index[-1].date() == now_et.date() and (now_et.hour, now_et.minute) < (16, 30):
-        print(f"  leaving out {now_et.date()}: the US session isn't closed yet")
-        close = close.iloc[:-1]
+    cutoff = os.environ.get('BOARD_ASOF') or completed_session()
+    close = close.loc[:cutoff]
+    high, low = high.loc[:cutoff], low.loc[:cutoff]
     asof = close["SPY"].dropna().index[-1]
+    if os.environ.get('BOARD_STRICT_REFRESH') and asof.strftime('%Y-%m-%d') != cutoff:
+        raise ValueError(f'Latest completed session {cutoff} is missing; keep the previous snapshot')
+    missing_latest = [t for t in set(ETFS) | set(basket_members) if pd.isna(close.at[asof, t])]
+    if missing_latest:
+        raise ValueError(f'Incomplete latest basket/ETF prices: {missing_latest}')
     # US trading days only (futures and FX also print on US holidays)
     close = close.loc[close["SPY"].notna()].loc[:asof]
     # spot FX at the US close instead of Yahoo's daily bars (see at_us_close); older rows keep the daily bars
@@ -267,6 +274,10 @@ def main():
 
     # ---- member stats (breadth) ----
     stocks = [s for s in mem["Symbol"] if s in close and close[s].notna().sum() > 260]
+    if os.environ.get('BOARD_STRICT_REFRESH'):
+        absent = [s for s in stocks if pd.isna(close.at[asof, s])]
+        if absent:
+            raise ValueError(f'Incomplete latest breadth constituents: {absent}')
     px = close[stocks].ffill(limit=3)
     # same US trading days as the closes; futures and FX add holiday rows that would thin the 252-day window
     hi = high[stocks].reindex(close.index)
@@ -360,7 +371,7 @@ def main():
     smh = close["SMH"].dropna()
     # The playbook acts on the Friday close, so it also gets tags from completed weeks only: a midweek build drops the
     # unfinished week; a build on the weekend (or after a Friday close) keeps it.
-    week_done = bool(asof.weekday() == 4 or datetime.now(timezone.utc).weekday() >= 5)
+    week_done = week_complete(asof)
     weekly_fw = weekly if week_done else weekly.iloc[:-1]
     week_fw = close.index[close.index <= weekly_fw.index[-1]][-1].strftime("%Y-%m-%d")
 
@@ -650,11 +661,13 @@ def main():
         from alerts import build_alerts
         build_alerts(close, px, pct50, pct200, AI_BASKETS)
     except Exception as e:
+        if os.environ.get('BOARD_STRICT_REFRESH'): raise
         print(f"  WARNING alert lamps failed: {e}")
     try:
         from flows import build_flows  # imports this module, so loaded here rather than at the top
         build_flows(asof)
     except Exception as e:  # the flow models are a trial; never lose the rest of the build to them
+        if os.environ.get('BOARD_STRICT_REFRESH'): raise
         print(f"  WARNING flow models failed: {e}")
     print("as of", stamp["asof"])
 
