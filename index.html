@@ -247,7 +247,12 @@
       <p class="rb-sub" data-en="Distance from each series’ own highest adjusted close over 252 trading sessions. SPY represents the S&amp;P 500; the other line is the median of individual constituents’ drawdowns. Closer to zero means closer to the rolling high. Shows the latest six months, updated after each completed session.">比較距各自過去252個交易日最高調整收市價的跌幅。以SPY代表標普500；另一條線是成分股個別跌幅的中位數。越接近零，越接近滾動高位。顯示最近六個月，每個完整交易日更新。</p>
       <p class="rb-take-line" id="divergence-reading" data-source="breadth"></p>
       <div class="rb-legend" id="lg-divergence"></div>
-      <div class="rb-chart dash-skeleton" id="ch-divergence" data-source="breadth" style="min-height: 14rem"></div>
+      <p class="rb-sub" data-en="Distance below own 252-session high (%) · 0% = at that high; lower = deeper drawdown. This is not the return since the chart starts.">距各自252日高位（%）· 0%＝處於高位；越向下，回撤越深。不是由圖表起點計算的回報。</p>
+      <div class="rb-chart dash-skeleton" id="ch-divergence" data-source="breadth" style="min-height: 17.5rem"></div>
+      <div class="rb-sublines">
+        <p class="rb-sub" data-en="Risk: no validated danger cutoff for this gap. Greater concern when constituent drawdowns deepen, breadth deteriorates and HY/IG spreads also widen."><b>何時更危險：</b>差距沒有已驗證的危險門檻。成分股回撤加深、市寬轉差，並伴隨HY／IG息差擴闊，才有更多證據支持風險擴散。</p>
+        <p class="rb-sub" data-en="Repair: constituents recover toward their highs while breadth improves. A smaller gap caused by the index falling is not broad-market repair."><b>何時算修復：</b>成分股回升、距高位跌幅收窄，市寬亦改善。若只是指數補跌令差距縮小，不算大市修復。</p>
+      </div>
       <p class="rb-sub" data-en="Uses the current constituent list, with survivorship bias. Missing or incomplete 252-session histories are excluded and coverage is shown. Peaks need not occur on the same date; an old peak rolling out can also narrow a drawdown. This measures price divergence, not fund flows or a forecast of an index decline.">使用現時成分股名單，存在倖存者偏差；缺報價或不足252個交易日的股票不納入，涵蓋數目列於上方。各自高位日期可不同，舊高位移出窗口亦可能令跌幅收窄。這是價格分化，不代表資金流向或預測指數將下跌。</p>
     </div>
     <div class="rb-section" id="ratio-section">
@@ -1017,7 +1022,7 @@
   };
 
   // Line chart over dates. series: [{name, color, dash, values: [{d: Date, v}]}]
-  function lineChart(el, { series, height = 220, yFmt = fmt1, ref = null, tipFmt = yFmt, yDomain = null, xDomain = null }) {
+  function lineChart(el, { series, height = 220, yFmt = fmt1, ref = null, tipFmt = yFmt, yDomain = null, xDomain = null, endLabels = false }) {
     el.replaceChildren();
     const W = Math.max(el.clientWidth, 280), H = height, mt = 8, mb = 22;
     const all = series.flatMap((s) => s.values).filter((p) => p.v != null);
@@ -1026,9 +1031,10 @@
     const y = d3.scaleLinear(yd, [H - mb, mt]).nice(4);
     const ticks = y.ticks(4);
     const ml = measure(svg, ticks.map(yFmt)) + 8;
-    const x = d3.scaleUtc(xDomain || d3.extent(all, (p) => p.d), [ml, W - 6]);
+    const right = endLabels ? (W < 520 ? 92 : 138) : 6, plotRight = W - right;
+    const x = d3.scaleUtc(xDomain || d3.extent(all, (p) => p.d), [ml, plotRight]);
     svg.append('g').selectAll('line').data(ticks).join('line').attr('class', 'rb-gridline')
-      .attr('x1', ml).attr('x2', W - 6).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
+      .attr('x1', ml).attr('x2', plotRight).attr('y1', (t) => y(t)).attr('y2', (t) => y(t));
     svg.append('g').selectAll('text').data(ticks).join('text').attr('x', ml - 6).attr('y', (t) => y(t)).attr('dy', '0.32em')
       .attr('text-anchor', 'end').text(yFmt);
     const [d0, d1] = x.domain(), days = (d1 - d0) / 864e5;
@@ -1036,7 +1042,7 @@
     const xt = days > 60 ? x.ticks(d3.utcMonth.every(every)) : days > 14 ? x.ticks(d3.utcWeek.every(W < 520 ? 2 : 1)) : x.ticks(d3.utcDay.every(1)).filter((t) => t.getUTCDay() % 6 !== 0);
     const dayFmt = (t) => (en() ? d3.utcFormat('%b %-d')(t) : d3.utcFormat('%-m/%-d')(t));
     svg.append('g').selectAll('text').data(xt).join('text').attr('x', (t) => x(t)).attr('y', H - 4).attr('text-anchor', 'middle').text(days > 60 ? monthFmt : dayFmt);
-    if (ref != null) svg.append('line').attr('class', 'rb-ref').attr('x1', ml).attr('x2', W - 6).attr('y1', y(ref)).attr('y2', y(ref));
+    if (ref != null) svg.append('line').attr('class', 'rb-ref').attr('x1', ml).attr('x2', plotRight).attr('y1', y(ref)).attr('y2', y(ref));
     const line = d3.line().defined((p) => p.v != null).x((p) => x(p.d)).y((p) => y(p.v));
     for (const s of series) {
       svg.append('path').attr('d', line(s.values)).attr('fill', 'none').attr('stroke', s.color)
@@ -1044,13 +1050,23 @@
         .attr('stroke-linecap', s.dash ? 'butt' : 'round').attr('stroke-linejoin', 'round');
       const last = s.values.filter((p) => p.v != null).at(-1);
       if (last && !s.dash) svg.append('circle').attr('cx', x(last.d)).attr('cy', y(last.v)).attr('r', 3).attr('fill', s.color);
+      if (endLabels && last) {
+        svg.append('line').attr('x1', x(last.d) + 4).attr('x2', plotRight + 9)
+          .attr('y1', y(last.v)).attr('y2', y(last.v)).attr('stroke', s.color);
+        const label = svg.append('text').attr('x', plotRight + 13)
+          .attr('y', Math.max(18, Math.min(H - mb - 20, y(last.v) - 4)))
+          .style('fill', s.color).style('font-size', '12px').style('font-weight', '600');
+        label.append('tspan').text(s.shortName || s.name);
+        label.append('tspan').attr('x', plotRight + 13).attr('dy', '1.3em').text(tipFmt(last.v));
+      }
+
     }
     const rule = svg.append('line').attr('class', 'rb-axis').attr('y1', mt).attr('y2', H - mb).attr('opacity', 0);
     const dots = svg.append('g').selectAll('circle').data(series.filter((s) => !s.dash)).join('circle').attr('r', 3.5)
       .attr('fill', (s) => s.color).attr('opacity', 0);
     const dates = series[0].values.map((p) => p.d);
     const bis = d3.bisector((d) => d).center;
-    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', W - 6 - ml).attr('height', H - mb - mt).attr('fill', 'transparent')
+    svg.append('rect').attr('x', ml).attr('y', mt).attr('width', plotRight - ml).attr('height', H - mb - mt).attr('fill', 'transparent')
       .on('pointermove', (event) => {
         const [mx] = d3.pointer(event);
         const i = bis(dates, x.invert(mx));
@@ -2037,11 +2053,11 @@
       reading.textContent = L('未取得可比較的完整歷史，分化讀數未確認。', 'Comparable complete histories unavailable; divergence unconfirmed.'); return;
     }
     const series = [
-      {name: L('標普500代理（SPY）', 'S&P 500 proxy (SPY)'), color: colors()[0], key: 'index_drawdown'},
-      {name: L('成分股中位數', 'Median constituent'), color: colors()[1], key: 'member_median_drawdown'},
+      {name: L('標普500代理（SPY）', 'S&P 500 proxy (SPY)'), shortName: 'SPY', color: colors()[0], key: 'index_drawdown'},
+      {name: L('成分股中位數', 'Median constituent'), shortName: L('成分股中位數', 'Median stock'), color: colors()[1], key: 'member_median_drawdown'},
     ].map((s) => ({...s, values: rows.map((r) => ({d: day(r.date), v: valid(r[s.key]) ? r[s.key] : null}))}));
     legend(document.getElementById('lg-divergence'), series);
-    lineChart(el, {series, height: 230, ref: 0, yFmt: (v) => signed(v, 0) + '%', tipFmt: (v) => signed(v, 1) + '%'});
+    lineChart(el, {series, height: 280, endLabels: true, ref: 0, yFmt: (v) => signed(v, 0) + '%', tipFmt: (v) => signed(v, 1) + '%'});
     const gap = last.index_drawdown - last.member_median_drawdown;
     reading.textContent = L(
       `${last.date}：SPY ${signed(last.index_drawdown, 1)}%；成分股中位數 ${signed(last.member_median_drawdown, 1)}%；差距（SPY減中位數）${signed(gap, 1)} 個百分點。涵蓋 ${last.drawdown_members}/${last.drawdown_universe} 隻。`,
