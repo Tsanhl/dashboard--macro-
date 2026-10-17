@@ -59,8 +59,9 @@ python refresh.py --public
 ```
 
 This produces `site/`; local mode produces `site_private/`. Publishing the public build never replaces the private
-site. The public button reloads **already published** data. An adjacent owner link opens the authenticated GitHub
-Actions workflow; only repository users with the required write permission can run a fresh build there. No token
+site. The public button reloads **already published** data. Owners can open the authenticated [GitHub Actions workflow](https://github.com/Tsanhl/dashboard--macro-/actions/workflows/pages.yml)
+directly; only repository users with the required write permission can run a fresh build there. The public header
+shows source dates, with any AI-summary review reminder at the end of that expandable section. No token
 is embedded in the browser. Manual runs, pushes and the existing Tue–Sat 05:30 UTC job use the same updater.
 
 The public build excludes personal holdings/picks, company valuations, position plans, private borrower evidence,

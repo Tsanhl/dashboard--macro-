@@ -7,7 +7,6 @@
   const en = () => window.dash?.params().lang === 'en';
   const say = (zh, english) => { status.textContent = en() ? english : zh; };
   let running = false, available = false, token = '', timer;
-  const workflow = 'https://github.com/Tsanhl/dashboard--macro-/actions/workflows/pages.yml';
   function dates() {
     const result = window.dash?.data('refresh_meta');
     const rows = result?.status === 'ok' ? result.data[0]?.groups : null;
@@ -26,15 +25,20 @@
       line.textContent = `${row.issuer} · ${row.date || '未確認'} · ${row.state === 'unconfirmed' ? '未取得可確認新報價，保留原資料' : '債價／YTW參考；信用改善未確認'}`;
       list.append(line);
     }
-  }
-  function publicNote() {
-    const note = document.createElement('span'); note.textContent = en() ? 'Reload published data only. ' : '重新載入已發布資料。';
-    const link = document.createElement('a'); link.href = workflow; link.target = '_blank'; link.rel = 'noopener noreferrer';
-    link.textContent = en() ? 'Owner: update sources on GitHub' : '擁有者：在GitHub啟動資料更新';
-    status.replaceChildren(note,link);
+    if (publicSite) {
+      const summary = window.dash?.data('summary');
+      const session = summary?.status === 'ok' ? summary.data[0]?.session : null;
+      if (session && (result.data[0].summary_needs_review || session < result.data[0].session)) {
+        const note = document.createElement('p');
+        note.textContent = en()
+          ? `The AI summary below is still dated ${session} and has not been reviewed against this update. See charts for source dates.`
+          : `以下AI摘要仍截至 ${session}，尚未按本次資料重新覆核。各來源日期見圖表。`;
+        list.append(note);
+      }
+    }
   }
   function label() {
-    if (publicSite) publicNote();
+    if (publicSite) { status.replaceChildren(); status.hidden = true; }
     button.textContent = running ? (en() ? 'Updating…' : '更新中…')
       : publicSite ? (en() ? 'Refresh data' : '重新整理數據') : (en() ? 'Update data' : '更新數據');
     button.disabled = running || (!publicSite && !available);
@@ -74,7 +78,7 @@
   async function init() {
     button.hidden = false;
     if (publicSite) {
-      publicNote();
+      status.replaceChildren(); status.hidden = true;
     } else {
       try {
         const result = await getState(); available = true;

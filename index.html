@@ -1777,8 +1777,8 @@
     const revised = status(['refresh_meta']) === 'ok' && dash.data('refresh_meta').data[0]?.summary_needs_review;
     const md = (d) => L(`${+d.slice(5, 7)}月${+d.slice(8)}日`, d);
     const w = mk('div', 'rb-sum');
-    if (stale) w.append(mk('p', 'rb-summary-age', L(`數據已更新至 ${asof}；以下AI摘要仍截至 ${row.session}，尚未重新分析。`, `Data updated through ${asof}; the AI summary below is still dated ${row.session} and has not been reanalysed.`)));
-    else if (revised) w.append(mk('p', 'rb-summary-age', L(`數據有更新或來源修訂；以下AI摘要仍截至 ${row.session}，尚未按本次資料重新覆核。各來源日期見圖表。`, `Data has changed or been revised; the AI summary dated ${row.session} has not been reviewed against this update. See charts for source dates.`)));
+    if (!window.RB_PUBLIC && stale) w.append(mk('p', 'rb-summary-age', L(`數據已更新至 ${asof}；以下AI摘要仍截至 ${row.session}，尚未重新分析。`, `Data updated through ${asof}; the AI summary below is still dated ${row.session} and has not been reanalysed.`)));
+    else if (!window.RB_PUBLIC && revised) w.append(mk('p', 'rb-summary-age', L(`數據有更新或來源修訂；以下AI摘要仍截至 ${row.session}，尚未按本次資料重新覆核。各來源日期見圖表。`, `Data has changed or been revised; the AI summary dated ${row.session} has not been reviewed against this update. See charts for source dates.`)));
     if (!row.text.trimStart().startsWith('總結（')) {
       const title = mk('p'); title.append(mk('b', null, L(`每日摘要（${md(row.session)}收市）`, `Daily summary (${row.session} close)`)));
       w.append(title);
