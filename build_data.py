@@ -21,6 +21,7 @@ import pandas as pd
 import yfinance as yf
 from pandas.tseries.holiday import USFederalHolidayCalendar
 from market_clock import completed_session, week_complete
+from market_observations import index_member_drawdowns
 
 
 OUT = Path(__file__).resolve().parent / "data"
@@ -297,6 +298,7 @@ def main():
     ad_line = (adv - dec).loc[one_year].cumsum()
     ew_index = (1 + chg.mean(axis=1).fillna(0)).loc[one_year].cumprod() * 100
     spy_index = spy.loc[one_year] / spy.loc[one_year].iloc[0] * 100
+    divergence = index_member_drawdowns(close['SPY'], close[stocks])
 
     # semis breadth (user, 2026-10-15): SOX members below their 50-day line. 24 of 30 (80%+) is the "flush" level
     # quoted in the trading chat; tested 2010–2026 in rulebook §5b (a mild 20-day edge, not a bottom signal)
@@ -312,6 +314,10 @@ def main():
             "ad_line": int(ad_line[d]), "new_highs": int(nh[d]), "new_lows": int(nl[d]),
             "mcclellan": r(mcclellan[d], 1), "ew_index": r(ew_index[d]), "spy_index": r(spy_index.get(d)),
             "sox_below50": int(sox_below[d]), "sox_n": int(sox_n[d]),
+            "index_drawdown": r(divergence.at[d, 'index_drawdown']),
+            "member_median_drawdown": r(divergence.at[d, 'member_median_drawdown']),
+            "drawdown_members": int(divergence.at[d, 'drawdown_members']),
+            "drawdown_universe": int(divergence.at[d, 'drawdown_universe']),
         })
     write("breadth", breadth)
 

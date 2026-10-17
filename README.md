@@ -78,6 +78,7 @@ narrative; neither the button nor GitHub Actions copies a private summary into i
 | `serve.py`, `refresh.js` | Local button/status API and public reload/owner entry |
 | `build_data.py` | Fetch and calculate the board datasets; lower-level worker invoked by the updater |
 | `flows.py`, `alerts.py` | Source observations, model calculations and existing risk rules |
+| `market_observations.py` | Descriptive SPY/member drawdowns, with complete-window coverage and no trading thresholds |
 | `bond_reference.py` | Fail-closed parsing of dated specified-bond price/YTW references |
 | `daily_summary.py`, `daily_facts.py` | Reviewable facts from the same snapshot, not an independent market download |
 | `build_site.py`, `index.html` | Private/public rendering and interactive charts |
@@ -96,3 +97,9 @@ Japan's Ministry of Finance, public S&P constituent lists and delayed BondTermin
 Pages: **總覽**, **板塊輪動**, **AI階段**, **市寬**, **持倉與利率**, **宏觀與環球**, **讀法**.
 
 Run checks with `python -m unittest discover -s tests -v`. Not investment advice.
+
+The overview compares SPY with median constituent drawdowns after the semiconductor breadth chart.
+Both use each series’ own rolling 252-session adjusted-close high; incomplete histories are excluded,
+coverage is shown, and current membership entails survivorship bias. An old high rolling out can narrow
+a drawdown without a price recovery. The former CCC–BB 200bp/100bp and index-divergence binary alerts
+have been removed; credit and divergence charts remain descriptive observations, not crash predictions.

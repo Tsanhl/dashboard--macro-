@@ -63,43 +63,9 @@ def build_alerts(close, px, pct50, pct200, baskets):
                      "tested": tested, "tested_en": tested_en,
                      **{k: (None if v is None or pd.isna(v) else round(float(v), 2)) for k, v in fields.items()}})
 
-    # 1. credit quality: CCC minus BB, widening from its 12-month low (rows are US trading days)
-    if {"ccc_oas", "bb_oas"} <= set(rates.columns) and rates["ccc_oas"].notna().sum() > 260:
-        d = rates["ccc_oas"] - rates["bb_oas"]
-        low = d.rolling(252, min_periods=200).min()
-        widen = (d - low) * 100
-        on = widen >= 200
-        st, pk, out = False, np.nan, []
-        for i in range(len(d)):
-            if not st and on.iloc[i]:
-                st, pk = True, d.iloc[i]
-            elif st:
-                pk = np.nanmax([pk, d.iloc[i]])
-                ch21 = d.iloc[i] - d.iloc[i - 21] if i >= 21 else np.nan
-                if d.iloc[i] <= pk - 1.0 and ch21 < 0:
-                    st, pk = False, np.nan
-            out.append(st)
-        st = pd.Series(out, index=idx)
-        w, c1 = widen.iloc[-1], (d.iloc[-1] - d.iloc[-22]) * 100
-        add("credit_quality", "信用品質分化", "Credit quality split", "risk", st,
-            f"CCC 對 BB 息差差距較 12 個月低位擴闊 {_sg(w, 0)} 基點，一個月 {_sg(c1, 0)} 基點",
-            f"CCC minus BB is {_sg(w, 0)}bp above its 12-month low, {_sg(c1, 0)}bp in a month",
-            "觸發：較 12 個月低位擴闊 ≥200 基點。好轉：由高位回落 ≥100 基點，而且一個月變化轉負",
-            "On: 200bp+ above the 12-month low. Off: 100bp+ below the peak and the 1-month change negative",
-            "未回測（FRED 只有三年數據）", "untested (FRED gives three years)",
-            widen_bp=w, chg1m_bp=c1, ccc=rates["ccc_oas"].iloc[-1], bb=rates["bb_oas"].iloc[-1])
-
-    # 2. damper: index near its high while the median member is far below its own
-    spy_off = (spy / spy.rolling(252, min_periods=200).max() - 1) * 100
-    med_off = (px / px.rolling(252, min_periods=200).max() - 1).median(axis=1) * 100
+    # CCC–BB and index/member divergence are descriptive chart observations.
+    # Removed their unvalidated binary alert thresholds (user, 2026-10-17).
     p50 = pct50.reindex(idx)
-    st = _hyst((spy_off >= -3) & (med_off <= -12) & (p50 < 40), (p50 >= 55) & (med_off >= -8))
-    add("damper", "阻尼器（指數掩蓋市場）", "Damper (index hiding the market)", "risk", st,
-        f"標普距高位 {_sg(spy_off.iloc[-1])}%，成分股中位數距高位 {_sg(med_off.iloc[-1])}%，高於 50 天線 {p50.iloc[-1]:.1f}%",
-        f"S&P {_sg(spy_off.iloc[-1])}% from its high, median member {_sg(med_off.iloc[-1])}%, {p50.iloc[-1]:.1f}% above the 50-day",
-        "觸發：指數距高位 3% 內、中位數 ≤−12%、高於 50 天線 <40%。好轉：高於 50 天線 ≥55% 而中位數 ≥−8%",
-        "On: index within 3% of its high, median ≤−12%, <40% above the 50-day. Off: ≥55% above the 50-day and median ≥−8%",
-        "未回測", "untested", spy_off=spy_off.iloc[-1], median_off=med_off.iloc[-1], pct50=p50.iloc[-1])
 
     # 3. AI credit proxy: the neocloud basket against the S&P (CDS and bond prices come from the evening collector)
     neo = _basket(close, baskets["AI_NEO"][1])
@@ -215,7 +181,7 @@ def build_alerts(close, px, pct50, pct200, baskets):
 
 # what steps ⑥ and ⑦ test, in plain words (user, 2026-10-15: explain each condition, no slogans)
 LOOK_6 = ("延續條件（愈多愈表示賣壓未完）：①信用仍惡化——新雲籃子仍創 20 日相對新低，或 CCC−BB 5 日擴闊 ≥25 基點："
-          "債主仍在撤走最弱的借款人。②恐慌指紋 ≥4 條腿——晶片、韓台股市、AI 信用代理、獨立發電、債券上升五個市場"
+          "此為價格及息差條件，不能據此確認債主撤資。②恐慌指紋 ≥4 條腿——晶片、韓台股市、AI 信用代理、獨立發電、債券上升五個市場"
           "同時指向同一件事：是整條 AI 資本開支鏈的恐慌，不是個別股票。③清算燈亮——半導體 5 日跑輸標普 ≥5 點，或 VIX ≥25"
           " 而投資級息差 5 日擴闊 ≥15 基點：被迫沽售仍在進行。止跌條件（愈多愈表示賣壓接近完結）：①信用止跌——新雲籃子"
           "連續 5 日不創相對新低，而且 CCC−BB 5 日擴闊 <10 基點。②信用回轉清單亮燈——高收益債息差急擴 ≥40 基點後已回吐"
