@@ -131,6 +131,38 @@ def metadata(rows, previous, bonds, session):
                 borrower_references=bonds, ai_summary_updated=False)
 
 
+def summary_review_state(work, root, public, render_only):
+    """A late same-session credit release can invalidate a narrative without a new stock date."""
+    target = 'site' if public else 'site_private'
+    previous = read(root/target/'data/summary.json', [])
+    if public:
+        path = work/'summary.md'
+        if path.exists():
+            first, _, body = path.read_text().partition('\n')
+            current = [{'session':first.removeprefix('session: ').strip(), 'text':body}]
+        else: current = []
+    else:
+        files = sorted((work.parent/'daily_summaries').glob('20??-??-??.md'))
+        current = [{'session':files[-1].stem, 'text':files[-1].read_text()}] if files else []
+    if not current: return False
+    # A newly reviewed narrative clears the previous reminder; its session date is checked by the UI too.
+    if previous and current != previous: return False
+    prior_meta = read(root/target/'data/refresh_meta.json', [{}])[0]
+    if prior_meta.get('summary_needs_review'): return True
+    if render_only: return False
+    from build_site import DATASETS
+    def normalized(value):
+        if isinstance(value, dict): return {k:normalized(v) for k,v in value.items() if k not in ('built','retrieved_at','last_checked_at')}
+        if isinstance(value, list): return [normalized(v) for v in value]
+        return value
+    if any(normalized(read(work/'data'/f'{k}.json')) != normalized(read(root/'data'/f'{k}.json')) for k in DATASETS):
+        return True
+    if not public:
+        path = Path('board_evidence/borrower_credit.json')
+        return normalized(read(work.parent/path)) != normalized(read(root.parent/path))
+    return False
+
+
 def run(public=False, render_only=False, root=ROOT):
     with refresh_lock(root):
         session = completed_session()
@@ -186,6 +218,7 @@ def run(public=False, render_only=False, root=ROOT):
             meta = metadata(rows, root/'data', bond_results, session)
             if render_only:
                 meta = read(root/'data/refresh_meta.json', [meta])[0]
+            meta['summary_needs_review'] = summary_review_state(work, root, public, render_only)
             atomic_json(work/'data/refresh_meta.json', [meta])
             command(['build_site.py'] + ([] if public else ['--private']))
             target = 'site' if public else 'site_private'

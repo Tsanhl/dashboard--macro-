@@ -12,7 +12,7 @@ from unittest.mock import patch
 
 from bond_reference import BONDS, parse_quote, merge_quote
 from market_clock import completed_session, week_complete
-from refresh import Busy, promote, refresh_lock, run
+from refresh import Busy, promote, refresh_lock, run, summary_review_state
 from serve import make_server, Updates
 
 
@@ -57,6 +57,26 @@ class RefreshTests(unittest.TestCase):
             results=list(Path(t).glob('board_updates/*/*/result.json'))
             self.assertEqual(len(results),1)
             self.assertTrue(json.loads(results[0].read_text())['previous_snapshot_preserved'])
+
+    def test_late_credit_release_marks_same_session_summary_for_review(self):
+        with tempfile.TemporaryDirectory() as t:
+            root=Path(t)/'live/dashboard'; work=Path(t)/'staged/dashboard'
+            for p in [root/'data',root/'site_private/data',work/'data',work.parent/'daily_summaries']:
+                p.mkdir(parents=True)
+            summary={'session':'2026-10-16','text':'reviewed text'}
+            (root/'site_private/data/summary.json').write_text(json.dumps([summary]))
+            (work.parent/'daily_summaries/2026-10-16.md').write_text(summary['text'])
+            for p in [root/'data',work/'data']:
+                (p/'rates_now.json').write_text('[{"hy_oas_date":"2026-10-15"}]')
+            (root/'data/breadth_now.json').write_text('[{"asof":"2026-10-16","built":"old"}]')
+            (work/'data/breadth_now.json').write_text('[{"asof":"2026-10-16","built":"new"}]')
+            self.assertFalse(summary_review_state(work,root,False,False))
+            (work/'data/rates_now.json').write_text('[{"hy_oas_date":"2026-10-16"}]')
+            self.assertTrue(summary_review_state(work,root,False,False))
+            (root/'site_private/data/refresh_meta.json').write_text('[{"summary_needs_review":true}]')
+            self.assertTrue(summary_review_state(work,root,False,True))
+            (work.parent/'daily_summaries/2026-10-16.md').write_text('new reviewed text')
+            self.assertFalse(summary_review_state(work,root,False,True))
 
     def test_bond_parser_requires_dated_matching_instrument_and_keeps_revisions(self):
         html='<h1>CoreWeave US21873SAK42</h1><p>USD semiannual Settlement: T+2. Last close (15 Oct 2026): price 81.50, yield to worst 14.45%.</p>'

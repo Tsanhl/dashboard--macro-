@@ -1774,9 +1774,11 @@
     try { if (status(['summary']) !== 'ok') return null; row = dash.data('summary').data[0]; } catch (e) { return null; }
     if (!row || !row.text) return null;
     const stale = asof && row.session < asof;
+    const revised = status(['refresh_meta']) === 'ok' && dash.data('refresh_meta').data[0]?.summary_needs_review;
     const md = (d) => L(`${+d.slice(5, 7)}月${+d.slice(8)}日`, d);
     const w = mk('div', 'rb-sum');
     if (stale) w.append(mk('p', 'rb-summary-age', L(`數據已更新至 ${asof}；以下AI摘要仍截至 ${row.session}，尚未重新分析。`, `Data updated through ${asof}; the AI summary below is still dated ${row.session} and has not been reanalysed.`)));
+    else if (revised) w.append(mk('p', 'rb-summary-age', L(`數據有更新或來源修訂；以下AI摘要仍截至 ${row.session}，尚未按本次資料重新覆核。各來源日期見圖表。`, `Data has changed or been revised; the AI summary dated ${row.session} has not been reviewed against this update. See charts for source dates.`)));
     if (!row.text.trimStart().startsWith('總結（')) {
       const title = mk('p'); title.append(mk('b', null, L(`每日摘要（${md(row.session)}收市）`, `Daily summary (${row.session} close)`)));
       w.append(title);
@@ -1787,7 +1789,7 @@
       const check = line.trim().match(/^\[\[check:(credit|breadth|leaders)\]\]$/);
       if (check) {
         if (!window.RB_PUBLIC) {
-          if (stale) target.append(mk('p', 'rb-check-note', L(`下方圖表已更新至 ${asof}，不代表上述舊摘要已重新分析。`, `Charts below use data through ${asof}; the older analysis above has not been rewritten.`)));
+          if (stale || revised) target.append(mk('p', 'rb-check-note', L(`下方圖表使用本次資料，不代表上述摘要已重新分析；各來源日期另列。`, `Charts use refreshed data, not a rewritten analysis; individual source dates are shown separately.`)));
           target.append(summaryCheck(check[1], asof || row.session));
         }
         ul = null; sub = null; continue;
