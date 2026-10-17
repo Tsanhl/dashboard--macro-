@@ -953,6 +953,9 @@ def build_rates():
         now[col + "_1m"] = delta(col, 30)
         now[col + "_3m"] = delta(col, 91)
         now[col + "_1y"] = delta(col, 365)
+        for label, days in [('1w', 7), ('1m', 30), ('1y', 365)]:
+            prior = past(col, days)[1]
+            now[col + '_base_' + label] = prior.index[-1].strftime('%Y-%m-%d') if len(prior) else None
     ys = cut["ig_yield"].dropna()
     ys = ys[ys.index >= ys.index[-1] - pd.DateOffset(years=3)]
     now["ig_yield_pctile"] = r((ys.iloc[:-1] < ys.iloc[-1]).mean() * 100, 0)

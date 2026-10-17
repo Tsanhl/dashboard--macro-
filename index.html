@@ -509,6 +509,9 @@
         <p class="rb-sub" data-en="Compares credit spreads for CCC-and-below and BB-rated bonds. A wider gap indicates a higher relative risk premium for lower-rated bonds. Consider the level, recent changes and widening from the low together; this alone does not establish fund withdrawals or predict an equity decline. Use the source observation dates.">比較CCC及以下級別與BB級別的信用息差。差距擴闊，表示較低評級債券被要求更高的相對風險補償；同時觀察差距水平、近期變化及距低位擴闊幅度，不能單憑此指標確認資金撤離或預測股市下跌。資料日期以來源為準。</p>
         <p class="rb-take-line" id="cccbb-line" data-source="rates_now rates"></p>
         <div class="rb-chart dash-skeleton" id="ch-cccbb" data-source="rates" style="min-height: 13rem"></div>
+        <p class="rb-take-line" id="cccbb-reading" data-source="rates_now"></p>
+        <p class="rb-sub" data-en="Persistent widening in weaker borrowers’ own spreads can signal refinancing pressure. HY and IG widening together would be additional evidence of broader credit stress. A narrower CCC–BB gap alone is insufficient: BB could be worsening faster.">較弱借款人本身的息差持續擴闊，可能反映再融資壓力；若HY及IG息差亦同步擴闊，才有更多證據支持壓力向廣泛信用市場擴散。差距收窄本身不足以確認改善，也可能是BB惡化得更快。</p>
+        <p class="rb-sub" data-en="Checks for new releases daily; updates only when new observations are published. Dates are retained when no new data is available; this does not count as stability or improvement. 100 basis points = 1 percentage point.">每日檢查新公布資料，有新觀察值才更新；無新資料時保留原日期，不視為持平或改善。100基點＝1個百分點。</p>
       </div>
       <div class="rb-card" id="card-curve">
         <h2 class="rb-h2" data-en="10-year minus 2-year curve">10年減2年期收益率曲線</h2>
@@ -2830,7 +2833,13 @@
     else lineChart(el, { series: [{ name, color: colors()[0], values }], height: 200, ref: 0, yFmt: (v) => signed(v, 0), tipFmt: (v) => signed(v, 0) + L(' 基點', 'bp') });
     if (status(['rates_now']) !== 'ok') { line.replaceChildren(); return; }
     const rt = dash.data('rates_now').data[0];
-    const ch = (w) => (rt['ccc_oas_' + w] == null || rt['bb_oas_' + w] == null ? null : rt['ccc_oas_' + w] - rt['bb_oas_' + w]);
+    const aligned = rt.ccc_oas_date && rt.ccc_oas_date === rt.bb_oas_date;
+    const baseDate = (w) => w === '1d' ? rt.ccc_oas_prev_date : rt['ccc_oas_base_' + w];
+    const ch = (w) => {
+      const c = rt['ccc_oas_' + w], b = rt['bb_oas_' + w];
+      const bbBase = w === '1d' ? rt.bb_oas_prev_date : rt['bb_oas_base_' + w];
+      return aligned && baseDate(w) && baseDate(w) === bbBase && Number.isFinite(c) && Number.isFinite(b) ? c - b : null;
+    };
     const bits = [];
     if (rt.ccc_oas_date && rt.ccc_oas_date === rt.bb_oas_date && rt.ccc_oas != null && rt.bb_oas != null) bits.push(L(`最新 ${(rt.ccc_oas - rt.bb_oas).toFixed(2)}%`, `latest ${(rt.ccc_oas - rt.bb_oas).toFixed(2)}%`));
     const sourceDates = [rt.ccc_oas_date, rt.bb_oas_date];
@@ -2844,10 +2853,26 @@
       }
       bits.push(L(`觀察日期 ${asof}`, `Observed ${asof}`));
     } else bits.push(L('CCC／BB日期未能對齊；最新差距未確認', 'CCC/BB dates not aligned; latest gap unconfirmed'));
-    for (const [w, zh, en] of [['1w', '一週', '1 wk'], ['1m', '一個月', '1 mo'], ['1y', '一年', '1 yr']]) {
-      const v = ch(w); if (v != null) bits.push(L(`${zh} ${signed(v, 0)} 基點`, `${en} ${signed(v, 0)}bp`));
+    for (const [w, zh, en] of [['1w', '近一週', 'Past week'], ['1m', '近一個月', 'Past month'], ['1y', '近一年', 'Past year']]) {
+      const v = ch(w);
+      bits.push(v == null ? L(`${zh}：比較未確認`, `${en}: comparison unconfirmed`)
+        : L(`${zh} ${signed(v, 0)} 基點（${baseDate(w)} → ${rt.ccc_oas_date}）`, `${en} ${signed(v, 0)}bp (${baseDate(w)} → ${rt.ccc_oas_date})`));
     }
     line.replaceChildren(mk('b', null, L('差距：', 'Gap: ')), bits.join(L('；', '; ')));
+    const reading = document.getElementById('cccbb-reading'), daily = ch('1d'), weekly = ch('1w'), monthly = ch('1m');
+    if (daily == null) {
+      reading.textContent = L('每日判讀：缺少日期一致的前後報價，最新變化未確認。', 'Daily reading: matching dated observations are missing; the latest change is unconfirmed.');
+    } else {
+      const direction = (v) => v > 0 ? L(`擴闊${Math.abs(v).toFixed(0)}基點`, `widened ${Math.abs(v).toFixed(0)}bp`)
+        : v < 0 ? L(`收窄${Math.abs(v).toFixed(0)}基點`, `narrowed ${Math.abs(v).toFixed(0)}bp`) : L('不變', 'unchanged');
+      const context = daily < 0 && (weekly > 0 || monthly > 0)
+        ? L('最新一天收窄，但較近期比較期仍擴闊，尚未確認持續修復。', 'The latest observation narrowed, but the gap remains wider over a recent comparison period; sustained repair is unconfirmed.')
+        : daily > 0 && weekly > 0 ? L('最新一天及近一週分化擴大。', 'The gap widened both on the latest observation and over the past week.')
+        : L('同時觀察兩類息差及近期方向，單次變動不代表趨勢確認。', 'Read both spreads and recent direction together; one move does not confirm a trend.');
+      reading.textContent = L(`每日判讀（${baseDate('1d')} → ${rt.ccc_oas_date}）：差距${direction(daily)}；同期CCC及以下${direction(rt.ccc_oas_1d)}，BB${direction(rt.bb_oas_1d)}。${context}`,
+        `Daily reading (${baseDate('1d')} → ${rt.ccc_oas_date}): gap ${direction(daily)}; CCC-and-below ${direction(rt.ccc_oas_1d)}, BB ${direction(rt.bb_oas_1d)}. ${context}`);
+    }
+
   }
 
   // Latest value plus one-week and one-month change under a chart title; each number is marked to rates_now.
