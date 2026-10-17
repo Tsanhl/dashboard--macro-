@@ -5,6 +5,7 @@ borrower evidence. Private output reads independently dated summaries, optional
 holdings and borrower records from the parent workspace. Neither output writes
 an AI summary. A separately reviewed summary.md supplies the public narrative.
 """
+import hashlib
 import json
 import re
 import shutil
@@ -297,7 +298,8 @@ def main(private=False):
     (SITE / "index.html").write_text(page)
     if (ROOT / 'refresh.js').exists():
         shutil.copy2(ROOT / 'refresh.js', SITE / 'refresh.js')
-        page = page.replace('</body>', '<script src="refresh.js"></script>\n</body>')
+        script_version = hashlib.sha256((ROOT / 'refresh.js').read_bytes()).hexdigest()[:12]
+        page = page.replace('</body>', f'<script src="refresh.js?v={script_version}"></script>\n</body>')
         (SITE / 'index.html').write_text(page)
     (SITE / ".nojekyll").write_text("")
     print(f"{SITE.name}/ built:", len(data), "data files" + (f", summary {summary[0]['session']}" if summary else "")
